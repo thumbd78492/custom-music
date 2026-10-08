@@ -60,6 +60,88 @@ afterEach(() => {
 });
 
 describe("Host async lifecycle ownership", () => {
+  it("cancels unresolved imports and keeps the retry loading when the old import finishes", async () => {
+    const source = descriptor("generic");
+    const module = await source.load();
+    const obsolete = deferred<typeof module>();
+    const current = deferred<typeof module>();
+    const load = vi
+      .fn()
+      .mockReturnValueOnce(obsolete.promise)
+      .mockReturnValueOnce(current.promise);
+    const { host, audio } = setup([{ ...source, load }]);
+    const oldAdd = host.add("generic");
+    host.remove("generic");
+    expect(host.getSnapshot().tracks[0]).toMatchObject({
+      loading: false,
+      active: false,
+    });
+    const retry = host.add("generic");
+    obsolete.resolve(module);
+    await oldAdd;
+    expect(host.getSnapshot().tracks[0]).toMatchObject({
+      loading: true,
+      active: false,
+    });
+    expect(audio.createTrack).not.toHaveBeenCalled();
+    current.resolve(module);
+    await retry;
+    expect(host.getSnapshot().tracks[0]).toMatchObject({
+      loading: false,
+      active: true,
+    });
+    expect(audio.createTrack).toHaveBeenCalledTimes(1);
+  });
+
+  it("Stop immediately clears a pending load and late rejection cannot overwrite a successful retry", async () => {
+    const obsolete = deferred<InstrumentVoice>();
+    const source = descriptor(
+      "generic",
+      vi
+        .fn<InstrumentPlugin["createVoice"]>(async () => fakeVoice())
+        .mockReturnValueOnce(obsolete.promise),
+    );
+    const { host, audio } = setup([source]);
+    const oldAdd = host.add("generic");
+    await Promise.resolve();
+    expect(audio.tracks.has("generic")).toBe(true);
+    host.stop();
+    expect(host.getSnapshot().tracks[0]?.loading).toBe(false);
+    await host.add("generic");
+    const currentVoice = audio.voices.get("generic");
+    obsolete.reject(new Error("aborted old request"));
+    await oldAdd;
+    expect(audio.voices.get("generic")).toBe(currentVoice);
+    expect(host.getSnapshot().tracks[0]).toMatchObject({
+      active: true,
+      loading: false,
+      error: undefined,
+    });
+  });
+
+  it("Remove cancels pending samples and disposes a late voice without touching the retried track", async () => {
+    const obsolete = deferred<InstrumentVoice>();
+    const source = descriptor(
+      "generic",
+      vi
+        .fn<InstrumentPlugin["createVoice"]>(async () => fakeVoice())
+        .mockReturnValueOnce(obsolete.promise),
+    );
+    const { host, audio } = setup([source]);
+    const oldAdd = host.add("generic");
+    await Promise.resolve();
+    host.remove("generic");
+    expect(audio.tracks.size).toBe(0);
+    await host.add("generic");
+    const currentVoice = audio.voices.get("generic");
+    const oldVoice = fakeVoice();
+    obsolete.resolve(oldVoice);
+    await oldAdd;
+    expect(oldVoice.dispose).toHaveBeenCalledTimes(1);
+    expect(audio.voices.get("generic")).toBe(currentVoice);
+    expect(currentVoice?.dispose).not.toHaveBeenCalled();
+  });
+
   it("a stop while awaiting an already-ready voice cannot restart hidden audio", async () => {
     const { host, audio } = setup([descriptor("generic")]);
     await host.add("generic");

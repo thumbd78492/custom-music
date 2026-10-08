@@ -1,3 +1,43 @@
 import type { SampleBank } from "../../../contracts/instrument";
-/** M1 replaces null with a licensed, plugin-local URL mapping. */
-export const sampleBank: SampleBank | null = null;
+
+// VCSL Kawai, two recorded velocity layers. Source naming C3 means MIDI 60.
+export const sampleBank: SampleBank = {
+  kind: "pitched",
+  urls: {
+    "c4-soft": new URL("./c4-soft.wav", import.meta.url).href,
+    "c4-loud": new URL("./c4-loud.wav", import.meta.url).href,
+    "d4-soft": new URL("./d4-soft.wav", import.meta.url).href,
+    "d4-loud": new URL("./d4-loud.wav", import.meta.url).href,
+    "e4-soft": new URL("./e4-soft.wav", import.meta.url).href,
+    "e4-loud": new URL("./e4-loud.wav", import.meta.url).href,
+    "fs4-soft": new URL("./fs4-soft.wav", import.meta.url).href,
+    "fs4-loud": new URL("./fs4-loud.wav", import.meta.url).href,
+    "gs4-soft": new URL("./gs4-soft.wav", import.meta.url).href,
+    "gs4-loud": new URL("./gs4-loud.wav", import.meta.url).href,
+    "as4-soft": new URL("./as4-soft.wav", import.meta.url).href,
+    "as4-loud": new URL("./as4-loud.wav", import.meta.url).href,
+    "c5-soft": new URL("./c5-soft.wav", import.meta.url).href,
+    "c5-loud": new URL("./c5-loud.wav", import.meta.url).href,
+  },
+  regions: {
+    "c4-soft": { midi: 60, tuneCents: 4, maxVelocity: 0.6 },
+    "c4-loud": { midi: 60, tuneCents: 0, minVelocity: 0.6 },
+    "d4-soft": { midi: 62, tuneCents: 7, maxVelocity: 0.6 },
+    "d4-loud": { midi: 62, tuneCents: 0, minVelocity: 0.6 },
+    "e4-soft": { midi: 64, tuneCents: -1, maxVelocity: 0.6 },
+    "e4-loud": { midi: 64, tuneCents: -3, minVelocity: 0.6 },
+    "fs4-soft": { midi: 66, tuneCents: 4, maxVelocity: 0.6 },
+    "fs4-loud": { midi: 66, tuneCents: 1, minVelocity: 0.6 },
+    "gs4-soft": { midi: 68, tuneCents: 3, maxVelocity: 0.6 },
+    "gs4-loud": { midi: 68, tuneCents: -2, minVelocity: 0.6 },
+    "as4-soft": { midi: 70, tuneCents: 18, maxVelocity: 0.6 },
+    "as4-loud": { midi: 70, tuneCents: -8, minVelocity: 0.6 },
+    "c5-soft": { midi: 72, tuneCents: 4, maxVelocity: 0.6 },
+    "c5-loud": { midi: 72, tuneCents: 1, minVelocity: 0.6 },
+  },
+  attackSeconds: 0.003,
+  releaseSeconds: 0.7,
+  gainDb: -8,
+  maxVoices: 32,
+  licenseRecord: "docs/SAMPLE_LICENSES.md#piano",
+};

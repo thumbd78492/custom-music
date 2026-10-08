@@ -2,11 +2,11 @@ import type { InstrumentManifest } from "../../contracts/instrument";
 export const manifest = {
   id: "drums",
   displayName: "Drums",
-  version: "0.0.1",
+  version: "0.1.0",
   capabilities: ["rhythm", "percussion"],
   controls: [],
   sound: {
-    kind: "synth-placeholder",
-    label: "合成鼓組 placeholder · 非真實取樣",
+    kind: "samples",
+    label: "Virtuosity 真實鼓組 · Kick / Snare / Hi-hat · CC0",
   },
 } as const satisfies InstrumentManifest;

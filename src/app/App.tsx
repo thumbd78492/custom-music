@@ -13,7 +13,7 @@ export function App({
   return (
     <main>
       <header>
-        <p className="eyebrow">GENERATIVE ENSEMBLE / M0</p>
+        <p className="eyebrow">GENERATIVE ENSEMBLE / M1</p>
         <h1>{lab ? "InstrumentLab" : "即興樂團"}</h1>
         <p>獨立樂器，共同節拍。每個聲部從 Seed 生成演奏事件。</p>
       </header>
@@ -42,7 +42,7 @@ export function App({
           </button>
           <button
             onClick={() => host.stop()}
-            disabled={!state.running && !state.starting}
+            disabled={!state.running && !busy}
           >
             Stop
           </button>
@@ -53,8 +53,7 @@ export function App({
       </section>
       {state.error && <p role="alert">{state.error}</p>}
       <p className="notice">
-        本版所有音色均為 synth placeholder（合成音暫代），尚未導入真實樂器
-        samples。播放中操作會在預先準備區段之後的小節生效。
+        音色種類標示於各樂器卡片；加入時才載入該件素材。播放中操作會在預先準備區段之後的小節生效。
       </p>
       <section className="grid" aria-label="樂器">
         {state.tracks.map((track) => {
@@ -80,6 +79,11 @@ export function App({
               </p>
               {track.error && <p role="alert">載入／生成失敗：{track.error}</p>}
               <div className="buttons">
+                {track.loading && (
+                  <button onClick={() => host.remove(track.manifest.id)}>
+                    取消載入
+                  </button>
+                )}
                 <button
                   disabled={track.loading || pending || state.starting}
                   onClick={() =>
@@ -118,11 +122,7 @@ export function App({
       </section>
       {state.tracks.length === 0 && <p>未發現 Plugin；共同時鐘仍可啟動。</p>}
       <footer>
-        {lab ? (
-          <a href="/">返回合奏</a>
-        ) : (
-          "M0 · Plugin-first · Offline synthesis"
-        )}
+        {lab ? <a href="/">返回合奏</a> : "M1 · Plugin-first · 本地音色資產"}
         <span>Stop 後重新 Start 會從相同 Seed 的第一小節開始。</span>
       </footer>
     </main>

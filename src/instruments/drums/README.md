@@ -1,7 +1,13 @@
-# Drums plugin — M0
+# Drums Plugin — M1
 
-Independent percussion plugin. `generator.ts` emits kick on beats 1/3, snare on beats 2/4, and eighth-note hi-hats. A plugin-specific seeded PRNG varies velocities. Composition has no browser/audio dependency; all kit names and synthesis settings belong to `voice.ts`, which uses injected generic audio services.
+Virtuosity Drums 真實錄音。`generator.ts` 保留 M0 的 Kick／Snare／Hi-hat
+節奏與 Seed 事件；`voice.ts` 擁有力度層選擇及交替 Hi-hat 錄音邏輯，
+不依賴其他樂器。每次起音使用獨立 source／gain，重擊不改變前次尾音的力度。
 
-**Sound: membrane/noise synth placeholders, not recorded drums.** Sample replacement is reserved for M1; the local adapter is `samples/index.ts`.
+Kick 兩層、Snare 三層、閉合 Hi-hat 兩層各兩次錄音。鼓擊播放自然尾音；
+Stop／Remove 以包絡與 mixer 淡出，立即取消未來起音。Hi-hat 的交替計數僅
+存在此 voice，Start 重建時重置，不改動 MusicEvent 或 Seed 生成器。
 
-Run only these unit tests with `npx vitest run src/instruments/drums/__tests__`. Open `/?instrument=drums` for InstrumentLab. No fills, multi-bar variation system, or LLM implementation is included.
+`npm run test:isolation -- drums`；工作台 `/?instrument=drums`。
+新增鼓件、mapping 或演奏規則只修改本目錄，不需要 Host 的樂器特殊分支。
+授權與逐檔對應見 `docs/SAMPLE_LICENSES.md#drums`、`docs/sample-provenance.json`。

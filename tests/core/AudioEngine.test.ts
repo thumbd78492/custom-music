@@ -1,4 +1,4 @@
-import { beforeEach, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { AudioEngine } from "../../src/audio/AudioEngine";
 import type { PreparedBar } from "../../src/audio/AudioEngine";
 import { MusicDirector } from "../../src/core/MusicDirector";
@@ -10,7 +10,6 @@ const mock = vi.hoisted(() => {
     callback: (time: number) => void;
     ticks: string;
   }[] = [];
-  const draws: (() => void)[] = [];
   const transport = {
     PPQ: 192,
     bpm: { value: 120 },
@@ -30,22 +29,19 @@ const mock = vi.hoisted(() => {
     setAudible: vi.fn(),
     silence: vi.fn(),
     removeTrack: vi.fn(),
+    retireTrack: vi.fn(() => vi.fn()),
     dispose: vi.fn(),
   };
-  return { scheduled, draws, transport, mixer };
+  return { scheduled, transport, mixer, now: 10 };
 });
 vi.mock("tone", () => ({
   getTransport: () => mock.transport,
-  getDraw: () => ({
-    schedule: (callback: () => void) => {
-      mock.draws.push(callback);
-    },
-  }),
   start: async () => {},
-  now: () => 10,
-  immediate: () => 10,
+  now: () => mock.now,
+  immediate: () => mock.now,
 }));
 vi.mock("../../src/audio/MasterMixer", () => ({
+  TRACK_FADE_SECONDS: 0.03,
   MasterMixer: class {
     constructor() {
       return mock.mixer;
@@ -55,15 +51,21 @@ vi.mock("../../src/audio/MasterMixer", () => ({
 vi.mock("../../src/audio/AudioServices", () => ({
   TrackAudioServices: class {
     dispose = vi.fn();
+    cancelPending = vi.fn();
   },
 }));
 
 beforeEach(() => {
+  vi.useFakeTimers();
   vi.clearAllMocks();
   mock.scheduled.length = 0;
-  mock.draws.length = 0;
+  mock.now = 10;
   mock.transport.bpm.value = 120;
   mock.transport.seconds = 0;
+});
+afterEach(() => {
+  vi.clearAllTimers();
+  vi.useRealTimers();
 });
 
 const note = {
@@ -127,7 +129,8 @@ it("schedules in PPQ ticks before starting at 88 BPM, then dispatches MusicEvent
     60 / 88 / 4,
   );
   expect(onBoundary).not.toHaveBeenCalled();
-  mock.draws.forEach((callback) => callback());
+  mock.now = 20;
+  vi.advanceTimersByTime(10_000);
   expect(onBoundary).toHaveBeenCalledTimes(2);
   engine.dispose();
 });
@@ -177,12 +180,75 @@ it("rejects duplicate/out-of-order bars and cancels stale callbacks across stop/
   mock.scheduled[0]!.callback(10);
   engine.stop();
   mock.scheduled.forEach((entry) => entry.callback(11));
-  mock.draws.forEach((callback) => callback());
+  vi.advanceTimersByTime(1);
   expect(voice.play).not.toHaveBeenCalled();
   expect(boundary).not.toHaveBeenCalled();
   expect(voice.releaseAll).toHaveBeenCalledWith(10);
   expect(mock.transport.clear).toHaveBeenCalled();
   expect(() => engine.scheduleBar(bar, boundary)).not.toThrow();
   engine.dispose();
+  vi.advanceTimersByTime(50);
   expect(voice.dispose).toHaveBeenCalledTimes(1);
+});
+
+it("drops late notes after throttling but reconciles the mix and boundary offscreen", () => {
+  const engine = new AudioEngine();
+  const voice = fakeVoice();
+  const boundary = vi.fn();
+  engine.createTrack("test");
+  engine.setVoice("test", voice);
+  engine.scheduleBar(prepared(0, [track("test")]), boundary);
+  engine.start(88);
+  mock.now = 15;
+  fireThrough(192);
+  vi.advanceTimersByTime(1);
+  expect(voice.play).not.toHaveBeenCalled();
+  expect(mock.mixer.setAudible).toHaveBeenCalledWith("test", true, 15);
+  expect(boundary).toHaveBeenCalledTimes(1);
+  engine.dispose();
+});
+
+it("waits for the audio deadline before lifecycle callbacks, even if wall timers advance", () => {
+  const engine = new AudioEngine();
+  const boundary = vi.fn();
+  engine.scheduleBar(prepared(0, []), boundary);
+  engine.start(88);
+  mock.scheduled[0]!.callback(10.1);
+  vi.advanceTimersByTime(200);
+  expect(boundary).not.toHaveBeenCalled();
+  mock.now = 10.11;
+  vi.advanceTimersByTime(101);
+  expect(boundary).toHaveBeenCalledTimes(1);
+  engine.dispose();
+});
+
+it("retires the old track after fading without disposing or playing through its replacement", () => {
+  const engine = new AudioEngine();
+  const oldVoice = fakeVoice();
+  const newVoice = fakeVoice();
+  const oldServices = engine.createTrack("same");
+  engine.setVoice("same", oldVoice);
+  engine.scheduleBar(prepared(0, [track("same")]), () => {});
+  engine.start(88);
+  engine.removeTrack("same");
+  expect(oldVoice.releaseAll).toHaveBeenCalledWith(10);
+  expect(oldVoice.dispose).not.toHaveBeenCalled();
+  expect(oldServices).toMatchObject({ cancelPending: expect.any(Function) });
+  engine.createTrack("same");
+  engine.setVoice("same", newVoice);
+  fireThrough(192);
+  expect(oldVoice.play).not.toHaveBeenCalled();
+  expect(newVoice.play).not.toHaveBeenCalled();
+  vi.advanceTimersByTime(50);
+  expect(oldVoice.dispose).toHaveBeenCalledTimes(1);
+  expect(newVoice.dispose).not.toHaveBeenCalled();
+  expect(mock.mixer.retireTrack).toHaveBeenCalledTimes(1);
+  engine.scheduleBar(prepared(1, [track("same")]), () => {});
+  mock.scheduled.at(-1)!.callback(20);
+  expect(newVoice.play).toHaveBeenCalledTimes(1);
+  engine.dispose();
+  expect(mock.mixer.dispose).not.toHaveBeenCalled();
+  vi.advanceTimersByTime(50);
+  expect(newVoice.dispose).toHaveBeenCalledTimes(1);
+  expect(mock.mixer.dispose).toHaveBeenCalledTimes(1);
 });

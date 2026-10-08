@@ -38,6 +38,23 @@ export interface SampleBank {
   readonly urls: Readonly<Record<string, string>>;
   readonly releaseSeconds: number;
   readonly licenseRecord: string;
+  /** Keys correspond to urls; omitted MIDI values use the numeric URL key. */
+  readonly regions?: Readonly<Record<string, SampleRegion>>;
+  readonly attackSeconds?: number;
+  readonly gainDb?: number;
+  readonly maxVoices?: number;
+  readonly monophonic?: boolean;
+  readonly transitionSeconds?: number;
+}
+
+export interface SampleRegion {
+  readonly midi?: number;
+  readonly tuneCents?: number;
+  readonly minVelocity?: number;
+  readonly maxVelocity?: number;
+  /** Seconds in the source recording; both values must be supplied together. */
+  readonly loopStart?: number;
+  readonly loopEnd?: number;
 }
 
 export interface SynthVoiceOptions {

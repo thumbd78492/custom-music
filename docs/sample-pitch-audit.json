@@ -1,0 +1,1923 @@
+{
+  "schemaVersion": 1,
+  "auditDate": "2026-10-08",
+  "command": "python scripts/audit-sample-pitches.py",
+  "method": "Normalized autocorrelation over 4000 frames starting 0.5 seconds into each source and output. Search +/-3% around half/expected/double fundamental periods, with sub-frame parabolic interpolation of interior maxima. Ambiguous octave results retain the original result and add an independent 0.1-second-start window using identical thresholds. Apply only listed tuneCents mathematically to report effective pitch; no audio is altered.",
+  "limitations": "A short-window octave/root consistency check, not a precision tuner or perceptual quality result. Piano inharmonicity and violin vibrato can move the estimate. Human tuning, timbre, loop and ensemble listening remain pending.",
+  "pitchedAssetCount": 32,
+  "allOctaveChecksPassed": true,
+  "files": [
+    {
+      "instrument": "piano",
+      "file": "src/instruments/piano/samples/c4-soft.wav",
+      "sourceFile": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_C3_v1_rr1_Player.wav",
+      "expectedRootMidi": 60,
+      "source": {
+        "sha256": "eb52431464cc160cb7c3576d5087b6cc67326fd903b620088c0874f6bcff4a8e",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 261.10696119034367,
+        "listedTuneCents": 4,
+        "approximateFrequencyAfterListedTuneHz": 261.71094384969484,
+        "approximateMidiAfterListedTune": 60.00564876518195,
+        "centsFromExpectedAfterListedTune": 0.5648765181952342,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 84.48231804355292,
+            "correlation": 0.963033799583594
+          },
+          "expectedPeriod": {
+            "periodFrames": 168.89630134315593,
+            "correlation": 0.9873166353311316
+          },
+          "doublePeriod": {
+            "periodFrames": 337.7886634275483,
+            "correlation": 0.9771412271988495
+          }
+        },
+        "octaveCheckPassed": true,
+        "primaryWindowOctaveCheckPassed": false,
+        "secondaryWindow": {
+          "sha256": "eb52431464cc160cb7c3576d5087b6cc67326fd903b620088c0874f6bcff4a8e",
+          "sampleRate": 44100,
+          "windowStartSeconds": 0.1,
+          "comparisonFrames": 4000,
+          "approximateRawFundamentalHz": 260.88885423552205,
+          "listedTuneCents": 4,
+          "approximateFrequencyAfterListedTuneHz": 261.4923323781878,
+          "approximateMidiAfterListedTune": 59.99118143815208,
+          "centsFromExpectedAfterListedTune": -0.8818561847917294,
+          "periodPeaks": {
+            "halfPeriod": {
+              "periodFrames": 87,
+              "correlation": -0.7405258110839199
+            },
+            "expectedPeriod": {
+              "periodFrames": 169.03750115820563,
+              "correlation": 0.998324331328294
+            },
+            "doublePeriod": {
+              "periodFrames": 338.12288258587256,
+              "correlation": 0.997157148070474
+            }
+          },
+          "octaveCheckPassed": true
+        },
+        "secondaryWindowReason": "A piano beat minimum can leave a strong second harmonic in a single window. Preserve that ambiguous primary result and check an independent early-decay window at 0.1 seconds; no threshold is relaxed."
+      },
+      "output": {
+        "sha256": "b51944923120ff89e9651500bfd0995c4fb82e000b282682606a294279f5b329",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 261.10701748504863,
+        "listedTuneCents": 4,
+        "approximateFrequencyAfterListedTuneHz": 261.7110002746186,
+        "approximateMidiAfterListedTune": 60.00565249772509,
+        "centsFromExpectedAfterListedTune": 0.5652497725087358,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 84.48228236155516,
+            "correlation": 0.9630324174674224
+          },
+          "expectedPeriod": {
+            "periodFrames": 168.89626492909267,
+            "correlation": 0.9873164887924049
+          },
+          "doublePeriod": {
+            "periodFrames": 337.7886480121246,
+            "correlation": 0.9771405374129384
+          }
+        },
+        "octaveCheckPassed": true,
+        "primaryWindowOctaveCheckPassed": false,
+        "secondaryWindow": {
+          "sha256": "b51944923120ff89e9651500bfd0995c4fb82e000b282682606a294279f5b329",
+          "sampleRate": 44100,
+          "windowStartSeconds": 0.1,
+          "comparisonFrames": 4000,
+          "approximateRawFundamentalHz": 260.8888622877384,
+          "listedTuneCents": 4,
+          "approximateFrequencyAfterListedTuneHz": 261.4923404490303,
+          "approximateMidiAfterListedTune": 59.99118197248963,
+          "centsFromExpectedAfterListedTune": -0.8818027510372417,
+          "periodPeaks": {
+            "halfPeriod": {
+              "periodFrames": 87,
+              "correlation": -0.7405281473456906
+            },
+            "expectedPeriod": {
+              "periodFrames": 169.0374959409399,
+              "correlation": 0.9983243262505077
+            },
+            "doublePeriod": {
+              "periodFrames": 338.1228837741169,
+              "correlation": 0.9971572309009901
+            }
+          },
+          "octaveCheckPassed": true
+        },
+        "secondaryWindowReason": "A piano beat minimum can leave a strong second harmonic in a single window. Preserve that ambiguous primary result and check an independent early-decay window at 0.1 seconds; no threshold is relaxed."
+      }
+    },
+    {
+      "instrument": "piano",
+      "file": "src/instruments/piano/samples/c4-loud.wav",
+      "sourceFile": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_C3_v3_rr1_Player.wav",
+      "expectedRootMidi": 60,
+      "source": {
+        "sha256": "98496ea0d77ba1a753bc390b499267e9dc0b9015f9f928ab6f26bff39daef9a4",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 261.6631785251927,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 261.6631785251927,
+        "approximateMidiAfterListedTune": 60.002488771103636,
+        "centsFromExpectedAfterListedTune": 0.24887711036356563,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 84.70275784493354,
+            "correlation": 0.7266459496932306
+          },
+          "expectedPeriod": {
+            "periodFrames": 168.53727852944388,
+            "correlation": 0.9965387764837966
+          },
+          "doublePeriod": {
+            "periodFrames": 337.21259008014755,
+            "correlation": 0.9939297243098073
+          }
+        },
+        "octaveCheckPassed": true
+      },
+      "output": {
+        "sha256": "6dcc87c9485e1dce6ea36b682485a12e57e2a8c64766d0a750fb7e236ebce2d1",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 261.663190295229,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 261.663190295229,
+        "approximateMidiAfterListedTune": 60.00248954984092,
+        "centsFromExpectedAfterListedTune": 0.24895498409165384,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 84.70278503952146,
+            "correlation": 0.7266417197626808
+          },
+          "expectedPeriod": {
+            "periodFrames": 168.5372709483627,
+            "correlation": 0.9965385612765901
+          },
+          "doublePeriod": {
+            "periodFrames": 337.2125847006184,
+            "correlation": 0.9939295003033854
+          }
+        },
+        "octaveCheckPassed": true
+      }
+    },
+    {
+      "instrument": "piano",
+      "file": "src/instruments/piano/samples/d4-soft.wav",
+      "sourceFile": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_D3_v1_rr1_Player.wav",
+      "expectedRootMidi": 62,
+      "source": {
+        "sha256": "af2195a00925e777ce32ede7e5fba4f4ea617fa6e7bf9147ba0ab8726f44e195",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 292.3051995550531,
+        "listedTuneCents": 7,
+        "approximateFrequencyAfterListedTuneHz": 293.48948691959316,
+        "approximateMidiAfterListedTune": 61.98966362116649,
+        "centsFromExpectedAfterListedTune": -1.0336378833507354,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 75.32550736167883,
+            "correlation": 0.8109769783919962
+          },
+          "expectedPeriod": {
+            "periodFrames": 150.8697076450539,
+            "correlation": 0.9400227098731274
+          },
+          "doublePeriod": {
+            "periodFrames": 301.7456567312732,
+            "correlation": 0.8584417947432236
+          }
+        },
+        "octaveCheckPassed": true
+      },
+      "output": {
+        "sha256": "e108f74298dad029a6dc009a08fb3f69612728a4643ee591efb79ee9d522b047",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 292.3052322031632,
+        "listedTuneCents": 7,
+        "approximateFrequencyAfterListedTuneHz": 293.48951969997853,
+        "approximateMidiAfterListedTune": 61.98966555481382,
+        "centsFromExpectedAfterListedTune": -1.033444518618154,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 75.32563559071875,
+            "correlation": 0.8110355514330327
+          },
+          "expectedPeriod": {
+            "periodFrames": 150.8696907941382,
+            "correlation": 0.940034483707125
+          },
+          "doublePeriod": {
+            "periodFrames": 301.74563290120614,
+            "correlation": 0.8584606443174587
+          }
+        },
+        "octaveCheckPassed": true
+      }
+    },
+    {
+      "instrument": "piano",
+      "file": "src/instruments/piano/samples/d4-loud.wav",
+      "sourceFile": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_D3_v3_rr1_Player.wav",
+      "expectedRootMidi": 62,
+      "source": {
+        "sha256": "ae308ead0da0713400e388d87949091c79189a1318c9b99ef437e563f9bba1e5",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 293.0398237149891,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 293.0398237149891,
+        "approximateMidiAfterListedTune": 61.96311857426688,
+        "centsFromExpectedAfterListedTune": -3.688142573312092,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 75.1840404853396,
+            "correlation": 0.726173747308523
+          },
+          "expectedPeriod": {
+            "periodFrames": 150.49149102304852,
+            "correlation": 0.9965275971209973
+          },
+          "doublePeriod": {
+            "periodFrames": 301.0694206108006,
+            "correlation": 0.99308495383537
+          }
+        },
+        "octaveCheckPassed": true
+      },
+      "output": {
+        "sha256": "d1a4c131c0fda3ba9884c3f6900c45bed5e5d1ff725536ae365774393ed5126e",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 293.0398009351888,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 293.0398009351888,
+        "approximateMidiAfterListedTune": 61.96311722847138,
+        "centsFromExpectedAfterListedTune": -3.6882771528617297,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 75.18404390776985,
+            "correlation": 0.7261746030782554
+          },
+          "expectedPeriod": {
+            "periodFrames": 150.491502721685,
+            "correlation": 0.9965276030779808
+          },
+          "doublePeriod": {
+            "periodFrames": 301.06943950090624,
+            "correlation": 0.9930850374768486
+          }
+        },
+        "octaveCheckPassed": true
+      }
+    },
+    {
+      "instrument": "piano",
+      "file": "src/instruments/piano/samples/e4-soft.wav",
+      "sourceFile": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_E3_v1_rr1_Player.wav",
+      "expectedRootMidi": 64,
+      "source": {
+        "sha256": "3986177d766ad67acaeb8d0d53114c4380dea65bc1632938dc597006e5123771",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 328.42240322257584,
+        "listedTuneCents": -1,
+        "approximateFrequencyAfterListedTuneHz": 328.23275378173315,
+        "approximateMidiAfterListedTune": 63.92658823609103,
+        "centsFromExpectedAfterListedTune": -7.341176390897175,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 64,
+            "correlation": -0.8526390283934046
+          },
+          "expectedPeriod": {
+            "periodFrames": 134.27829395095466,
+            "correlation": 0.9784763565078031
+          },
+          "doublePeriod": {
+            "periodFrames": 268.48054071157657,
+            "correlation": 0.9532760639235832
+          }
+        },
+        "octaveCheckPassed": true
+      },
+      "output": {
+        "sha256": "9f0185606ee0a21aad1127abc5276d08790b7de5865f5179336878db0874e709",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 328.4225539918453,
+        "listedTuneCents": -1,
+        "approximateFrequencyAfterListedTuneHz": 328.23290446394003,
+        "approximateMidiAfterListedTune": 63.92659618368627,
+        "centsFromExpectedAfterListedTune": -7.34038163137285,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 64,
+            "correlation": -0.8526273878021795
+          },
+          "expectedPeriod": {
+            "periodFrames": 134.27823230768433,
+            "correlation": 0.9784757643695233
+          },
+          "doublePeriod": {
+            "periodFrames": 268.4805833345122,
+            "correlation": 0.9532727184294816
+          }
+        },
+        "octaveCheckPassed": true
+      }
+    },
+    {
+      "instrument": "piano",
+      "file": "src/instruments/piano/samples/e4-loud.wav",
+      "sourceFile": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_E3_v3_rr1_Player.wav",
+      "expectedRootMidi": 64,
+      "source": {
+        "sha256": "6001665682547238ecddd1b26c91f2f44363d381300e04b3a39dae14e6ffbda6",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 330.5087862310296,
+        "listedTuneCents": -3,
+        "approximateFrequencyAfterListedTuneHz": 329.9365540922738,
+        "approximateMidiAfterListedTune": 64.01622121241166,
+        "centsFromExpectedAfterListedTune": 1.6221212411664965,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 66.14745039592317,
+            "correlation": -0.6299364676191416
+          },
+          "expectedPeriod": {
+            "periodFrames": 133.43064341162045,
+            "correlation": 0.9922652887847568
+          },
+          "doublePeriod": {
+            "periodFrames": 266.9074396004346,
+            "correlation": 0.9814794730855683
+          }
+        },
+        "octaveCheckPassed": true
+      },
+      "output": {
+        "sha256": "5251eeb7e2d542c293cfdc4f771c3af0ee363eac0534c9fc17c40f3181b686ba",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 330.508764611787,
+        "listedTuneCents": -3,
+        "approximateFrequencyAfterListedTuneHz": 329.9365325104621,
+        "approximateMidiAfterListedTune": 64.01622007997672,
+        "centsFromExpectedAfterListedTune": 1.6220079976719148,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 66.14745862826295,
+            "correlation": -0.6299365019122464
+          },
+          "expectedPeriod": {
+            "periodFrames": 133.430652139587,
+            "correlation": 0.9922650142335123
+          },
+          "doublePeriod": {
+            "periodFrames": 266.90745415055676,
+            "correlation": 0.9814793583642237
+          }
+        },
+        "octaveCheckPassed": true
+      }
+    },
+    {
+      "instrument": "piano",
+      "file": "src/instruments/piano/samples/fs4-soft.wav",
+      "sourceFile": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_F#3_v1_rr1_Player.wav",
+      "expectedRootMidi": 66,
+      "source": {
+        "sha256": "087e5826a7868cc3c923e6628869cc516ad690a4cbe69a8b4019be91f14b3a9b",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 368.24141556458596,
+        "listedTuneCents": 4,
+        "approximateFrequencyAfterListedTuneHz": 369.09321755577764,
+        "approximateMidiAfterListedTune": 65.95778043795487,
+        "centsFromExpectedAfterListedTune": -4.221956204513333,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 57,
+            "correlation": -0.7414502336454187
+          },
+          "expectedPeriod": {
+            "periodFrames": 119.75839255447704,
+            "correlation": 0.993115267956171
+          },
+          "doublePeriod": {
+            "periodFrames": 239.43665772256475,
+            "correlation": 0.9873556370006727
+          }
+        },
+        "octaveCheckPassed": true
+      },
+      "output": {
+        "sha256": "0d2125c1960664086f573d5649bbcd5a4ca207090e10a8bd342df14496e55006",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 368.24131412363045,
+        "listedTuneCents": 4,
+        "approximateFrequencyAfterListedTuneHz": 369.0931158801728,
+        "approximateMidiAfterListedTune": 65.95777566885359,
+        "centsFromExpectedAfterListedTune": -4.222433114641433,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 57,
+            "correlation": -0.7414558207595153
+          },
+          "expectedPeriod": {
+            "periodFrames": 119.758425544816,
+            "correlation": 0.9931148091365652
+          },
+          "doublePeriod": {
+            "periodFrames": 239.43665868882525,
+            "correlation": 0.9873553566791549
+          }
+        },
+        "octaveCheckPassed": true
+      }
+    },
+    {
+      "instrument": "piano",
+      "file": "src/instruments/piano/samples/fs4-loud.wav",
+      "sourceFile": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_F#3_v3_rr1_Player.wav",
+      "expectedRootMidi": 66,
+      "source": {
+        "sha256": "bd82fc521e035f1f50410968a6f753bf91fe2c629ea061ec9db4a0ce45430de5",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 368.7310416353548,
+        "listedTuneCents": 1,
+        "approximateFrequencyAfterListedTuneHz": 368.94409056195275,
+        "approximateMidiAfterListedTune": 65.9507842135088,
+        "centsFromExpectedAfterListedTune": -4.921578649120306,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 59.99986535652675,
+            "correlation": -0.2606062760459133
+          },
+          "expectedPeriod": {
+            "periodFrames": 119.5993692432636,
+            "correlation": 0.9991979246202854
+          },
+          "doublePeriod": {
+            "periodFrames": 239.20694206550215,
+            "correlation": 0.9990756380624565
+          }
+        },
+        "octaveCheckPassed": true
+      },
+      "output": {
+        "sha256": "13e137e82faa91db3a14540f1457d4a6bc5fe94f59bfdfc1895e67095a65bb67",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 368.73105093897243,
+        "listedTuneCents": 1,
+        "approximateFrequencyAfterListedTuneHz": 368.94409987094593,
+        "approximateMidiAfterListedTune": 65.95078465032418,
+        "centsFromExpectedAfterListedTune": -4.92153496758192,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 59.999868190676246,
+            "correlation": -0.26060921160271494
+          },
+          "expectedPeriod": {
+            "periodFrames": 119.59936622559856,
+            "correlation": 0.9991979108136965
+          },
+          "doublePeriod": {
+            "periodFrames": 239.20693379163956,
+            "correlation": 0.9990756292496433
+          }
+        },
+        "octaveCheckPassed": true
+      }
+    },
+    {
+      "instrument": "piano",
+      "file": "src/instruments/piano/samples/gs4-soft.wav",
+      "sourceFile": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_G#3_v1_rr1_Player.wav",
+      "expectedRootMidi": 68,
+      "source": {
+        "sha256": "a812c31c7f474ee603a7a3eb83e6e285ee87878344ce9a372bd00730281852c5",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 414.0794293212311,
+        "listedTuneCents": 3,
+        "approximateFrequencyAfterListedTuneHz": 414.7975963582457,
+        "approximateMidiAfterListedTune": 67.97884812469623,
+        "centsFromExpectedAfterListedTune": -2.115187530377227,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 51,
+            "correlation": -0.3949748267971722
+          },
+          "expectedPeriod": {
+            "periodFrames": 106.50130597477343,
+            "correlation": 0.97991010738321
+          },
+          "doublePeriod": {
+            "periodFrames": 212.95940984419013,
+            "correlation": 0.94461808219235
+          }
+        },
+        "octaveCheckPassed": true
+      },
+      "output": {
+        "sha256": "10a9a00b3574e8e33137a9279a9efd80a489d1e918dd3d14b05b0fdf26e9aaae",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 414.08009397529656,
+        "listedTuneCents": 3,
+        "approximateFrequencyAfterListedTuneHz": 414.7982621650674,
+        "approximateMidiAfterListedTune": 67.97887591334604,
+        "centsFromExpectedAfterListedTune": -2.1124086653955487,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 51,
+            "correlation": -0.3950007740947932
+          },
+          "expectedPeriod": {
+            "periodFrames": 106.50113502589899,
+            "correlation": 0.9799087678257848
+          },
+          "doublePeriod": {
+            "periodFrames": 212.95946527886733,
+            "correlation": 0.9446198208100521
+          }
+        },
+        "octaveCheckPassed": true
+      }
+    },
+    {
+      "instrument": "piano",
+      "file": "src/instruments/piano/samples/gs4-loud.wav",
+      "sourceFile": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_G#3_v3_rr1_Player.wav",
+      "expectedRootMidi": 68,
+      "source": {
+        "sha256": "e28aebba2f2995ea1d5443a8f7eeaac8f81a342317d54c4c6781ae482b355f20",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 418.70910665387356,
+        "listedTuneCents": -2,
+        "approximateFrequencyAfterListedTuneHz": 418.2256742212422,
+        "approximateMidiAfterListedTune": 68.12133726830932,
+        "centsFromExpectedAfterListedTune": 12.133726830931835,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 52.773531711468344,
+            "correlation": 0.18411873714083432
+          },
+          "expectedPeriod": {
+            "periodFrames": 105.32371830272926,
+            "correlation": 0.9870210549281146
+          },
+          "doublePeriod": {
+            "periodFrames": 210.73311388893774,
+            "correlation": 0.963353055453662
+          }
+        },
+        "octaveCheckPassed": true
+      },
+      "output": {
+        "sha256": "ab062d5653e58319d7df32dfce97457d1f31eb1f48074159c3d62bf6054e4e59",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 418.7091484073328,
+        "listedTuneCents": -2,
+        "approximateFrequencyAfterListedTuneHz": 418.22571592649376,
+        "approximateMidiAfterListedTune": 68.12133899468702,
+        "centsFromExpectedAfterListedTune": 12.133899468702225,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 52.773555909559505,
+            "correlation": 0.18413101539939689
+          },
+          "expectedPeriod": {
+            "periodFrames": 105.32370779990266,
+            "correlation": 0.9870213475568632
+          },
+          "doublePeriod": {
+            "periodFrames": 210.7330992860765,
+            "correlation": 0.9633522317638162
+          }
+        },
+        "octaveCheckPassed": true
+      }
+    },
+    {
+      "instrument": "piano",
+      "file": "src/instruments/piano/samples/as4-soft.wav",
+      "sourceFile": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_A#3_v1_rr1_Player.wav",
+      "expectedRootMidi": 70,
+      "source": {
+        "sha256": "d6b6618419031245603e88c3245f1f8a4442e39981b103a8fbe5eb5fd5cdd2c3",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 464.8334808518448,
+        "listedTuneCents": 18,
+        "approximateFrequencyAfterListedTuneHz": 469.69166310222397,
+        "approximateMidiAfterListedTune": 70.13052555159639,
+        "centsFromExpectedAfterListedTune": 13.052555159639212,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 45,
+            "correlation": -0.5304068555707139
+          },
+          "expectedPeriod": {
+            "periodFrames": 94.87268412590073,
+            "correlation": 0.951756444184886
+          },
+          "doublePeriod": {
+            "periodFrames": 189.7773357070205,
+            "correlation": 0.9131351102156336
+          }
+        },
+        "octaveCheckPassed": true
+      },
+      "output": {
+        "sha256": "4d1760f54bc9ca625bda399a17a607e38e69adcf7778ee764c998cb8d56ae3a3",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 464.8338969341793,
+        "listedTuneCents": 18,
+        "approximateFrequencyAfterListedTuneHz": 469.69208353322074,
+        "approximateMidiAfterListedTune": 70.13054104823362,
+        "centsFromExpectedAfterListedTune": 13.054104823362422,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 45,
+            "correlation": -0.5303933517354997
+          },
+          "expectedPeriod": {
+            "periodFrames": 94.8725992034195,
+            "correlation": 0.9517566240097314
+          },
+          "doublePeriod": {
+            "periodFrames": 189.7770588200667,
+            "correlation": 0.9131377588921502
+          }
+        },
+        "octaveCheckPassed": true
+      }
+    },
+    {
+      "instrument": "piano",
+      "file": "src/instruments/piano/samples/as4-loud.wav",
+      "sourceFile": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_A#3_v3_rr1_Player.wav",
+      "expectedRootMidi": 70,
+      "source": {
+        "sha256": "2148d254dc414ff1ca7f31519aa1caf9205c8fcdf32e962953ac8bd99f89c6ab",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 468.11899517811503,
+        "listedTuneCents": -8,
+        "approximateFrequencyAfterListedTuneHz": 465.96081639246995,
+        "approximateMidiAfterListedTune": 69.99246140429202,
+        "centsFromExpectedAfterListedTune": -0.7538595707984541,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 45,
+            "correlation": -0.6548539868616654
+          },
+          "expectedPeriod": {
+            "periodFrames": 94.20681590419194,
+            "correlation": 0.9946332996186233
+          },
+          "doublePeriod": {
+            "periodFrames": 188.497198975717,
+            "correlation": 0.9804379403352621
+          }
+        },
+        "octaveCheckPassed": true
+      },
+      "output": {
+        "sha256": "2d3e0aa4efb8b40dcc3ddc13cd1f5ff5da57c2846ef924913112696f59b12d26",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 468.1189763902002,
+        "listedTuneCents": -8,
+        "approximateFrequencyAfterListedTuneHz": 465.96079769117347,
+        "approximateMidiAfterListedTune": 69.99246070946273,
+        "centsFromExpectedAfterListedTune": -0.7539290537266652,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 45,
+            "correlation": -0.6548445535699647
+          },
+          "expectedPeriod": {
+            "periodFrames": 94.2068196851744,
+            "correlation": 0.9946328368566373
+          },
+          "doublePeriod": {
+            "periodFrames": 188.49722036723017,
+            "correlation": 0.9804370009890205
+          }
+        },
+        "octaveCheckPassed": true
+      }
+    },
+    {
+      "instrument": "piano",
+      "file": "src/instruments/piano/samples/c5-soft.wav",
+      "sourceFile": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_C4_v1_rr1_Player.wav",
+      "expectedRootMidi": 72,
+      "source": {
+        "sha256": "f921d4737ee847ecb55ce251a94e1841069b70e206b00342676954992ea7d0dc",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 522.0831673423305,
+        "listedTuneCents": 4,
+        "approximateFrequencyAfterListedTuneHz": 523.2908302034675,
+        "approximateMidiAfterListedTune": 72.00131345528018,
+        "centsFromExpectedAfterListedTune": 0.13134552801830068,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 40,
+            "correlation": -0.964962051705782
+          },
+          "expectedPeriod": {
+            "periodFrames": 84.46930059915833,
+            "correlation": 0.9973857049378878
+          },
+          "doublePeriod": {
+            "periodFrames": 168.93194766797302,
+            "correlation": 0.9965169072032494
+          }
+        },
+        "octaveCheckPassed": true
+      },
+      "output": {
+        "sha256": "ce4a6fd134a99551d832ffd492d3e69091a93e23c607ea2d56857724f86ffa91",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 522.083133381329,
+        "listedTuneCents": 4,
+        "approximateFrequencyAfterListedTuneHz": 523.2907961639088,
+        "approximateMidiAfterListedTune": 72.00131232912926,
+        "centsFromExpectedAfterListedTune": 0.13123291292629347,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 40,
+            "correlation": -0.9649610202787512
+          },
+          "expectedPeriod": {
+            "periodFrames": 84.4693060938044,
+            "correlation": 0.9973855565093264
+          },
+          "doublePeriod": {
+            "periodFrames": 168.93194721164926,
+            "correlation": 0.9965169043477857
+          }
+        },
+        "octaveCheckPassed": true
+      }
+    },
+    {
+      "instrument": "piano",
+      "file": "src/instruments/piano/samples/c5-loud.wav",
+      "sourceFile": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_C4_v3_rr1_Player.wav",
+      "expectedRootMidi": 72,
+      "source": {
+        "sha256": "eb5faca3331cd32f15f6a2302dba69b073a2ca600fed606bf456e60260d06e5b",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 522.5522643577605,
+        "listedTuneCents": 1,
+        "approximateFrequencyAfterListedTuneHz": 522.8541895727328,
+        "approximateMidiAfterListedTune": 71.98686178449383,
+        "centsFromExpectedAfterListedTune": -1.3138215506174333,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 40,
+            "correlation": -0.8661083176656105
+          },
+          "expectedPeriod": {
+            "periodFrames": 84.39347220933168,
+            "correlation": 0.9991833173835682
+          },
+          "doublePeriod": {
+            "periodFrames": 168.7983486170142,
+            "correlation": 0.9990083800226357
+          }
+        },
+        "octaveCheckPassed": true
+      },
+      "output": {
+        "sha256": "bb384dd6069efc69649893791bc3f9a72dbee05885ec2d1d95e6c22d9cf9fb22",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 522.5522623770521,
+        "listedTuneCents": 1,
+        "approximateFrequencyAfterListedTuneHz": 522.8541875908801,
+        "approximateMidiAfterListedTune": 71.98686171887226,
+        "centsFromExpectedAfterListedTune": -1.3138281127737628,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 40,
+            "correlation": -0.8661068327836857
+          },
+          "expectedPeriod": {
+            "periodFrames": 84.39347252922094,
+            "correlation": 0.9991832987038192
+          },
+          "doublePeriod": {
+            "periodFrames": 168.79834729712812,
+            "correlation": 0.9990083811791715
+          }
+        },
+        "octaveCheckPassed": true
+      }
+    },
+    {
+      "instrument": "violin",
+      "file": "src/instruments/violin/samples/c5-soft.wav",
+      "sourceFile": "Strings/Solo Violin/Arco Vib/LLVln_ArcoVib_C5_p.wav",
+      "expectedRootMidi": 72,
+      "source": {
+        "sha256": "77a2133b5f97e1ec0edb759c0c552fc3efa7caf4ce1e0a4aa22625cf4c9da130",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 522.7556837693782,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 522.7556837693782,
+        "approximateMidiAfterListedTune": 71.98359982980784,
+        "centsFromExpectedAfterListedTune": -1.6400170192156338,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 40,
+            "correlation": -0.8823213246251028
+          },
+          "expectedPeriod": {
+            "periodFrames": 84.36063225943882,
+            "correlation": 0.998515655024575
+          },
+          "doublePeriod": {
+            "periodFrames": 168.74495759666496,
+            "correlation": 0.9968865188805963
+          }
+        },
+        "octaveCheckPassed": true
+      },
+      "output": {
+        "sha256": "8cde816253e372e5a44eb0cfa6d207a171f4531b75df4deb74919d3bb33762f0",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 522.7556657049483,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 522.7556657049483,
+        "approximateMidiAfterListedTune": 71.98359923155981,
+        "centsFromExpectedAfterListedTune": -1.6400768440192337,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 40,
+            "correlation": -0.8823211816353878
+          },
+          "expectedPeriod": {
+            "periodFrames": 84.36063517461855,
+            "correlation": 0.9985156237508745
+          },
+          "doublePeriod": {
+            "periodFrames": 168.7449596988289,
+            "correlation": 0.9968865119456043
+          }
+        },
+        "octaveCheckPassed": true
+      }
+    },
+    {
+      "instrument": "violin",
+      "file": "src/instruments/violin/samples/c5-loud.wav",
+      "sourceFile": "Strings/Solo Violin/Arco Vib/LLVln_ArcoVib_C5_f.wav",
+      "expectedRootMidi": 72,
+      "source": {
+        "sha256": "af72f852ef2892233699851dacf5f8d97d446822d8eb4ce9e0ec27d5a721b118",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 523.7555674593291,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 523.7555674593291,
+        "approximateMidiAfterListedTune": 72.01668180984115,
+        "centsFromExpectedAfterListedTune": 1.6681809841145423,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 40,
+            "correlation": -0.9428074456998005
+          },
+          "expectedPeriod": {
+            "periodFrames": 84.19958228591904,
+            "correlation": 0.9993840529712874
+          },
+          "doublePeriod": {
+            "periodFrames": 168.40469596990948,
+            "correlation": 0.9980908378456892
+          }
+        },
+        "octaveCheckPassed": true
+      },
+      "output": {
+        "sha256": "dac4ce72fe334118dd9c95b3856d8ce42fb75958c3f216570a5b85643ff1b5e5",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 523.7555580172287,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 523.7555580172287,
+        "approximateMidiAfterListedTune": 72.01668149773973,
+        "centsFromExpectedAfterListedTune": 1.668149773972516,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 40,
+            "correlation": -0.9428076679376679
+          },
+          "expectedPeriod": {
+            "periodFrames": 84.1995838038426,
+            "correlation": 0.9993840721594345
+          },
+          "doublePeriod": {
+            "periodFrames": 168.4046969683397,
+            "correlation": 0.9980908739126116
+          }
+        },
+        "octaveCheckPassed": true
+      }
+    },
+    {
+      "instrument": "violin",
+      "file": "src/instruments/violin/samples/e5-soft.wav",
+      "sourceFile": "Strings/Solo Violin/Arco Vib/LLVln_ArcoVib_E5_p.wav",
+      "expectedRootMidi": 76,
+      "source": {
+        "sha256": "c60c3bcfc64ea00ebf8d97b16f2876c892393839a017a945c5e557359b6369a4",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 663.0624825241805,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 663.0624825241805,
+        "approximateMidiAfterListedTune": 76.09969563381351,
+        "centsFromExpectedAfterListedTune": 9.969563381351065,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 35,
+            "correlation": -0.06727315682323926
+          },
+          "expectedPeriod": {
+            "periodFrames": 66.50956910141838,
+            "correlation": 0.9679155687959355
+          },
+          "doublePeriod": {
+            "periodFrames": 133.03238131785602,
+            "correlation": 0.965269592343917
+          }
+        },
+        "octaveCheckPassed": true
+      },
+      "output": {
+        "sha256": "855150da65a3048e66dde5d44f3bb53a1103626e5a96cb5fc64b0a3b1ee54106",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 663.0625838919403,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 663.0625838919403,
+        "approximateMidiAfterListedTune": 76.09969828049174,
+        "centsFromExpectedAfterListedTune": 9.969828049173657,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 35,
+            "correlation": -0.0672623157223319
+          },
+          "expectedPeriod": {
+            "periodFrames": 66.50955893356064,
+            "correlation": 0.9679140703321387
+          },
+          "doublePeriod": {
+            "periodFrames": 133.03237394923443,
+            "correlation": 0.965269866815835
+          }
+        },
+        "octaveCheckPassed": true
+      }
+    },
+    {
+      "instrument": "violin",
+      "file": "src/instruments/violin/samples/e5-loud.wav",
+      "sourceFile": "Strings/Solo Violin/Arco Vib/LLVln_ArcoVib_E5_f.wav",
+      "expectedRootMidi": 76,
+      "source": {
+        "sha256": "5c278e263fd59650190fc58294945cd291906eb1abd8293f728a96a878d1d478",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 660.087313093867,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 660.087313093867,
+        "approximateMidiAfterListedTune": 76.02184015112783,
+        "centsFromExpectedAfterListedTune": 2.1840151127832996,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 35,
+            "correlation": -0.24546730034370265
+          },
+          "expectedPeriod": {
+            "periodFrames": 66.80934343867446,
+            "correlation": 0.9799498003328314
+          },
+          "doublePeriod": {
+            "periodFrames": 133.62833509272002,
+            "correlation": 0.9277266361761396
+          }
+        },
+        "octaveCheckPassed": true
+      },
+      "output": {
+        "sha256": "6c70c3e6e710f835f72b6163f5845f33342894f387b26bbfaa62f7f974b30fb4",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 660.0872985819174,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 660.0872985819174,
+        "approximateMidiAfterListedTune": 76.02183977051786,
+        "centsFromExpectedAfterListedTune": 2.183977051785746,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 35,
+            "correlation": -0.24546580930262016
+          },
+          "expectedPeriod": {
+            "periodFrames": 66.80934490747083,
+            "correlation": 0.9799497819409154
+          },
+          "doublePeriod": {
+            "periodFrames": 133.6283358351784,
+            "correlation": 0.9277261577710851
+          }
+        },
+        "octaveCheckPassed": true
+      }
+    },
+    {
+      "instrument": "violin",
+      "file": "src/instruments/violin/samples/g5-soft.wav",
+      "sourceFile": "Strings/Solo Violin/Arco Vib/LLVln_ArcoVib_G5_p.wav",
+      "expectedRootMidi": 79,
+      "source": {
+        "sha256": "537df6072b0922a0231a6b3fad117e84bcaaa3e60ca68c665776a83c9bd9062d",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 783.5339028358172,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 783.5339028358172,
+        "approximateMidiAfterListedTune": 78.98990611761492,
+        "centsFromExpectedAfterListedTune": -1.0093882385078246,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 28.18706084419594,
+            "correlation": 0.20022968935344937
+          },
+          "expectedPeriod": {
+            "periodFrames": 56.283461175566735,
+            "correlation": 0.9777986316655172
+          },
+          "doublePeriod": {
+            "periodFrames": 112.56782298157167,
+            "correlation": 0.9561740771055506
+          }
+        },
+        "octaveCheckPassed": true
+      },
+      "output": {
+        "sha256": "3093b9d9431ce537e3afaf1090bd62757f4477b41a313ffb475d3739128e471c",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 783.533912998987,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 783.533912998987,
+        "approximateMidiAfterListedTune": 78.98990634217222,
+        "centsFromExpectedAfterListedTune": -1.0093657827781044,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 28.187080977656123,
+            "correlation": 0.2002068657644908
+          },
+          "expectedPeriod": {
+            "periodFrames": 56.283460445517456,
+            "correlation": 0.9778009271581396
+          },
+          "doublePeriod": {
+            "periodFrames": 112.56781264501635,
+            "correlation": 0.9561753214630084
+          }
+        },
+        "octaveCheckPassed": true
+      }
+    },
+    {
+      "instrument": "violin",
+      "file": "src/instruments/violin/samples/g5-loud.wav",
+      "sourceFile": "Strings/Solo Violin/Arco Vib/LLVln_ArcoVib_G5_f.wav",
+      "expectedRootMidi": 79,
+      "source": {
+        "sha256": "b5bb27541d6187e6eeb20baf50625ca35fc9d44c7f113936a9369bc7ce490a68",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 785.4541893804446,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 785.4541893804446,
+        "approximateMidiAfterListedTune": 79.03228333037342,
+        "centsFromExpectedAfterListedTune": 3.228333037341713,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 28.008021112600982,
+            "correlation": -0.22743680125979576
+          },
+          "expectedPeriod": {
+            "periodFrames": 56.145858786220835,
+            "correlation": 0.9943533022601095
+          },
+          "doublePeriod": {
+            "periodFrames": 112.30276182554066,
+            "correlation": 0.9781612116749268
+          }
+        },
+        "octaveCheckPassed": true
+      },
+      "output": {
+        "sha256": "aa02ce9537b26445342c817edad918bb258fc24e804f462e146a1d9d8224c6f1",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 785.4541921131218,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 785.4541921131218,
+        "approximateMidiAfterListedTune": 79.03228339060486,
+        "centsFromExpectedAfterListedTune": 3.2283390604860074,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 28.00802565086433,
+            "correlation": -0.22743508643205562
+          },
+          "expectedPeriod": {
+            "periodFrames": 56.14585859088353,
+            "correlation": 0.9943532191181224
+          },
+          "doublePeriod": {
+            "periodFrames": 112.30276140635007,
+            "correlation": 0.9781610874788979
+          }
+        },
+        "octaveCheckPassed": true
+      }
+    },
+    {
+      "instrument": "violin",
+      "file": "src/instruments/violin/samples/a5-soft.wav",
+      "sourceFile": "Strings/Solo Violin/Arco Vib/LLVln_ArcoVib_A5_p.wav",
+      "expectedRootMidi": 81,
+      "source": {
+        "sha256": "204834bfb91ee62d53d3b2c9e9d37928617f643922f434323508a15a70ee591c",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 881.7160764331127,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 881.7160764331127,
+        "approximateMidiAfterListedTune": 81.0337276923474,
+        "centsFromExpectedAfterListedTune": 3.372769234739792,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 26,
+            "correlation": -0.8119901717099849
+          },
+          "expectedPeriod": {
+            "periodFrames": 50.016100623232134,
+            "correlation": 0.9943290768935646
+          },
+          "doublePeriod": {
+            "periodFrames": 100.04529344888196,
+            "correlation": 0.9881530193909505
+          }
+        },
+        "octaveCheckPassed": true
+      },
+      "output": {
+        "sha256": "661422f9b66fab48a2c9073f97011bce8d8657086261e1d9443feb50b5d105cc",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 881.716071305884,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 881.716071305884,
+        "approximateMidiAfterListedTune": 81.03372759167516,
+        "centsFromExpectedAfterListedTune": 3.3727591675159374,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 26,
+            "correlation": -0.8119884811046825
+          },
+          "expectedPeriod": {
+            "periodFrames": 50.01610091407858,
+            "correlation": 0.9943286867743798
+          },
+          "doublePeriod": {
+            "periodFrames": 100.04528954703791,
+            "correlation": 0.9881511144092454
+          }
+        },
+        "octaveCheckPassed": true
+      }
+    },
+    {
+      "instrument": "violin",
+      "file": "src/instruments/violin/samples/a5-loud.wav",
+      "sourceFile": "Strings/Solo Violin/Arco Vib/LLVln_ArcoVib_A5_f.wav",
+      "expectedRootMidi": 81,
+      "source": {
+        "sha256": "0558d79d23db55c710e664e6283b62619f5a582ce261a5c082700a0d01536627",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 883.6808725839954,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 883.6808725839954,
+        "approximateMidiAfterListedTune": 81.07226320020828,
+        "centsFromExpectedAfterListedTune": 7.226320020828325,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 26,
+            "correlation": -0.5842741667522791
+          },
+          "expectedPeriod": {
+            "periodFrames": 49.904893687520904,
+            "correlation": 0.9904406330879841
+          },
+          "doublePeriod": {
+            "periodFrames": 99.82048603520059,
+            "correlation": 0.9655661853913005
+          }
+        },
+        "octaveCheckPassed": true
+      },
+      "output": {
+        "sha256": "5cda0e206af24b1ecd50e4fcab3793c3e96b77c5da631f5769126b30c43c76e7",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 883.680850844099,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 883.680850844099,
+        "approximateMidiAfterListedTune": 81.07226277429832,
+        "centsFromExpectedAfterListedTune": 7.226277429832351,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 26,
+            "correlation": -0.584275734852618
+          },
+          "expectedPeriod": {
+            "periodFrames": 49.90489491525739,
+            "correlation": 0.9904407013044524
+          },
+          "doublePeriod": {
+            "periodFrames": 99.82048924619258,
+            "correlation": 0.9655664214739565
+          }
+        },
+        "octaveCheckPassed": true
+      }
+    },
+    {
+      "instrument": "violin",
+      "file": "src/instruments/violin/samples/c6-soft.wav",
+      "sourceFile": "Strings/Solo Violin/Arco Vib/LLVln_ArcoVib_C6_p.wav",
+      "expectedRootMidi": 84,
+      "source": {
+        "sha256": "48039f28964328d0b8235b8d61e39b06f8d22f836a6940fa036fe7004fc58e6c",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 1046.3225963554958,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 1046.3225963554958,
+        "approximateMidiAfterListedTune": 83.99702754007329,
+        "centsFromExpectedAfterListedTune": -0.2972459926709803,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 21.000810206919834,
+            "correlation": -0.38804229796050255
+          },
+          "expectedPeriod": {
+            "periodFrames": 42.14761312964773,
+            "correlation": 0.9938251050712167
+          },
+          "doublePeriod": {
+            "periodFrames": 84.29150043322583,
+            "correlation": 0.9883460752252436
+          }
+        },
+        "octaveCheckPassed": true
+      },
+      "output": {
+        "sha256": "11e0022c6cd928e11878f3c5685b0768a2375e8d1e6198ae409df031856c1e70",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 1046.3227829510859,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 1046.3227829510859,
+        "approximateMidiAfterListedTune": 83.99703062746346,
+        "centsFromExpectedAfterListedTune": -0.29693725365405044,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 21.00080437589605,
+            "correlation": -0.3880401366965084
+          },
+          "expectedPeriod": {
+            "periodFrames": 42.14760561326859,
+            "correlation": 0.993825335942377
+          },
+          "doublePeriod": {
+            "periodFrames": 84.29148838944477,
+            "correlation": 0.9883461919591446
+          }
+        },
+        "octaveCheckPassed": true
+      }
+    },
+    {
+      "instrument": "violin",
+      "file": "src/instruments/violin/samples/c6-loud.wav",
+      "sourceFile": "Strings/Solo Violin/Arco Vib/LLVln_ArcoVib_C6_f.wav",
+      "expectedRootMidi": 84,
+      "source": {
+        "sha256": "7ec8e0c2dde75282a4aaacccc713c84faa3e84daa9cf43df45ffc0e209964d46",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 1042.152094733095,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 1042.152094733095,
+        "approximateMidiAfterListedTune": 83.92788498317911,
+        "centsFromExpectedAfterListedTune": -7.2115016820887945,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 22,
+            "correlation": -0.6662514503108132
+          },
+          "expectedPeriod": {
+            "periodFrames": 42.316280150350245,
+            "correlation": 0.9887178497680654
+          },
+          "doublePeriod": {
+            "periodFrames": 84.67515112123291,
+            "correlation": 0.971158089832833
+          }
+        },
+        "octaveCheckPassed": true
+      },
+      "output": {
+        "sha256": "493e26ff0577a118bce944664a2996096628df59143ad185b9a169dfc9ab58ec",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 1042.1520973026004,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 1042.1520973026004,
+        "approximateMidiAfterListedTune": 83.927885025864,
+        "centsFromExpectedAfterListedTune": -7.211497413599943,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 22,
+            "correlation": -0.6662506639027275
+          },
+          "expectedPeriod": {
+            "periodFrames": 42.31628004601624,
+            "correlation": 0.9887178863285386
+          },
+          "doublePeriod": {
+            "periodFrames": 84.6751507138152,
+            "correlation": 0.9711581894319752
+          }
+        },
+        "octaveCheckPassed": true
+      }
+    },
+    {
+      "instrument": "bass",
+      "file": "src/instruments/bass/samples/c2-soft.wav",
+      "sourceFile": "Samples/darkblack/reg/darkblack_c3_p_rr1.wav",
+      "expectedRootMidi": 36,
+      "source": {
+        "sha256": "ee0f4eec353e38ec83dd2a7482586791b0fe10e2493a3e0a4fea5344265cd73e",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 65.39464170017818,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 65.39464170017818,
+        "approximateMidiAfterListedTune": 35.99688972626613,
+        "centsFromExpectedAfterListedTune": -0.3110273733867075,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 327,
+            "correlation": -0.391915979381494
+          },
+          "expectedPeriod": {
+            "periodFrames": 674.3671783108774,
+            "correlation": 0.9995426777491878
+          },
+          "doublePeriod": {
+            "periodFrames": 1348.7994596899537,
+            "correlation": 0.9984975273719057
+          }
+        },
+        "octaveCheckPassed": true
+      },
+      "output": {
+        "sha256": "4624ad630711ac0d2fa65afaf3c22b95bdcd56a96960e0a1ca46905222b51c96",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 65.39464239127052,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 65.39464239127052,
+        "approximateMidiAfterListedTune": 35.99688990922341,
+        "centsFromExpectedAfterListedTune": -0.31100907765875263,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 327,
+            "correlation": -0.3919164624758123
+          },
+          "expectedPeriod": {
+            "periodFrames": 674.367171184147,
+            "correlation": 0.9995426878023675
+          },
+          "doublePeriod": {
+            "periodFrames": 1348.7994623609848,
+            "correlation": 0.9984975013307004
+          }
+        },
+        "octaveCheckPassed": true
+      }
+    },
+    {
+      "instrument": "bass",
+      "file": "src/instruments/bass/samples/c2-loud.wav",
+      "sourceFile": "Samples/darkblack/reg/darkblack_c3_mf_rr1.wav",
+      "expectedRootMidi": 36,
+      "source": {
+        "sha256": "ab23f262cef3bbf1f889a06501d85362d263199ca9a7299d4129f861d307507d",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 65.41429784256536,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 65.41429784256536,
+        "approximateMidiAfterListedTune": 36.00209264027936,
+        "centsFromExpectedAfterListedTune": 0.2092640279357738,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 333.43688774736114,
+            "correlation": 0.023900197023907666
+          },
+          "expectedPeriod": {
+            "periodFrames": 674.1645397790076,
+            "correlation": 0.999176045946544
+          },
+          "doublePeriod": {
+            "periodFrames": 1348.497316082926,
+            "correlation": 0.9973918568220492
+          }
+        },
+        "octaveCheckPassed": true
+      },
+      "output": {
+        "sha256": "e69cff295f5ba9536fde60a4ace2b38cb09c7b6af4e958462139e56bf2a3b73c",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 65.41429879912903,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 65.41429879912903,
+        "approximateMidiAfterListedTune": 36.002092893440455,
+        "centsFromExpectedAfterListedTune": 0.2092893440455157,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 333.4366371818357,
+            "correlation": 0.023899485090698745
+          },
+          "expectedPeriod": {
+            "periodFrames": 674.1645299205925,
+            "correlation": 0.999176070632004
+          },
+          "doublePeriod": {
+            "periodFrames": 1348.4972608799849,
+            "correlation": 0.9973917954186737
+          }
+        },
+        "octaveCheckPassed": true
+      }
+    },
+    {
+      "instrument": "bass",
+      "file": "src/instruments/bass/samples/e2-soft.wav",
+      "sourceFile": "Samples/darkblack/reg/darkblack_e3_p_rr1.wav",
+      "expectedRootMidi": 40,
+      "source": {
+        "sha256": "100bf365ed2f69ca08181ee80caadbd08ab4f202e2a7753aefd74218bd193ac4",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 82.29828321777677,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 82.29828321777677,
+        "approximateMidiAfterListedTune": 39.97716860403751,
+        "centsFromExpectedAfterListedTune": -2.2831395962491285,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 259,
+            "correlation": -0.7804822465140354
+          },
+          "expectedPeriod": {
+            "periodFrames": 535.8556494222739,
+            "correlation": 0.9998992101648517
+          },
+          "doublePeriod": {
+            "periodFrames": 1071.7196530401209,
+            "correlation": 0.9996259034325296
+          }
+        },
+        "octaveCheckPassed": true
+      },
+      "output": {
+        "sha256": "58203a15bb611bba2ce876554a2f3604eec6e8761d1d651e8a68f0108398c326",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 82.29828261227712,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 82.29828261227712,
+        "approximateMidiAfterListedTune": 39.97716847666406,
+        "centsFromExpectedAfterListedTune": -2.2831523335938186,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 259,
+            "correlation": -0.7804826823274692
+          },
+          "expectedPeriod": {
+            "periodFrames": 535.855653364767,
+            "correlation": 0.9998992003587855
+          },
+          "doublePeriod": {
+            "periodFrames": 1071.7196401991412,
+            "correlation": 0.9996258977172707
+          }
+        },
+        "octaveCheckPassed": true
+      }
+    },
+    {
+      "instrument": "bass",
+      "file": "src/instruments/bass/samples/e2-loud.wav",
+      "sourceFile": "Samples/darkblack/reg/darkblack_e3_mf_rr1.wav",
+      "expectedRootMidi": 40,
+      "source": {
+        "sha256": "89da37087d0d2e42a6ed04e77f766442c19fdf84e681e0863bb240eaa36b06a8",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 82.45774507060848,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 82.45774507060848,
+        "approximateMidiAfterListedTune": 40.01068068589825,
+        "centsFromExpectedAfterListedTune": 1.0680685898250886,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 259,
+            "correlation": -0.4627897115004969
+          },
+          "expectedPeriod": {
+            "periodFrames": 534.8193788495819,
+            "correlation": 0.9998752624892298
+          },
+          "doublePeriod": {
+            "periodFrames": 1069.6516146004055,
+            "correlation": 0.9995517602661983
+          }
+        },
+        "octaveCheckPassed": true
+      },
+      "output": {
+        "sha256": "cb2d918db741ae30270035ec256bd64d92c5b1ee2d6005904d8f004cc32f8c85",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 82.45774784196448,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 82.45774784196448,
+        "approximateMidiAfterListedTune": 40.01068126775576,
+        "centsFromExpectedAfterListedTune": 1.0681267755757062,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 259,
+            "correlation": -0.4627921495260121
+          },
+          "expectedPeriod": {
+            "periodFrames": 534.8193608746197,
+            "correlation": 0.9998752619592032
+          },
+          "doublePeriod": {
+            "periodFrames": 1069.651590232886,
+            "correlation": 0.9995517693205062
+          }
+        },
+        "octaveCheckPassed": true
+      }
+    },
+    {
+      "instrument": "bass",
+      "file": "src/instruments/bass/samples/g2-soft.wav",
+      "sourceFile": "Samples/darkblack/reg/darkblack_g3_p_rr1.wav",
+      "expectedRootMidi": 43,
+      "source": {
+        "sha256": "a0fe744750ab95aec6e82c72ef2ef8d7faae7293a475947a0e062cdebc8fc600",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 97.59898426789574,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 97.59898426789574,
+        "approximateMidiAfterListedTune": 42.92921417776591,
+        "centsFromExpectedAfterListedTune": -7.078582223409313,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 232,
+            "correlation": -0.27673788586610903
+          },
+          "expectedPeriod": {
+            "periodFrames": 451.84896472848106,
+            "correlation": 0.9999647075732392
+          },
+          "doublePeriod": {
+            "periodFrames": 903.6985320907855,
+            "correlation": 0.9998681278528667
+          }
+        },
+        "octaveCheckPassed": true
+      },
+      "output": {
+        "sha256": "914606741e304bae17aaae5d5204ba5b67bb43de9faedda9b3b1779b01bc8260",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 97.59898912477122,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 97.59898912477122,
+        "approximateMidiAfterListedTune": 42.92921503929004,
+        "centsFromExpectedAfterListedTune": -7.0784960709957545,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 232,
+            "correlation": -0.27674042880756344
+          },
+          "expectedPeriod": {
+            "periodFrames": 451.8489422428572,
+            "correlation": 0.9999647030543221
+          },
+          "doublePeriod": {
+            "periodFrames": 903.6985074428228,
+            "correlation": 0.9998681220818696
+          }
+        },
+        "octaveCheckPassed": true
+      }
+    },
+    {
+      "instrument": "bass",
+      "file": "src/instruments/bass/samples/g2-loud.wav",
+      "sourceFile": "Samples/darkblack/reg/darkblack_g3_mf_rr1.wav",
+      "expectedRootMidi": 43,
+      "source": {
+        "sha256": "83f1778bcf15a4fa73b3460ce4fd039079e62aad134bd1ddc25dbd76691cb378",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 97.57431212574784,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 97.57431212574784,
+        "approximateMidiAfterListedTune": 42.92483722112618,
+        "centsFromExpectedAfterListedTune": -7.5162778873817615,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 224.0797494462865,
+            "correlation": 0.10268874434997322
+          },
+          "expectedPeriod": {
+            "periodFrames": 451.9632169496271,
+            "correlation": 0.999856208355794
+          },
+          "doublePeriod": {
+            "periodFrames": 903.9403547772481,
+            "correlation": 0.9994753623821847
+          }
+        },
+        "octaveCheckPassed": true
+      },
+      "output": {
+        "sha256": "7d1430c9e2f929ecf016e981e893accd931bc6b2c3034bb8a0fa88505ab3a97b",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 97.57431364099907,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 97.57431364099907,
+        "approximateMidiAfterListedTune": 42.924837489973015,
+        "centsFromExpectedAfterListedTune": -7.516251002698482,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 224.0793757975387,
+            "correlation": 0.10268948130496783
+          },
+          "expectedPeriod": {
+            "periodFrames": 451.96320993099897,
+            "correlation": 0.9998562069943592
+          },
+          "doublePeriod": {
+            "periodFrames": 903.9403546840961,
+            "correlation": 0.9994753550561917
+          }
+        },
+        "octaveCheckPassed": true
+      }
+    },
+    {
+      "instrument": "bass",
+      "file": "src/instruments/bass/samples/b2-soft.wav",
+      "sourceFile": "Samples/darkblack/reg/darkblack_b3_p_rr1.wav",
+      "expectedRootMidi": 47,
+      "source": {
+        "sha256": "72683b871e3f8f46939ce07d6631159b536f3436d27926f55f803b6af1aee0fe",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 123.25045780546263,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 123.25045780546263,
+        "approximateMidiAfterListedTune": 46.96907377987252,
+        "centsFromExpectedAfterListedTune": -3.092622012748336,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 182.8436266742059,
+            "correlation": 0.1646889125837699
+          },
+          "expectedPeriod": {
+            "periodFrames": 357.808001570323,
+            "correlation": 0.9999110261608982
+          },
+          "doublePeriod": {
+            "periodFrames": 715.6141578715645,
+            "correlation": 0.9996645213670826
+          }
+        },
+        "octaveCheckPassed": true
+      },
+      "output": {
+        "sha256": "429f3a2659728f31bdbb899951de131d6d610230ee7db465f5d5287e32e3605f",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 123.25046241234523,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 123.25046241234523,
+        "approximateMidiAfterListedTune": 46.96907442697696,
+        "centsFromExpectedAfterListedTune": -3.0925573023040442,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 182.84363196150727,
+            "correlation": 0.16468919783544544
+          },
+          "expectedPeriod": {
+            "periodFrames": 357.80798819609765,
+            "correlation": 0.9999110250134277
+          },
+          "doublePeriod": {
+            "periodFrames": 715.6141491718045,
+            "correlation": 0.99966451669367
+          }
+        },
+        "octaveCheckPassed": true
+      }
+    },
+    {
+      "instrument": "bass",
+      "file": "src/instruments/bass/samples/b2-loud.wav",
+      "sourceFile": "Samples/darkblack/reg/darkblack_b3_mf_rr1.wav",
+      "expectedRootMidi": 47,
+      "source": {
+        "sha256": "eec57024a96a0c27f7c376ab352fe902539ab77c143432595376c2bcdb5c1443",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 123.40261918744058,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 123.40261918744058,
+        "approximateMidiAfterListedTune": 46.99043390252433,
+        "centsFromExpectedAfterListedTune": -0.9566097475669721,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 178.2306873113491,
+            "correlation": 0.2800339313563551
+          },
+          "expectedPeriod": {
+            "periodFrames": 357.3668070449539,
+            "correlation": 0.9997064179429092
+          },
+          "doublePeriod": {
+            "periodFrames": 714.7521229639734,
+            "correlation": 0.9993222513715383
+          }
+        },
+        "octaveCheckPassed": true
+      },
+      "output": {
+        "sha256": "e7901f47f5457953672715855b0306652a0cdb009315fa3631c52181e220cb26",
+        "sampleRate": 44100,
+        "windowStartSeconds": 0.5,
+        "comparisonFrames": 4000,
+        "approximateRawFundamentalHz": 123.40261900887374,
+        "listedTuneCents": 0,
+        "approximateFrequencyAfterListedTuneHz": 123.40261900887374,
+        "approximateMidiAfterListedTune": 46.990433877472924,
+        "centsFromExpectedAfterListedTune": -0.9566122527076004,
+        "periodPeaks": {
+          "halfPeriod": {
+            "periodFrames": 178.2311508460979,
+            "correlation": 0.2800342257171059
+          },
+          "expectedPeriod": {
+            "periodFrames": 357.36680756207306,
+            "correlation": 0.9997064176823814
+          },
+          "doublePeriod": {
+            "periodFrames": 714.7521365422825,
+            "correlation": 0.9993222346651912
+          }
+        },
+        "octaveCheckPassed": true
+      }
+    }
+  ]
+}

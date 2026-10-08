@@ -1,5 +1,10 @@
 # Drums samples
 
-M0 uses **synth placeholders** for kick, snare and closed hi-hat. No recorded drum samples or third-party audio are included.
+Virtuosity Drums，CC0；9 個原始 FLAC 合計 830,116 bytes。
+Kick／Snare 使用各自近場麥克風，Hi-hat 使用 stereo overhead。
+保留原始檔案位元，沒有重新合成、轉檔或裁切。來源和輸出 hash 相同。
 
-The local `voice.ts` owns every kit key and synthesis setting. For M1, map the same local keys to licensed sample URLs in `index.ts` as a percussion `SampleBank`. Verify licenses and record original/converted filenames in `docs/SAMPLE_LICENSES.md` before including any audio. The shared audio service knows no drum names.
+`index.ts` 擁有 URL；`../voice.ts` 擁有 logical sampleKey、力度與交替取樣。
+重現：`python scripts/import-samples.py drums`。
+授權文字 `LICENSE-CC0.txt`。來源固定 commit、原名與本地檔案對應、
+FLAC STREAMINFO 在 `docs/sample-provenance.json`。實際解碼與發聲由瀏覽器 E2E 驗證。

@@ -6,7 +6,6 @@ import type {
 import type { BarPlan, EnsembleIntent } from "../../../contracts/music";
 import { plugin } from "../index";
 import { sampleBank } from "../samples";
-import { kit } from "../voice";
 
 const plan: BarPlan = {
   barIndex: 0,
@@ -54,7 +53,7 @@ describe("drums independent plugin", () => {
     for (const event of events) {
       expect(event.kind).toBe("hit");
       if (event.kind === "hit")
-        expect(Object.keys(kit)).toContain(event.sampleKey);
+        expect(Object.keys(sampleBank.urls)).toContain(event.sampleKey);
     }
   });
 
@@ -114,7 +113,7 @@ describe("drums independent plugin", () => {
     }
   });
 
-  it("creates its labeled placeholder through the injected audio service without an AudioContext", async () => {
+  it("loads only its owned real sample bank through the injected service", async () => {
     const voice: InstrumentVoice = {
       play: vi.fn(),
       releaseAll: vi.fn(),
@@ -126,11 +125,39 @@ describe("drums independent plugin", () => {
       createSampleVoice: vi.fn(async () => voice),
     };
     expect(plugin.manifest.id).toBe("drums");
-    expect(plugin.manifest.sound.kind).toBe("synth-placeholder");
-    expect(plugin.manifest.sound.label).toContain("placeholder");
-    expect(sampleBank).toBeNull();
-    expect(await plugin.createVoice(audio)).toBe(voice);
-    expect(audio.createPercussionVoice).toHaveBeenCalledOnce();
-    expect(audio.createSampleVoice).not.toHaveBeenCalled();
+    expect(plugin.manifest.sound.kind).toBe("samples");
+    expect(plugin.manifest.sound.label).not.toContain("placeholder");
+    expect(Object.keys(sampleBank.urls)).toHaveLength(9);
+    const adapter = await plugin.createVoice(audio);
+    adapter.play(
+      { kind: "hit", step: 0, sampleKey: "kick", velocity: 0.9 },
+      1,
+      0.2,
+    );
+    expect(voice.play).toHaveBeenCalledWith(
+      { kind: "hit", step: 0, sampleKey: "kick-accent", velocity: 0.9 },
+      1,
+      0.2,
+    );
+    for (let hit = 0; hit < 2; hit++)
+      adapter.play(
+        { kind: "hit", step: 0, sampleKey: "hat", velocity: 0.3 },
+        2 + hit,
+        0.2,
+      );
+    expect(voice.play).toHaveBeenNthCalledWith(
+      2,
+      { kind: "hit", step: 0, sampleKey: "hat", velocity: 0.3 },
+      2,
+      0.2,
+    );
+    expect(voice.play).toHaveBeenNthCalledWith(
+      3,
+      { kind: "hit", step: 0, sampleKey: "hat-alt", velocity: 0.3 },
+      3,
+      0.2,
+    );
+    expect(audio.createPercussionVoice).not.toHaveBeenCalled();
+    expect(audio.createSampleVoice).toHaveBeenCalledWith(sampleBank);
   });
 });

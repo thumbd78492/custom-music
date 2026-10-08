@@ -186,11 +186,26 @@ export class EnsembleHost {
       if (request === entry.request && !this.disposed)
         entry.error = String(error);
     } finally {
-      entry.loading = false;
-      this.publish();
+      if (request === entry.request && !this.disposed) {
+        entry.loading = false;
+        this.publish();
+      }
     }
   }
   remove(id: string) {
+    const entry = this.entry(id);
+    if (entry.loading) {
+      ++entry.request;
+      ++entry.voiceRequest;
+      entry.loading = false;
+      entry.voiceReady = false;
+      entry.desired.active = false;
+      entry.actual.active = false;
+      entry.pendingAt = undefined;
+      this.audio.removeTrack(id);
+      this.publish();
+      return;
+    }
     this.command(id, "remove", false);
   }
   mute(id: string, value: boolean) {
@@ -205,12 +220,14 @@ export class EnsembleHost {
     if (type === "add" || type === "remove") entry.desired.active = value;
     if (type === "mute") entry.desired.muted = value;
     if (type === "solo") entry.desired.solo = value;
-    const effectiveAtBar = this.running ? this.planner!.nextBarIndex : 0;
+    const effectiveAtBar = this.running
+      ? Math.max(this.planner!.nextBarIndex, this.audio.currentBar() + 1)
+      : 0;
     this.operations.push({
       id,
       type,
       value,
-      requestedAtBar: this.barIndex,
+      requestedAtBar: this.running ? this.audio.currentBar() : this.barIndex,
       effectiveAtBar,
     });
     if (this.running) entry.pendingAt = effectiveAtBar;
@@ -254,7 +271,7 @@ export class EnsembleHost {
       this.chord = "Cmaj7";
       this.planner = new BarPlanner(new MusicDirector(this.seed));
       this.running = true;
-      this.refill(2);
+      this.refill(2, true);
       this.audio.start(88);
       this.timer = setInterval(
         () => this.refill(this.audio.currentBar() + 2),
@@ -272,14 +289,19 @@ export class EnsembleHost {
       }
     }
   }
-  private refill(throughBar: number) {
+  private refill(throughBar: number, initial = false) {
     if (!this.running || !this.planner) return;
-    while (this.planner.nextBarIndex <= throughBar) {
+    // Preserve each generator's state without an unbounded synchronous catch-up.
+    let remaining = 32;
+    while (this.planner.nextBarIndex <= throughBar && remaining-- > 0) {
+      const index = this.planner.nextBarIndex;
       const tracks = [...this.entries]
         .filter(([, entry]) => entry.session)
         .map(([id, entry]) => ({
           id,
-          ...entry.desired,
+          ...(entry.pendingAt !== undefined && index < entry.pendingAt
+            ? entry.actual
+            : entry.desired),
           session: entry.session!,
         }));
       const prepared = this.planner.prepare(tracks, (id, error) => {
@@ -287,11 +309,16 @@ export class EnsembleHost {
         entry.error = String(error);
         entry.desired.active = false;
       });
-      this.audio.scheduleBar(prepared, (bar) => this.onBoundary(bar));
+      if (!initial && index <= this.audio.currentBar()) {
+        // Omit stale attacks, but reconcile controls and cleanup even offscreen.
+        this.onBoundary(prepared);
+      } else {
+        this.audio.scheduleBar(prepared, (bar) => this.onBoundary(bar));
+      }
     }
   }
   private onBoundary(bar: PreparedBar) {
-    if (!this.running) return;
+    if (!this.running || bar.plan.barIndex < this.barIndex) return;
     this.barIndex = bar.plan.barIndex;
     this.chord = bar.plan.chord;
     for (const track of bar.tracks) {
@@ -320,6 +347,7 @@ export class EnsembleHost {
     for (const [id, entry] of this.entries) {
       ++entry.request;
       ++entry.voiceRequest;
+      entry.loading = false;
       this.audio.removeTrack(id);
       entry.voiceReady = false;
       entry.pendingAt = undefined;

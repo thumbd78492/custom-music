@@ -1,0 +1,97 @@
+{
+  "version": "m0.1",
+  "bars": 12,
+  "seeds": ["alpha", "beta", "音樂", "0"],
+  "hashes": {
+    "bass": {
+      "0": "8e6566b1f731e5e0518cd77721f4bdc2c21746d2051660d3e04ba0f829624300",
+      "alpha": "993fb6879dc3728bb0ce78c3d0d9410337c188493c99c992c9ecad9fd22f0a1f",
+      "beta": "0c1f788db9268a6b270c6dec83b30fff1738b81f93d0a88c190c2a555134032e",
+      "音樂": "f67df1e9e32246e8e9249193266f6b5df5d1d788c53349a805558bc34f794d2c"
+    },
+    "drums": {
+      "0": "a7f83124aca3348641b61d0d0586cc97a9ecb73e6d9b583a342a88ec8a64ab61",
+      "alpha": "4386d6d5711ae488a39bd5ae4830741c485eed34fa415c57ae879c50f55aa5b9",
+      "beta": "9f695a2cea31ab6241d00ae0c395dcbdfc50423620eb8796e92d708ca46c785d",
+      "音樂": "69bf9febe3ecd0bd543ac9d32e0459f96b3026d2a46327279667bdc81952deed"
+    },
+    "bass,drums": {
+      "0": "7cd2a2d2b043d27439007efb525bc66cded2edff9cdc622cf124b88e00c90888",
+      "alpha": "eaaba849663b66b7e6e11911db43d1f450d11f1a34e8bf437b021651ce2953a0",
+      "beta": "6af0763cbf59546695fc78dec275c715dc555728cf3e966469b19db31497b821",
+      "音樂": "57390001f0739d03b4245f20a9d7b6f55270b2642cfd38b3e0dade9782b00804"
+    },
+    "piano": {
+      "0": "3d4a5b473b5b8d2c4353e2d2e2730fa874854e8fa5eeff3bd5f0b558b775af29",
+      "alpha": "b4a2022579e3ef406e4e03cb849a44c601d23a9bf3d0a146871f9aafc173b726",
+      "beta": "2202db6c5baa5a2d5616c2713ffa682d46db29461df90c61f3c411252d3d325b",
+      "音樂": "83204d686ef505e061c015b60457ee8ec3b3d767c0e21a4a5bc6f63950f0dd4b"
+    },
+    "bass,piano": {
+      "0": "d9cedf0a573e24c88c5cb95f5700ddcca94efa8e4b7e92f3c0b793ffa3229362",
+      "alpha": "8b769e03b05b2d4a02ae068da044d8f95abfe0bfa44d5b986f3f76cb14f04d39",
+      "beta": "941171dad1fa0186a004f6a12b422053d9ff77e175f01a348e817e87fe6a4dc7",
+      "音樂": "3fa4506627206ffebe0c262351674da22eab7366ba297a4210836b7d39ac49d6"
+    },
+    "drums,piano": {
+      "0": "9476cd619fa4fd9d7daedcfee3a1702677c94a05234db201d8b090b0f9e37ca0",
+      "alpha": "a6304bf1560d6beec7dcec1f85638c2a82c5381157b9b3b8775eb760ce8ae2b8",
+      "beta": "9aa66062a6f2dddc9bd7c73487751f4934eacbfb6b2ba35ee0de70dd1e29e96c",
+      "音樂": "4679433689b62f7c3deec03a8ff20ebbd380c713fa5e2ab17d37ab0de6b145df"
+    },
+    "bass,drums,piano": {
+      "0": "d5492e25f9a206baeba82ef5f0187e4aad9a46b08a7cde8d2154dfe92c611690",
+      "alpha": "fb248970a3f89987287c9190f11dd6870a3827471b4150d0581d38d10e3bedd9",
+      "beta": "c71ed5cbd484b9d5598dda6ef9325c50f78159b7129393f33f00314c75c5470e",
+      "音樂": "8c70a3c7ec14e69c136198ca6aeab38cb99827d3c5282816c1040a768514df47"
+    },
+    "violin": {
+      "0": "04f8c7b64f7b3873f2747006735c638fffa0c74eac3f8d78199ef91139d28028",
+      "alpha": "94f9faefa4ad466f72051f52f366fd2c4fd8b8b12ee3b16029e50e5ee04106bf",
+      "beta": "2181f9d0215d4367e396d3686c2360f84dfe58580c0a20ac352ee413dfdc529b",
+      "音樂": "799af3d62f418cc3aa1d3eff24f77d8b06a90fe39a418a7aa3b5837cf35e4a82"
+    },
+    "bass,violin": {
+      "0": "0543ede4b6b759b67c8cdc6a70e50cfc18f59d62225826abf8555ca662da47f9",
+      "alpha": "96b10f1735897855f0134548bb790ba7433a0d7034044ca5b0d6e6cde212b7f0",
+      "beta": "17d57acea6ca1ee60e8f5855d0efaff18eea427a9655438b0772df8864bd2f83",
+      "音樂": "271fbfb06fb830dbbfb61d714f40b2b4d35ba28d3962a45923d48799c17b6e10"
+    },
+    "drums,violin": {
+      "0": "a2b913a2753fa9c93101c61d6007b577ce4ba46e65a663dfeabf55d2cbab96fc",
+      "alpha": "5af2f78589fd564d3b264d0864c1518b76b2368285cc81828adbee87500ddeed",
+      "beta": "4bf8adda4ddfeb9e5b2650aa52528b4f0bc54426d00bad0fb5d19dd994d03fcd",
+      "音樂": "fb6df0e9b903a9854c09eb92216d15fa9600c566dc32621082dfb313c7c8b6e8"
+    },
+    "bass,drums,violin": {
+      "0": "97b212bd229fd71767c955a26e26771ac2f05c24cdf1627620ac9a05bb950e97",
+      "alpha": "de1d4ad8a158ef48477c3055d2dc0c604420249097f4cfa7d0baf05f870ac50b",
+      "beta": "9bbdcc74eb1b036f8bd23601b7d70d4ed42b88374ab1fc68d9ce279a83514c23",
+      "音樂": "73160ba9b6e0414e6d2c69e27096f436bc543f21bc41223c94802242400d98e5"
+    },
+    "piano,violin": {
+      "0": "e3d434a5e6fe89c7ca0fc54b800278859c98390696f3e402adc95003621dca71",
+      "alpha": "eb59f020de704f81e6078313dee41acad00279bc6c75f2db9d950fdcca2b817f",
+      "beta": "09e9216435553b91699deec79846d69dbcbdd41a344c2a58cd592aefcefa6666",
+      "音樂": "dc729c9b5aa7ef1cbc5afb9219c69b9a39425c4e263f8bebc90ee81ebf16656a"
+    },
+    "bass,piano,violin": {
+      "0": "49a0846a41095fad5ee1c65f5a847662a09db3372de598f0712ac6d95a56359d",
+      "alpha": "c9b0dcd330e1a8986e98ef318d5ba057bef797cab19bcac32954355b3d3b70a7",
+      "beta": "8e5d94dc4820dd84618c2783d5d97f63a2c1347a443fdb1fdb1c4abf2d7a715f",
+      "音樂": "88dec252ff8ac4eaaba6707f73c6e5f88bee8c43525efe0bd313b8e1160a7f89"
+    },
+    "drums,piano,violin": {
+      "0": "e3b3416beae6ac6c27bd329bc19154de0f1e5b9e9cc2af9cab94b69f74830916",
+      "alpha": "9c63e292bf77085c7c37d9edbce56e8174260ffaa68961bb10830075745ffa97",
+      "beta": "f1924b29e95ae4853c3a72a417779fd64be955640e788418d2a0452a83ef4663",
+      "音樂": "4e4d15a9d9ef4061edc0d00930b8312415aa0cde6afb607f2bb1da1eaf6efcea"
+    },
+    "bass,drums,piano,violin": {
+      "0": "4ef982cac2135ab66c0f5f19d029c282ce0ba4ed5983fd5c36053c33cac06852",
+      "alpha": "3498e92b7081d228e098c31163e0531d7c7afa2aa6bd63dc817f457bf52928fe",
+      "beta": "4548daa19bf85f51bb6d75978d3228bb2dddf7aa0d52e03b181798b76994e801",
+      "音樂": "937a39033c5ef01f73eeb37ca4fd56962fae3b2f693ba2c0ee678713aa608914"
+    }
+  }
+}

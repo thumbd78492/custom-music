@@ -1,5 +1,7 @@
 import * as Tone from "tone";
 
+export const TRACK_FADE_SECONDS = 0.03;
+
 /** One output chain, with an isolated gain node for every plugin instance. */
 export class MasterMixer {
   private readonly master = new Tone.Gain(0.65);
@@ -18,19 +20,37 @@ export class MasterMixer {
   }
 
   setAudible(id: string, audible: boolean, time: number): void {
-    this.tracks.get(id)?.gain.setValueAtTime(audible ? 1 : 0, time);
+    const track = this.tracks.get(id);
+    if (!track) return;
+    track.gain.cancelAndHoldAtTime(time);
+    track.gain.linearRampToValueAtTime(
+      audible ? 1 : 0,
+      time + TRACK_FADE_SECONDS,
+    );
   }
 
   silence(time: number): void {
     for (const track of this.tracks.values()) {
-      track.gain.cancelScheduledValues(time);
-      track.gain.setValueAtTime(0, time);
+      track.gain.cancelAndHoldAtTime(time);
+      track.gain.linearRampToValueAtTime(0, time + TRACK_FADE_SECONDS);
     }
   }
 
   removeTrack(id: string): void {
     this.tracks.get(id)?.dispose();
     this.tracks.delete(id);
+  }
+
+  /** Detach identity now; later cleanup cannot touch a replacement with this id. */
+  retireTrack(id: string, time: number): () => void {
+    const track = this.tracks.get(id);
+    this.tracks.delete(id);
+    if (!track) return () => {};
+    track.gain.cancelAndHoldAtTime(time);
+    track.gain.linearRampToValueAtTime(0, time + TRACK_FADE_SECONDS);
+    return () => {
+      track.dispose();
+    };
   }
 
   dispose(): void {

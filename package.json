@@ -9,6 +9,8 @@
     "test": "vitest run",
     "test:isolation": "node scripts/test-isolation.mjs",
     "test:e2e": "playwright test",
+    "verify:samples": "node scripts/verify-samples.mjs",
+    "verify:m1": "node scripts/verify-m1.mjs",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host 127.0.0.1",
     "lint": "eslint .",

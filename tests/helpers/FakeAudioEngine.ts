@@ -37,6 +37,10 @@ export class FakeAudioEngine implements AudioEnginePort {
     };
   });
   setVoice(id: string, voice: InstrumentVoice) {
+    // A plugin may wrap its factory voice with local performance logic. Observe
+    // the public voice without requiring it to be identical to the primitive.
+    for (const method of ["play", "releaseAll", "dispose"] as const)
+      if (!vi.isMockFunction(voice[method])) vi.spyOn(voice, method);
     this.voices.set(id, voice);
   }
   removeTrack = vi.fn((id: string) => {

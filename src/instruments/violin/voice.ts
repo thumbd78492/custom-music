@@ -3,16 +3,10 @@ import type {
   InstrumentVoice,
 } from "../../contracts/instrument";
 import { sampleBank } from "./samples";
+
+/** Bowed attacks with a sustained recording loop; changes crossfade the preceding bow. */
 export async function createVoice(
   audio: AudioServices,
 ): Promise<InstrumentVoice> {
-  if (sampleBank) return audio.createSampleVoice(sampleBank);
-  return audio.createSynthVoice({
-    waveform: "sawtooth",
-    attack: 0.15,
-    decay: 0.12,
-    sustain: 0.7,
-    release: 0.22,
-    volumeDb: -22,
-  });
+  return audio.createSampleVoice(sampleBank);
 }

@@ -2,11 +2,11 @@ import type { InstrumentManifest } from "../../contracts/instrument";
 export const manifest = {
   id: "bass",
   displayName: "Electric Bass",
-  version: "0.0.1",
+  version: "0.1.0",
   capabilities: ["bass", "pulse"],
   controls: [],
   sound: {
-    kind: "synth-placeholder",
-    label: "合成電貝斯 placeholder · 非真實取樣",
+    kind: "samples",
+    label: "Karoryfer 真實電貝斯 · 手指撥弦 · CC0",
   },
 } as const satisfies InstrumentManifest;

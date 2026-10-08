@@ -2,11 +2,11 @@ import type { InstrumentManifest } from "../../contracts/instrument";
 export const manifest = {
   id: "violin",
   displayName: "Violin",
-  version: "0.0.1",
+  version: "0.1.0",
   capabilities: ["melody", "sustain"],
   controls: [],
   sound: {
-    kind: "synth-placeholder",
-    label: "合成小提琴 placeholder · 非真實取樣",
+    kind: "samples",
+    label: "VSCO 真實小提琴 · 持續弓奏與換音 · CC0",
   },
 } as const satisfies InstrumentManifest;

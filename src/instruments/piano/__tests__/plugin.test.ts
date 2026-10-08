@@ -97,7 +97,7 @@ describe("piano independent plugin", () => {
     }
   });
 
-  it("creates its labeled placeholder through the injected audio service without an AudioContext", async () => {
+  it("loads only its owned real sample bank through the injected service", async () => {
     const voice: InstrumentVoice = {
       play: vi.fn(),
       releaseAll: vi.fn(),
@@ -109,11 +109,11 @@ describe("piano independent plugin", () => {
       createSampleVoice: vi.fn(async () => voice),
     };
     expect(plugin.manifest.id).toBe("piano");
-    expect(plugin.manifest.sound.kind).toBe("synth-placeholder");
-    expect(plugin.manifest.sound.label).toContain("placeholder");
-    expect(sampleBank).toBeNull();
+    expect(plugin.manifest.sound.kind).toBe("samples");
+    expect(plugin.manifest.sound.label).not.toContain("placeholder");
+    expect(Object.keys(sampleBank.urls)).toHaveLength(14);
     expect(await plugin.createVoice(audio)).toBe(voice);
-    expect(audio.createSynthVoice).toHaveBeenCalledOnce();
-    expect(audio.createSampleVoice).not.toHaveBeenCalled();
+    expect(audio.createSynthVoice).not.toHaveBeenCalled();
+    expect(audio.createSampleVoice).toHaveBeenCalledWith(sampleBank);
   });
 });

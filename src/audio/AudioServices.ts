@@ -1,4 +1,5 @@
 import * as Tone from "tone";
+import { loadSampleVoice } from "./SampleVoice";
 import type {
   AudioServices,
   InstrumentVoice,
@@ -157,110 +158,35 @@ export class TrackAudioServices implements AudioServices {
 
   async createSampleVoice(bank: SampleBank): Promise<InstrumentVoice> {
     if (this.disposed) throw new Error("Audio track has been disposed");
-    if (Object.keys(bank.urls).length === 0)
-      throw new Error("Sample bank has no sample URLs");
-    if (!bank.licenseRecord.trim())
-      throw new Error("Sample bank needs a license record");
-    if (!Number.isFinite(bank.releaseSeconds) || bank.releaseSeconds < 0)
-      throw new Error("Invalid sample release duration");
-
-    return new Promise<InstrumentVoice>((resolve, reject) => {
-      let node: Tone.Sampler | Tone.Players | undefined;
-      let settled = false;
-      const fail = (error: Error) => {
-        if (settled) return;
-        settled = true;
-        this.pending.delete(cancel);
-        node?.dispose();
-        reject(error);
-      };
-      const cancel = () =>
-        fail(new Error("Audio track disposed while loading samples"));
-      this.pending.add(cancel);
-      // Defer completion in case an already-cached buffer invokes onload in construction.
-      const loaded = () =>
-        queueMicrotask(() => {
-          if (settled || !node) return;
-          settled = true;
-          this.pending.delete(cancel);
-          try {
-            const voice: InstrumentVoice =
-              node instanceof Tone.Sampler
-                ? this.sampleNotes(node)
-                : this.sampleHits(node);
-            resolve(this.own(voice));
-          } catch (error) {
-            node.dispose();
-            reject(error);
-          }
-        });
-      try {
-        node =
-          bank.kind === "pitched"
-            ? new Tone.Sampler({
-                urls: { ...bank.urls },
-                release: bank.releaseSeconds,
-                onload: loaded,
-                onerror: fail,
-              })
-            : new Tone.Players({
-                urls: { ...bank.urls },
-                fadeOut: bank.releaseSeconds,
-                onload: loaded,
-                onerror: fail,
-              });
-        if (settled) node.dispose();
-        else node.connect(this.destination);
-      } catch (error) {
-        fail(error instanceof Error ? error : new Error(String(error)));
+    const controller = new AbortController();
+    const cancel = () => controller.abort();
+    this.pending.add(cancel);
+    try {
+      const voice = await loadSampleVoice(
+        Tone.getContext(),
+        this.destination.input,
+        bank,
+        controller.signal,
+      );
+      if (controller.signal.aborted || this.disposed) {
+        voice.dispose();
+        throw new Error("Audio track disposed while loading samples");
       }
-    });
+      return this.own(voice);
+    } finally {
+      this.pending.delete(cancel);
+    }
   }
 
-  private sampleNotes(sampler: Tone.Sampler): InstrumentVoice {
-    return {
-      play(event, time, secondsPerStep) {
-        if (event.kind === "note")
-          sampler.triggerAttackRelease(
-            Tone.Frequency(event.midi, "midi").toFrequency(),
-            event.durationSteps * secondsPerStep,
-            time,
-            event.velocity,
-          );
-      },
-      releaseAll: (time) => {
-        sampler.releaseAll(time);
-      },
-      dispose: () => {
-        sampler.dispose();
-      },
-    };
-  }
-
-  private sampleHits(players: Tone.Players): InstrumentVoice {
-    return {
-      play(event, time) {
-        if (event.kind !== "hit" || !players.has(event.sampleKey)) return;
-        const player = players.player(event.sampleKey);
-        player.volume.setValueAtTime(
-          Tone.gainToDb(Math.max(event.velocity, 0.0001)),
-          time,
-        );
-        player.start(time);
-      },
-      releaseAll: (time) => {
-        players.stopAll(time);
-      },
-      dispose: () => {
-        players.dispose();
-      },
-    };
+  cancelPending(): void {
+    for (const cancel of this.pending) cancel();
+    this.pending.clear();
   }
 
   dispose(): void {
     if (this.disposed) return;
     this.disposed = true;
-    for (const cancel of this.pending) cancel();
+    this.cancelPending();
     for (const voice of this.voices) voice.dispose();
   }
 }
