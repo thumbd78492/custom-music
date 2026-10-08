@@ -1,0 +1,130 @@
+import { useSyncExternalStore } from "react";
+import type { EnsembleHost } from "../core/EnsembleHost";
+
+export function App({
+  host,
+  lab = false,
+}: {
+  host: EnsembleHost;
+  lab?: boolean;
+}) {
+  const state = useSyncExternalStore(host.subscribe, host.getSnapshot);
+  const busy = state.starting || state.tracks.some((track) => track.loading);
+  return (
+    <main>
+      <header>
+        <p className="eyebrow">GENERATIVE ENSEMBLE / M0</p>
+        <h1>{lab ? "InstrumentLab" : "即興樂團"}</h1>
+        <p>獨立樂器，共同節拍。每個聲部從 Seed 生成演奏事件。</p>
+      </header>
+      <section className="transport" aria-label="播放控制">
+        <div className="context">
+          4/4 · 88 BPM · C Major
+          <span data-testid="position">
+            第 {state.barIndex + 1} 小節 · {state.chord}
+          </span>
+        </div>
+        <label>
+          Seed
+          <input
+            aria-label="Seed"
+            value={state.seed}
+            disabled={state.running || busy}
+            onChange={(event) => host.setSeed(event.target.value)}
+          />
+        </label>
+        <div className="buttons">
+          <button
+            onClick={() => void host.start()}
+            disabled={state.running || busy}
+          >
+            {state.starting ? "啟動中…" : "Start"}
+          </button>
+          <button
+            onClick={() => host.stop()}
+            disabled={!state.running && !state.starting}
+          >
+            Stop
+          </button>
+        </div>
+        <p role="status">
+          {state.running ? "播放中" : "已停止"} · Cmaj7 → Am7 → Dm7 → G7
+        </p>
+      </section>
+      {state.error && <p role="alert">{state.error}</p>}
+      <p className="notice">
+        本版所有音色均為 synth placeholder（合成音暫代），尚未導入真實樂器
+        samples。播放中操作會在預先準備區段之後的小節生效。
+      </p>
+      <section className="grid" aria-label="樂器">
+        {state.tracks.map((track) => {
+          const pending = track.pendingAt !== undefined;
+          return (
+            <article
+              key={track.manifest.id}
+              data-testid={`instrument-${track.manifest.id}`}
+            >
+              <h2>{track.manifest.displayName}</h2>
+              <p className="tags">{track.manifest.capabilities.join(" · ")}</p>
+              <p>{track.manifest.sound.label}</p>
+              <p role="status">
+                {track.loading
+                  ? "載入中…"
+                  : pending
+                    ? `等待第 ${track.pendingAt! + 1} 小節生效`
+                    : track.active
+                      ? "已加入"
+                      : track.loaded
+                        ? "已載入 · 已移除"
+                        : "尚未載入"}
+              </p>
+              {track.error && <p role="alert">載入／生成失敗：{track.error}</p>}
+              <div className="buttons">
+                <button
+                  disabled={track.loading || pending || state.starting}
+                  onClick={() =>
+                    track.active
+                      ? host.remove(track.manifest.id)
+                      : void host.add(track.manifest.id)
+                  }
+                >
+                  {track.active ? "移除" : "加入"}
+                </button>
+                <button
+                  disabled={!track.active || pending || state.starting}
+                  aria-pressed={track.muted}
+                  onClick={() => host.mute(track.manifest.id, !track.muted)}
+                >
+                  Mute
+                </button>
+                <button
+                  disabled={!track.active || pending || state.starting}
+                  aria-pressed={track.solo}
+                  onClick={() => host.solo(track.manifest.id, !track.solo)}
+                >
+                  Solo
+                </button>
+              </div>
+              {!lab && (
+                <a
+                  href={`?instrument=${encodeURIComponent(track.manifest.id)}`}
+                >
+                  開啟 InstrumentLab ↗
+                </a>
+              )}
+            </article>
+          );
+        })}
+      </section>
+      {state.tracks.length === 0 && <p>未發現 Plugin；共同時鐘仍可啟動。</p>}
+      <footer>
+        {lab ? (
+          <a href="/">返回合奏</a>
+        ) : (
+          "M0 · Plugin-first · Offline synthesis"
+        )}
+        <span>Stop 後重新 Start 會從相同 Seed 的第一小節開始。</span>
+      </footer>
+    </main>
+  );
+}
