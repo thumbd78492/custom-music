@@ -52,10 +52,32 @@ export interface SampleRegion {
   readonly tuneCents?: number;
   readonly minVelocity?: number;
   readonly maxVelocity?: number;
+  /** Calibration of one recording relative to its bank, before performance gain. */
+  readonly gainDb?: number;
   /** Seconds in the source recording; both values must be supplied together. */
   readonly loopStart?: number;
   readonly loopEnd?: number;
 }
+
+/** Instrument-neutral primitives; articulation decisions belong to the plugin. */
+export interface SamplePlayback {
+  readonly layers?: readonly {
+    readonly key: string;
+    readonly weight: number;
+  }[];
+  /** Source-recording seconds, independent of the requested pitch/playback rate. */
+  readonly offsetSeconds?: number;
+  readonly attackSeconds?: number;
+  readonly transitionSeconds?: number;
+  readonly equalPowerTransition?: boolean;
+  /** Extend matching sources without restarting their recording or changing pitch. */
+  readonly continueMatching?: boolean;
+}
+export type SamplePerformance = (
+  event: MusicEvent,
+  audioTimeSec: number,
+  secondsPerStep: number,
+) => SamplePlayback;
 
 export interface SynthVoiceOptions {
   readonly waveform: "sine" | "triangle" | "sawtooth" | "square";
@@ -98,7 +120,10 @@ export interface AudioServices {
   createPercussionVoice(
     kit: Readonly<Record<string, PercussionSound>>,
   ): InstrumentVoice;
-  createSampleVoice(bank: SampleBank): Promise<InstrumentVoice>;
+  createSampleVoice(
+    bank: SampleBank,
+    performance?: SamplePerformance,
+  ): Promise<InstrumentVoice>;
 }
 
 export interface InstrumentPlugin<State = unknown> {

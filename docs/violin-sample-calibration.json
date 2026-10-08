@@ -1,0 +1,227 @@
+{
+  "referenceSustainRmsDbfs": -21,
+  "windowSeconds": [1.2, 3.1],
+  "method": "PCM16 mono RMS calibration of source recordings, not master normalisation or a perceptual acceptance",
+  "recordings": [
+    {
+      "key": "a5-loud",
+      "sha256": "5cda0e206af24b1ecd50e4fcab3793c3e96b77c5da631f5769126b30c43c76e7",
+      "windows": [
+        {
+          "from": 0,
+          "to": 0.15,
+          "rmsDbfs": -17.169063951252014
+        },
+        {
+          "from": 0.3,
+          "to": 1.1,
+          "rmsDbfs": -13.905002109561007
+        },
+        {
+          "from": 1.2,
+          "to": 3.1,
+          "rmsDbfs": -15.510525916744712
+        }
+      ],
+      "gainDb": -5.489
+    },
+    {
+      "key": "a5-soft",
+      "sha256": "661422f9b66fab48a2c9073f97011bce8d8657086261e1d9443feb50b5d105cc",
+      "windows": [
+        {
+          "from": 0,
+          "to": 0.15,
+          "rmsDbfs": -39.70050480970847
+        },
+        {
+          "from": 0.3,
+          "to": 1.1,
+          "rmsDbfs": -29.630588368083654
+        },
+        {
+          "from": 1.2,
+          "to": 3.1,
+          "rmsDbfs": -23.078747079756468
+        }
+      ],
+      "gainDb": 2.079
+    },
+    {
+      "key": "c5-loud",
+      "sha256": "dac4ce72fe334118dd9c95b3856d8ce42fb75958c3f216570a5b85643ff1b5e5",
+      "windows": [
+        {
+          "from": 0,
+          "to": 0.15,
+          "rmsDbfs": -15.56414574960926
+        },
+        {
+          "from": 0.3,
+          "to": 1.1,
+          "rmsDbfs": -14.030497186349965
+        },
+        {
+          "from": 1.2,
+          "to": 3.1,
+          "rmsDbfs": -12.11643579339137
+        }
+      ],
+      "gainDb": -8.884
+    },
+    {
+      "key": "c5-soft",
+      "sha256": "8cde816253e372e5a44eb0cfa6d207a171f4531b75df4deb74919d3bb33762f0",
+      "windows": [
+        {
+          "from": 0,
+          "to": 0.15,
+          "rmsDbfs": -28.38070948361692
+        },
+        {
+          "from": 0.3,
+          "to": 1.1,
+          "rmsDbfs": -15.871543202102806
+        },
+        {
+          "from": 1.2,
+          "to": 3.1,
+          "rmsDbfs": -12.544249883238423
+        }
+      ],
+      "gainDb": -8.456
+    },
+    {
+      "key": "c6-loud",
+      "sha256": "493e26ff0577a118bce944664a2996096628df59143ad185b9a169dfc9ab58ec",
+      "windows": [
+        {
+          "from": 0,
+          "to": 0.15,
+          "rmsDbfs": -20.131464210737594
+        },
+        {
+          "from": 0.3,
+          "to": 1.1,
+          "rmsDbfs": -16.345997884827923
+        },
+        {
+          "from": 1.2,
+          "to": 3.1,
+          "rmsDbfs": -16.143725431599066
+        }
+      ],
+      "gainDb": -4.856
+    },
+    {
+      "key": "c6-soft",
+      "sha256": "11e0022c6cd928e11878f3c5685b0768a2375e8d1e6198ae409df031856c1e70",
+      "windows": [
+        {
+          "from": 0,
+          "to": 0.15,
+          "rmsDbfs": -40.126708595543015
+        },
+        {
+          "from": 0.3,
+          "to": 1.1,
+          "rmsDbfs": -27.26671421568422
+        },
+        {
+          "from": 1.2,
+          "to": 3.1,
+          "rmsDbfs": -21.224058383913544
+        }
+      ],
+      "gainDb": 0.224
+    },
+    {
+      "key": "e5-loud",
+      "sha256": "6c70c3e6e710f835f72b6163f5845f33342894f387b26bbfaa62f7f974b30fb4",
+      "windows": [
+        {
+          "from": 0,
+          "to": 0.15,
+          "rmsDbfs": -20.400455504359613
+        },
+        {
+          "from": 0.3,
+          "to": 1.1,
+          "rmsDbfs": -19.95343511737927
+        },
+        {
+          "from": 1.2,
+          "to": 3.1,
+          "rmsDbfs": -19.500581754723814
+        }
+      ],
+      "gainDb": -1.499
+    },
+    {
+      "key": "e5-soft",
+      "sha256": "855150da65a3048e66dde5d44f3bb53a1103626e5a96cb5fc64b0a3b1ee54106",
+      "windows": [
+        {
+          "from": 0,
+          "to": 0.15,
+          "rmsDbfs": -44.31714267320707
+        },
+        {
+          "from": 0.3,
+          "to": 1.1,
+          "rmsDbfs": -30.510584464035357
+        },
+        {
+          "from": 1.2,
+          "to": 3.1,
+          "rmsDbfs": -24.530305989360144
+        }
+      ],
+      "gainDb": 3.53
+    },
+    {
+      "key": "g5-loud",
+      "sha256": "aa02ce9537b26445342c817edad918bb258fc24e804f462e146a1d9d8224c6f1",
+      "windows": [
+        {
+          "from": 0,
+          "to": 0.15,
+          "rmsDbfs": -21.724373135019725
+        },
+        {
+          "from": 0.3,
+          "to": 1.1,
+          "rmsDbfs": -19.474204406053786
+        },
+        {
+          "from": 1.2,
+          "to": 3.1,
+          "rmsDbfs": -20.07218939385025
+        }
+      ],
+      "gainDb": -0.928
+    },
+    {
+      "key": "g5-soft",
+      "sha256": "3093b9d9431ce537e3afaf1090bd62757f4477b41a313ffb475d3739128e471c",
+      "windows": [
+        {
+          "from": 0,
+          "to": 0.15,
+          "rmsDbfs": -48.09998134085675
+        },
+        {
+          "from": 0.3,
+          "to": 1.1,
+          "rmsDbfs": -36.14428668588475
+        },
+        {
+          "from": 1.2,
+          "to": 3.1,
+          "rmsDbfs": -25.314650767075307
+        }
+      ],
+      "gainDb": 4.315
+    }
+  ]
+}

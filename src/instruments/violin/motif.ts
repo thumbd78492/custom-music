@@ -5,6 +5,7 @@ export interface MotifNote {
   readonly step: number;
   readonly duration: number;
   readonly degree: number;
+  readonly rebow?: boolean;
 }
 export interface Motif {
   readonly id: string;
@@ -16,14 +17,16 @@ export interface ViolinState {
   readonly homeTheme?: Motif;
   readonly themeStartedAt?: number;
   readonly previousMidi?: number;
+  readonly previousEndStep?: number;
+  readonly phraseVelocity?: number;
 }
 const rhythms = [
-  [0, 4, 6, 10],
-  [0, 3, 8],
-  [2, 6, 10, 12],
-  [0, 6, 8, 12],
+  [0, 4, 8, 12],
+  [0, 6, 10],
+  [2, 6, 10, 13],
+  [0, 6, 12],
   [0, 4, 10],
-  [2, 8, 11],
+  [2, 8, 12],
 ];
 function createMotif(plan: BarPlan): Motif {
   const random = new SeededRandom(
@@ -36,22 +39,25 @@ function createMotif(plan: BarPlan): Motif {
     return rhythm.map((step, index) => {
       // Mostly adjacent scale degrees with an occasional third/fourth, followed
       // by a reversal. The resulting contour is stored, not redrawn each bar.
-      const direction = bar < length / 2 ? 1 : -1;
+      let direction = bar < length / 2 ? 1 : -1;
+      if (degree >= 4) direction = -1;
+      if (degree <= -1) direction = 1;
       degree = Math.max(
-        -2,
+        -1,
         Math.min(
-          7,
-          degree + (random.next() < 0.22 ? 2 * direction : direction),
+          5,
+          degree + (random.next() < 0.12 ? 2 * direction : direction),
         ),
       );
-      if (bar === length - 1 && index === rhythm.length - 1) degree = 0;
+      // Approach the ending instead of forcing a large jump to the tonic.
+      if (bar === length - 1) degree += degree > 0 ? -1 : degree < 0 ? 1 : 0;
+      const next = rhythm[index + 1] ?? 16;
+      const nextRebows = (index + 1) % 3 === 0 && index + 1 < rhythm.length;
       return {
         step,
-        duration: Math.max(
-          1.8,
-          Math.min(5.5, (rhythm[index + 1] ?? 15.5) - step - 0.35),
-        ),
+        duration: Math.max(2.5, next - step - (nextRebows ? 0.6 : 0)),
         degree,
+        rebow: index === 0 || index % 3 === 0,
       };
     });
   });
@@ -90,7 +96,17 @@ export function material(plan: BarPlan, state: Readonly<ViolinState>) {
         ? {
             ...note,
             degree: note.degree + (plan.sectionIndex % 2 ? -1 : 1),
-            duration: Math.max(1.8, note.duration - 0.5),
+            duration: Math.max(2.5, note.duration - 0.5),
+          }
+        : note,
+    );
+  }
+  if (plan.phrasePosition === plan.phraseLength - 1 && notes.length) {
+    notes = notes.map((note, index) =>
+      index === notes.length - 1
+        ? {
+            ...note,
+            duration: Math.max(2.5, Math.min(note.duration, 15 - note.step)),
           }
         : note,
     );
@@ -113,16 +129,20 @@ export function pitch(
     Math.min(84, tonicMidi + ((pc - plan.tonic + 12) % 12) + octaveDegree * 12),
   );
   const strong = step % 4 === 0;
-  const allowed = strong ? plan.chordPitchClasses : scale;
+  // Harmony is a preference, not a compulsory jump on every strong beat.
+  const allowed = [...new Set([...scale, ...plan.chordPitchClasses])];
   const candidates = Array.from({ length: 16 }, (_, i) => 69 + i).filter(
     (midi) => allowed.includes(midi % 12),
   );
   return candidates.sort((a, b) => {
     const score = (midi: number) =>
       Math.abs(midi - target) +
+      (strong && !plan.chordPitchClasses.includes(midi % 12) ? 1.2 : 0) +
+      (!scale.includes(midi % 12) ? 1 : 0) +
       (previous === undefined
         ? 0
-        : Math.max(0, Math.abs(midi - previous) - 5) * 2);
+        : Math.abs(midi - previous) * 0.18 +
+          Math.max(0, Math.abs(midi - previous) - 4) * 5);
     return score(a) - score(b) || a - b;
   })[0]!;
 }

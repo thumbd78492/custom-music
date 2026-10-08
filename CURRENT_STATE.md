@@ -1,7 +1,68 @@
 # 開發狀態
 
-日期：2026-10-09。M1 音量修正、M2 生成式音樂已分階段實作。
-**M2 工程實作與完整回歸已完成；人工連續 10 分鐘音樂品質驗收仍 Pending。**
+日期：2026-10-09。最新範圍為 **M2 小提琴音量／連奏／力度層／旋律修正**。
+**修正稿人工音質驗收 Pending；本次沒有開始 M3。**
+
+## 本次 M2 小提琴修正
+
+使用者已實聽原 `alpha-balanced.wav`，指出 Violin 過大與每音重新拉弓。
+本次開始基線 `79d38a5f0b685365793d397b596d70ef8d8aa58b`，工作目錄乾淨；
+原版 source、事件、PCM stems 與舊收據均保留。
+
+- Violin Plugin `0.2.1`，gainDb **-9**；輸出原演奏 -5／-8／-9／-10 的
+  Full／Violin Only，並保留完全相同的 Ensemble Without Violin。
+- `performance.ts` 私有弓奏策略：<=4 semitones、實際間隔 <=75 ms 的相連音
+  可連奏；跳過初始弓奏區、70 ms equal-power crossfade、同音延續既有 Source。
+  Rebow／Detached 保留音頭；不使用 pitch glide。
+- Soft／Loud 改為連續平滑混合、同弓內緩慢變化；來源持續區 RMS 校準，
+  sample 檔與 Master 0.65 不變，沒有 Normalize。
+- Motif Memory 保留；延長音長、同弓分組及句尾呼吸，和弦音是偏好而非強迫跳音。
+  Piano／Bass／Drums 生成器、設定與 CreativeDirectorPort 未修改。
+- 共用音訊只擴充通用 SamplePerformance primitives；Host／AudioEngine 無具名分支。
+- 受控 alpha A/B 是前 64 小節；原事件等於已聽十分鐘稿的相同前綴。
+  只改演奏策略稿使用完全相同事件；旋律稿僅替換 Violin 事件，固定原版伴奏 PCM。
+  App 的匿名協作正常保留，其他聲部可能因新的意圖間接產生不同事件。
+
+[A/B WAV、聲部量測、主觀複聽表及實作說明](docs/M2_VIOLIN_REVIEW.md)，
+[完整量測曲線](.verification/violin-m2-2026-10-09/metrics.json)，
+[真實 Samples 品質與資源收據](.verification/violin-m2-2026-10-09/audio-quality.json)。
+
+最新完整回歸：[results.json](.verification/2026-10-08T18-06-29-299Z/results.json)。
+
+| 檢查               | 本次結果                                                              |
+| ------------------ | --------------------------------------------------------------------- |
+| Typecheck          | 通過                                                                  |
+| Vitest             | 17 檔、111 項通過                                                     |
+| Build              | 通過；主 chunk 540.37 kB，既有大小警告                                |
+| Samples／授權 hash | 41 音檔、4 份授權一致；音檔 bytes 未修改                              |
+| 四件實體隔離       | 全部 Typecheck／Build 通過；Bass／Drums 81、Piano 80、Violin 85 tests |
+| Edge E2E           | 34 通過、0 失敗、0 跳過，7.2 分鐘                                     |
+| ESLint／Prettier   | 全部通過                                                              |
+
+[隔離收據](.isolation/2026-10-08T18-06-35-066Z/results.json)，
+[完整 E2E log](.verification/2026-10-08T18-06-29-299Z/e2e.log)。
+新增真實 Samples 測試確認原 0.6 門檻差縮至 <0.01 dB；同音延續不新增 Source；
+Attack／Crossfade／Release 中的 Stop 保留前綴，尾端歸零；72 次快速換音、
+144 Sources 最後全部 disconnect。換音 20 ms windows 最大 +2.554 dB、最低 -5.686 dB，
+沒有把門檻內的工程結果寫成零波動或真實連奏聽感通過。
+
+受控 A/B 長度 **155.35 秒／64 小節**；-9 gain-only 使 Violin RMS 恰好低 4 dB。
+完整修正 -9 Violin RMS -41.79 dBFS（含音色校準／新演奏影響），
+對原 -5 低約 7.46 dB；是否變得過小也必須複聽，-8／-10 的完整修正稿一併保留。
+旋律平均音長 0.548 → 0.651 s，>4 semitones 跳進 22 → 0，重複同音 25.1% → 20.1%。
+撤下的過度同音候選、兩次浮點嚴格 hash 失敗與中斷的回歸紀錄都有保留，
+細節見 A/B 說明，不將中斷批次當成完整成功。
+
+另已產生最新 App 正常匿名協作的
+[完整 alpha／Balanced WAV](.verification/listening-2026-10-08T18-12-56-076Z/alpha-balanced.wav)
+與 [段落／完整事件／量測](.verification/listening-2026-10-08T18-12-56-076Z/plan-and-metrics.json)：
+602.47 秒、250 小節、23 段，sample Peak -11.03 dBFS、RMS -29.91 dBFS。
+此完整稿允許新 Violin 意圖影響伴奏；受控 A/B 則固定原版伴奏 PCM。
+人工連奏自然度、Vibrato／雙層混合與合奏音量仍 Pending。
+
+## 修正前的 M1／M2 歷史紀錄
+
+以下數值與設定是修正前的歷史基準，最新 Violin 設定見上方。
 
 本次基線 `bf1be8488d275ac53263c1a3499bb8f60c2b4c8e`，開始時工作目錄乾淨。
 使用者明確授權修正音量後進入 M2，並將 Motif Memory 納入本輪。

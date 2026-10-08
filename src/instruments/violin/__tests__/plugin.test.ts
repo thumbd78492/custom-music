@@ -6,7 +6,9 @@ import type {
 import type { BarPlan, EnsembleIntent } from "../../../contracts/music";
 import { plugin } from "../index";
 import { sampleBank } from "../samples";
-import { material } from "../motif";
+import { material, pitch } from "../motif";
+import { createPerformance } from "../performance";
+import { MusicDirector } from "../../../core/MusicDirector";
 
 const plan: BarPlan = {
   barIndex: 0,
@@ -106,8 +108,11 @@ describe("violin independent plugin", () => {
     );
     expect(adapted.nextState.theme).toEqual(state.theme);
     for (const event of adapted.events)
-      if (event.kind === "note" && event.step % 4 === 0)
-        expect(newHarmony.chordPitchClasses).toContain(event.midi % 12);
+      if (event.kind === "note")
+        expect([
+          ...newHarmony.scalePitchClasses,
+          ...newHarmony.chordPitchClasses,
+        ]).toContain(event.midi % 12);
   });
 
   it("breathes, respects its recorded register and responds to upper-register congestion", () => {
@@ -190,9 +195,9 @@ describe("violin independent plugin", () => {
             expect(Number.isInteger(event.midi)).toBe(true);
             expect(event.midi).toBeGreaterThanOrEqual(69);
             expect(event.midi).toBeLessThanOrEqual(84);
-            expect(
-              event.step % 4 === 0 ? pitchClasses : plan.scalePitchClasses,
-            ).toContain(event.midi % 12);
+            expect([
+              ...new Set([...pitchClasses, ...plan.scalePitchClasses]),
+            ]).toContain(event.midi % 12);
           } else {
             expect(["kick", "snare", "hat"]).toContain(event.sampleKey);
           }
@@ -216,8 +221,128 @@ describe("violin independent plugin", () => {
     expect(plugin.manifest.sound.kind).toBe("samples");
     expect(plugin.manifest.sound.label).not.toContain("placeholder");
     expect(Object.keys(sampleBank.urls)).toHaveLength(10);
-    expect(await plugin.createVoice(audio)).toBe(voice);
+    const adapter = await plugin.createVoice(audio);
+    adapter.releaseAll(2);
+    adapter.dispose();
+    expect(voice.releaseAll).toHaveBeenCalledWith(2);
+    expect(voice.dispose).toHaveBeenCalledOnce();
     expect(audio.createSynthVoice).not.toHaveBeenCalled();
-    expect(audio.createSampleVoice).toHaveBeenCalledWith(sampleBank);
+    expect(audio.createSampleVoice).toHaveBeenCalledWith(
+      sampleBank,
+      expect.any(Function),
+    );
+  });
+
+  it("connects small intervals, preserves same-pitch sources and bows after rests or jumps", () => {
+    const performance = createPerformance();
+    const note = {
+      kind: "note",
+      step: 0,
+      midi: 76,
+      velocity: 0.59,
+      durationSteps: 4,
+    } as const;
+    expect(performance.select(note, 1, 0.15).offsetSeconds).toBe(0);
+    const legato = performance.select(
+      { ...note, midi: 77, velocity: 0.61 },
+      1.6,
+      0.15,
+    );
+    expect(legato.offsetSeconds).toBe(1.2);
+    expect(legato.layers!.map((layer) => layer.key)).toEqual([
+      "e5-soft",
+      "e5-loud",
+    ]);
+    const retained = performance.select({ ...note, midi: 77 }, 2.2, 0.15);
+    expect(retained.continueMatching).toBe(true);
+    expect(
+      performance.select({ ...note, midi: 84 }, 2.8, 0.15).offsetSeconds,
+    ).toBe(0);
+    expect(
+      performance.select({ ...note, midi: 84 }, 4, 0.15).offsetSeconds,
+    ).toBe(0);
+    expect(
+      performance.select(
+        { ...note, midi: 83, articulation: "rebow" },
+        4.6,
+        0.15,
+      ).offsetSeconds,
+    ).toBe(0);
+    performance.reset();
+    expect(performance.select(note, 5.2, 0.15).offsetSeconds).toBe(0);
+  });
+
+  it("keeps a continuous layer blend across the former 0.6 threshold", () => {
+    const note = { kind: "note", step: 0, midi: 76, durationSteps: 4 } as const;
+    const below = createPerformance().select(
+      { ...note, velocity: 0.5999 },
+      1,
+      0.15,
+    );
+    const above = createPerformance().select(
+      { ...note, velocity: 0.6001 },
+      1,
+      0.15,
+    );
+    expect(above.layers!.map((layer) => layer.key)).toEqual(
+      below.layers!.map((layer) => layer.key),
+    );
+    for (let i = 0; i < 2; i++)
+      expect(
+        Math.abs(above.layers![i]!.weight - below.layers![i]!.weight),
+      ).toBeLessThan(0.001);
+  });
+
+  it("prefers continuous voice leading when a modulation removes the former pitch from the chord", () => {
+    const arrival = {
+      ...plan,
+      tonic: 2,
+      scalePitchClasses: [2, 4, 6, 7, 9, 11, 1],
+      chordPitchClasses: [2, 6, 9],
+      modulation: "arrival" as const,
+    };
+    for (const previous of [72, 74, 76, 79, 81, 84])
+      expect(
+        Math.abs(pitch(arrival, 0, 0, previous) - previous),
+      ).toBeLessThanOrEqual(3);
+  });
+
+  it("keeps bounded intervals, longer bows, legato and phrase rests over four seeded ten-minute plans", () => {
+    for (const seed of ["alpha", "beta", "音樂", "0"]) {
+      let state = plugin.createInitialState(),
+        previous: number | undefined;
+      let repeats = 0;
+      let legatos = 0,
+        rests = 0,
+        totalDuration = 0,
+        notes = 0;
+      const director = new MusicDirector(seed);
+      for (let bar = 0; bar < 280; bar++) {
+        const current = director.planBar(bar);
+        const generated = plugin.generateBar(
+          current,
+          plugin.proposeBar(current, state),
+          ensemble,
+          state,
+        );
+        state = generated.nextState;
+        if (!generated.events.length) rests++;
+        for (const event of generated.events)
+          if (event.kind === "note") {
+            if (previous !== undefined) {
+              expect(Math.abs(event.midi - previous)).toBeLessThanOrEqual(4);
+              if (event.midi === previous) repeats++;
+            }
+            previous = event.midi;
+            legatos += event.articulation === "legato" ? 1 : 0;
+            totalDuration += (event.durationSteps * 15) / current.bpm;
+            notes++;
+          }
+      }
+      expect(totalDuration / notes).toBeGreaterThan(0.55);
+      expect(legatos).toBeGreaterThan(notes * 0.35);
+      expect(repeats / notes).toBeLessThan(0.55);
+      expect(rests).toBeGreaterThan(0);
+    }
   });
 });

@@ -1,7 +1,10 @@
 import { afterEach, expect, it, vi } from "vitest";
 import { loadSampleVoice } from "../../src/audio/SampleVoice";
 import type { SampleContext } from "../../src/audio/SampleVoice";
-import type { SampleBank } from "../../src/contracts/instrument";
+import type {
+  SampleBank,
+  SamplePerformance,
+} from "../../src/contracts/instrument";
 
 const bank: SampleBank = {
   kind: "pitched",
@@ -67,12 +70,13 @@ function setup() {
   }));
   vi.stubGlobal("fetch", fetcher);
   const controller = new AbortController();
-  const load = (spec = bank) =>
+  const load = (spec = bank, performance?: SamplePerformance) =>
     loadSampleVoice(
       context as unknown as SampleContext,
       {} as AudioNode,
       spec,
       controller.signal,
+      performance,
     );
   return { sources, gains, context, fetcher, controller, load };
 }
@@ -232,4 +236,64 @@ it("does not burst stale notes and bounds voices under excessive simultaneous ev
       .length,
   ).toBeLessThanOrEqual(8);
   voice.dispose();
+});
+
+it("continues matching layered recordings without pitch automation and cancels future sustained sources", async () => {
+  const s = setup();
+  const voice = await s.load(
+    {
+      ...bank,
+      urls: { soft: "/soft.wav", loud: "/loud.wav" },
+      regions: {
+        soft: { midi: 60, loopStart: 1, loopEnd: 3 },
+        loud: { midi: 60, loopStart: 1, loopEnd: 3 },
+      },
+      monophonic: true,
+    },
+    () => ({
+      layers: [
+        { key: "soft", weight: 0.7 },
+        { key: "loud", weight: 0.7 },
+      ],
+      continueMatching: true,
+      offsetSeconds: 1.1,
+    }),
+  );
+  voice.play(note, 2, 0.25);
+  voice.play(note, 3, 0.25);
+  expect(s.sources).toHaveLength(2);
+  expect(s.sources[0]!.start).toHaveBeenCalledWith(2, 1.1);
+  expect(s.sources[0]!.stop).toHaveBeenLastCalledWith(4.4);
+  expect(s.sources[0]!.playbackRate.setValueAtTime).toHaveBeenCalledOnce();
+  expect(
+    s.sources[0]!.playbackRate.linearRampToValueAtTime,
+  ).not.toHaveBeenCalled();
+  voice.releaseAll(1.5);
+  expect(
+    s.sources.every((source) => source.stop.mock.lastCall![0] === 1.5),
+  ).toBe(true);
+  voice.dispose();
+  expect(
+    s.sources.every((source) => source.disconnect.mock.calls.length === 1),
+  ).toBe(true);
+});
+
+it("rejects invalid layer weights, unknown regions and offsets before creating sources", async () => {
+  for (const playback of [
+    { layers: [{ key: "60", weight: NaN }] },
+    { layers: [{ key: "missing", weight: 1 }] },
+    { offsetSeconds: 11 },
+    {
+      layers: [
+        { key: "60", weight: 0.5 },
+        { key: "60", weight: 0.5 },
+      ],
+    },
+  ]) {
+    const s = setup(),
+      voice = await s.load(bank, () => playback);
+    expect(() => voice.play(note, 2, 0.25)).toThrow();
+    expect(s.sources).toHaveLength(0);
+    voice.dispose();
+  }
 });

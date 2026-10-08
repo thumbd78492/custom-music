@@ -48,12 +48,13 @@ export async function renderListening(seed: string) {
         createPercussionVoice() {
           throw new Error("Real samples required");
         },
-        createSampleVoice(bank) {
+        createSampleVoice(bank, performance) {
           return loadSampleVoice(
             context,
             master,
             bank,
             new AbortController().signal,
+            performance,
           );
         },
       }),

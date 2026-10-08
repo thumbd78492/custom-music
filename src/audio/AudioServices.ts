@@ -5,6 +5,7 @@ import type {
   InstrumentVoice,
   PercussionSound,
   SampleBank,
+  SamplePerformance,
   SynthVoiceOptions,
 } from "../contracts/instrument";
 
@@ -156,7 +157,10 @@ export class TrackAudioServices implements AudioServices {
     });
   }
 
-  async createSampleVoice(bank: SampleBank): Promise<InstrumentVoice> {
+  async createSampleVoice(
+    bank: SampleBank,
+    performance?: SamplePerformance,
+  ): Promise<InstrumentVoice> {
     if (this.disposed) throw new Error("Audio track has been disposed");
     const controller = new AbortController();
     const cancel = () => controller.abort();
@@ -167,6 +171,7 @@ export class TrackAudioServices implements AudioServices {
         this.destination.input,
         bank,
         controller.signal,
+        performance,
       );
       if (controller.signal.aborted || this.disposed) {
         voice.dispose();

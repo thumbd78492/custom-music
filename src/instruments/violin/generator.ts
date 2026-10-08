@@ -30,30 +30,59 @@ export function generateBar(
   state: Readonly<ViolinState>,
 ) {
   const random = new SeededRandom(
-    deriveSeed(plan.rootSeed, plan.barIndex, "violin", "performance"),
+    deriveSeed(
+      plan.rootSeed,
+      plan.barIndex - plan.phrasePosition,
+      "violin",
+      "dynamics",
+    ),
   );
   const { theme, startedAt, notes } = material(plan, state);
   let previous = state.previousMidi;
+  let previousEnd = state.previousEndStep ?? -100;
+  const targetVelocity =
+    0.5 + plan.energy * 0.13 + random.next() * 0.035 - ensemble.density * 0.02;
+  const phraseVelocity =
+    state.phraseVelocity === undefined
+      ? targetVelocity
+      : plan.phrasePosition === 0
+        ? state.phraseVelocity + (targetVelocity - state.phraseVelocity) * 0.35
+        : state.phraseVelocity;
   const events: MusicEvent[] = [];
   notes.forEach((note, index) => {
     // A crowded upper register leaves a breathing space; never split the saved theme.
     if (ensemble.highRegisterLoad > 0.55 && index === notes.length - 1) return;
     const midi = pitch(plan, note.degree, note.step, previous);
+    const absoluteStep = plan.barIndex * 16 + note.step;
+    const connected =
+      absoluteStep - previousEnd <= 0.1 &&
+      previous !== undefined &&
+      Math.abs(midi - previous) <= 4 &&
+      !note.rebow;
+    const durationSteps = Math.min(note.duration, 16 - note.step);
     previous = midi;
     events.push({
       kind: "note",
       step: note.step,
-      durationSteps: Math.min(note.duration, 16 - note.step),
+      durationSteps,
       midi,
       velocity: Math.min(
-        0.76,
-        0.48 +
-          plan.energy * 0.16 +
-          random.next() * 0.08 -
-          ensemble.density * 0.025,
+        0.74,
+        phraseVelocity +
+          Math.sin(
+            ((plan.phrasePosition + index / Math.max(1, notes.length - 1)) /
+              plan.phraseLength) *
+              Math.PI,
+          ) *
+            0.018 -
+          (index === notes.length - 1 &&
+          plan.phrasePosition === plan.phraseLength - 1
+            ? 0.015
+            : 0),
       ),
-      articulation: "sustain",
+      articulation: connected ? "legato" : note.rebow ? "rebow" : "detached",
     });
+    previousEnd = absoluteStep + durationSteps;
   });
   return {
     events,
@@ -63,6 +92,8 @@ export function generateBar(
       homeTheme: state.homeTheme ?? theme,
       themeStartedAt: startedAt,
       previousMidi: previous,
+      previousEndStep: previousEnd,
+      phraseVelocity,
     },
   };
 }

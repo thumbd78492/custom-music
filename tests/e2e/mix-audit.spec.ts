@@ -78,13 +78,14 @@ test("measures actual ensemble samples, stereo RMS and unnormalised peaks", asyn
             createPercussionVoice() {
               throw new Error("Samples required");
             },
-            createSampleVoice(bank) {
+            createSampleVoice(bank, performance) {
               gains[plugin.manifest.id] = bank.gainDb ?? 0;
               return loadSampleVoice(
                 context,
                 stereo,
                 bank,
                 new AbortController().signal,
+                performance,
               );
             },
           });

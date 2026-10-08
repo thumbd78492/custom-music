@@ -3,10 +3,24 @@ import type {
   InstrumentVoice,
 } from "../../contracts/instrument";
 import { sampleBank } from "./samples";
+import { createPerformance } from "./performance";
 
-/** Bowed attacks with a sustained recording loop; changes crossfade the preceding bow. */
+/** Sample-based legato approximation with preserved bows and phrase-level dynamics. */
 export async function createVoice(
   audio: AudioServices,
 ): Promise<InstrumentVoice> {
-  return audio.createSampleVoice(sampleBank);
+  const performance = createPerformance();
+  const voice = await audio.createSampleVoice(sampleBank, performance.select);
+  return {
+    play: (event, time, secondsPerStep) =>
+      voice.play(event, time, secondsPerStep),
+    releaseAll: (time) => {
+      performance.reset();
+      voice.releaseAll(time);
+    },
+    dispose: () => {
+      performance.reset();
+      voice.dispose();
+    },
+  };
 }

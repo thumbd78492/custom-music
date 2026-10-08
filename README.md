@@ -6,7 +6,9 @@ TypeScript + React + Vite + Tone.js 的生成式樂團。Piano、Violin、Drums�
 M2 依 Seed 選擇 80–105 BPM、大／小調與功能和聲，在 8–16 小節段落間演化速度、
 轉調與能量。Violin 記住 2–4 小節旋律主題；四件透過匿名 EnsembleIntent 協調音域、
 密度與重音。三種變化模式 Subtle／Balanced／Experimental，預設 Balanced。
-M1 真實 Samples 與生命週期保留，Bass gain -12 dB、Violin -5 dB。
+M1 真實 Samples 與生命週期保留，Bass gain -12 dB、Violin **-9 dB**。
+M2 小提琴已加入弓段連奏、平滑力度層與旋律連接修正；
+[同 Seed -8／-9／-10 A/B 與人工複聽紀錄](docs/M2_VIOLIN_REVIEW.md) 仍待人工音質驗收。
 
 **工程驗證不代表音樂品質驗收。10 分鐘人工聆聽仍 Pending**，見
 [M2 聆聽表](docs/M2_LISTENING.md) 與 [最新實作／測試證據](CURRENT_STATE.md)。
@@ -35,7 +37,7 @@ npm run dev
 
 授權與來源見 [SAMPLE_LICENSES](docs/SAMPLE_LICENSES.md)，逐檔原始／輸出 SHA-256、來源版本、轉換命令及處理限制見 [sample-provenance.json](docs/sample-provenance.json)。完整下載來源保存在被 Git 忽略的 `.sample-sources/`；網站只使用 Plugin 目錄內的精簡素材。Production build 將使用中的 `.wav`／`.flac` 音檔輸出為獨立資產，加入該件時才以 HTTP 取得及解碼。
 
-Piano 使用兩層力度的 Kawai 錄音；Web 子集保留每個來源前最多 8 秒，裁切時加上末端淡出，沒有保留完整原始長衰減。Violin 使用真實持續弓奏錄音準備 loop，以逐音包絡及交疊淡出處理持續音、換音與 Release；這不是另行錄製的 legato transition。鋼琴尾音自然度、小提琴 loop 可聞度與連奏品質仍須人工聆聽。
+Piano 使用兩層力度的 Kawai 錄音；Web 子集保留每個來源前最多 8 秒，裁切時加上末端淡出，沒有保留完整原始長衰減。Violin 由私有演奏策略決定連奏／換弓，連奏跳過錄音音頭、平滑交叉淡化，同音延續既有 Source；兩力度層連續混合與音量補償，沒有 Pitch Glide。這不是另行錄製的 legato transition。鋼琴尾音自然度、小提琴 Vibrato、力度混合與連奏品質仍須人工聆聽。
 
 ## 驗證
 

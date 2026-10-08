@@ -340,13 +340,14 @@ for (const id of ids) {
               "A real-sample test cannot use synthesized percussion",
             );
           },
-          createSampleVoice(configuration) {
+          createSampleVoice(configuration, performance) {
             bank = configuration;
             return loadSampleVoice(
               context,
               context.destination,
               configuration,
               new AbortController().signal,
+              performance,
             );
           },
         });
