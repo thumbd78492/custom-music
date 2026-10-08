@@ -1,129 +1,102 @@
 # 開發狀態
 
-日期：2026-10-08。M1 工程實作與工程驗證已完成，包含實際背景分頁切換與恢復。
-**人工四個 Seed 各 10 分鐘聆聽仍為 Pending；M1 尚未正式完成，不進入 M2。**
+日期：2026-10-09。M1 音量修正、M2 生成式音樂已分階段實作。
+**M2 工程實作與完整回歸已完成；人工連續 10 分鐘音樂品質驗收仍 Pending。**
 
-## 基線與範圍
+本次基線 `bf1be8488d275ac53263c1a3499bb8f60c2b4c8e`，開始時工作目錄乾淨。
+使用者明確授權修正音量後進入 M2，並將 Motif Memory 納入本輪。
+[2026-10-08 M1 歷史紀錄](docs/history/M1_STATE.md) 與所有舊收據保留。
+本次未部署、未加入 LLM API、未修改音檔或 sample tuning。
 
-開始前 Repository 無未提交變更；M0 HEAD 為 `5aebdde1b3d1efae2b25e95decef14fb1b21b02e`。
-重新執行 M0 Typecheck、70 項 Vitest、Production Build、6 項 Edge E2E 均通過。
-僅實作 M1，沒有新增 M2–M5 功能、LLM API、後端、複雜 Motif Memory 或曲風。
+## 階段 1：M1 混音修正
 
-MusicDirector、EnsembleCoordinator、BarPlanner、PluginSession、SeededRandom、
-四件 generator、MusicEvent 及創意指令契約均維持原內容。新增固定 M0 音樂事件
-快照涵蓋四個 Seed × 15 個非空組合 × 12 小節及反向載入順序。
+- Bass gainDb：-9 → **-12**。Violin：-12 → -7 初測後再調 **-5**。
+- 使用原 M1 事件、真實 stereo Samples、原 voice 包絡、Master 0.65，
+  四個 Seed 各 32 小節；測量整段 RMS、400 ms 最大 RMS、未經 limiter 的 sample Peak。
+- 初測 Violin RMS 仍比 Piano 低約 3–5 dB，故增加 2 dB。最終 Bass RMS 約
+  -29.2 至 -29.0 dBFS、Violin -32.8 至 -30.8 dBFS，合奏 Peak -10.3 至 -9.0 dBFS。
+- [初測](.verification/mix-2026-10-08T16-27-22-423Z/metrics-and-events.json)、
+  [最終候選](.verification/mix-2026-10-08T16-29-02-916Z/metrics-and-events.json)；
+  原 M0 音樂 golden 61/61 通過，確認此階段沒有改作曲事件。
+- Before 是相同聲部波形按原 gain 線性還原；沒有 Peak Normalize。
+  RMS 不等於 LUFS／感知音量，sample Peak 也不是 oversampled true peak。
+  最終設定仍待人工複聽；所有變更僅在 Plugin 的 sample bank。
 
-## 已實作
+## 階段 2：M2 音樂演化
 
-- 四件均為 CC0 真實樂器錄音；41 個素材合計 17,148,524 bytes，僅加入該件時載入。
-- Piano：Kawai 鋼琴，7 根音 × 2 力度層，多音和弦、音長與 0.7 秒 Release。
-  精簡素材保留最長 8 秒錄音衰減；沒有踏板 UI。
-- Violin：VSCO solo arco vibrato，5 根音 × 2 層，錄音 sustain loop、45 ms attack、
-  350 ms Release、90 ms 換音淡出。loop 1.2–3.2 秒，非錄製的 legato transition。
-- Drums：Virtuosity 真實鼓組，Kick 2 層、Snare 3 層、Hi-hat 2 層各 2 次錄音；
-  每次鼓擊獨立 gain，交替取樣邏輯僅存在此 Plugin。
-- Bass：Karoryfer Darkblack 真實手指撥弦，4 根音 × 2 層，180 ms note-off、
-  35 ms 單音換音。原始來源的音名有八度差，已以基頻測量改選正確錄音，未修改生成事件。
-- `SampleBank` 最小通用擴充：region、tune、力度、loop、attack、gain、polyphony、transition。
-  Plugin 持有所有具體 mapping／音色／演奏參數；Host／Director／Scheduler 無具名樂器分支。
-- 通用 SampleVoice 使用同一 Tone context 的原生 BufferSource／Gain，排程不依賴 React。
-  HTTP／decode 失敗可見；不接受部分 bank 成功、不使用 synth fallback。
-- 20 秒 loading timeout；取消、Stop、失敗會 Abort 同批 fetch，過期 decode 結果不得安裝。
-  import 無法中止但過期結果會被忽略。可立即取消／重試，不受舊 Promise 覆寫。
-- 正常 Release 在 audio time 淡出；Stop／Remove 軌道 30 ms 淡出，50 ms 後釋放。
-  Source onended 主動 disconnect，同 ID 新軌道不受舊清理影響。共用 Context／Master
-  在 Stop 後保留供重新 Start，Host dispose 才釋放 Mixer；不聲稱關閉瀏覽器共享 Context。
-- 背景／排程落後：每次最多按序推進 32 小節 state，過期起音不補奏，從未來小節恢復。
-  UI／生命週期不再依賴 rAF；音符仍由 Transport／audio time 觸發。
-- 修正取消音量 ramp 的不連續問題，採 cancelAndHoldAtTime；原生離線音訊已驗證
-  中途 Release 不改寫之前的波形。尚不等於人耳 Click／Pop 驗收。
+- 引擎音樂版本 **m2.1**。初始 BPM 80–105，依 Seed 可重現；8–16 小節段落邊界
+  才依能量方向小幅變速。Subtle／Balanced／Experimental，預設 Balanced。
+- 條件式 Introduction／Main／Variation／Breakdown／Return 轉移、多組大／小調
+  功能和聲；近系／關係調經共同和弦 pivot → 新調 V → I，非每小節亂數換調。
+- ToneClock 以 immediate audio time 的 Transport ticks 定位小節，提前安裝
+  BPM automation；所有樂器共用時鐘，音長不跨變速小節，release 使用 Plugin 包絡。
+- Violin 私有 2–4 小節 Motif 保存節奏與相對音程，重現、變奏、更新及 Return 回想；
+  MIDI 69–84，最短約 257 ms，具休止，不假裝錄製的真實 legato。
+- Piano 轉位／聲部連接／琶音與主奏留白裝飾；Bass 依匿名 Kick 重音演奏，
+  加入五度、八度、切分與經過音；Drums 依樂句改 groove、段落尾加 fill。
+- EnsembleIntent 實際控制各件音域／密度／重音；Mute／Solo 不可聽聲部不佔意圖，
+  仍推進其私有 state。Host 無具名樂器演奏分支、Plugin 不互相 import。
+- CreativeDirectorPort 與 LocalRuleBasedAdapter 保留，沒有 LLM API。
+- 分段檢查：2a Typecheck + 25 tests 通過；2b Typecheck + 103 tests 通過。
+  新增靜音意圖隔離後完整批次為 104 tests。
 
-## 已執行驗證
+## 階段 3：工程驗證
 
-完整工程批次：[results.json](.verification/2026-10-08T15-05-35-028Z/results.json)。
-背景測試設定修正後，另外完整重跑全部 29 項 E2E：
-[最終瀏覽器收據](.verification/2026-10-08T15-05-35-028Z/final-e2e/results.json)。
+執行 `npm run verify:m2`（共用既有工程驗證 runner）。
+[本次完整批次收據](.verification/2026-10-08T16-53-08-653Z/results.json)。
 
-| 檢查                         | 結果                                                    |
-| ---------------------------- | ------------------------------------------------------- |
-| TypeScript Typecheck         | 通過                                                    |
-| Vitest                       | 15 檔、150 項通過（含 61 個 M0 事件基準檢查）           |
-| Production Build             | 通過，主 JS 531.46 kB／gzip 146.88 kB，非阻擋警告       |
-| Sample 完整性                | 41 音檔與 4 份授權 hash 全數一致                        |
-| Piano 實體隔離               | Typecheck + 70 tests + build 通過                       |
-| Violin／Drums／Bass 實體隔離 | 每件 Typecheck + 71 tests + build 通過                  |
-| Edge E2E 最終完整批次        | 29 通過、0 失敗、0 跳過（5.9 分鐘）                     |
-| ESLint                       | 通過                                                    |
-| Prettier                     | 通過                                                    |
-| 原始／輸出音高稽核           | 32 有音高素材八度一致性檢查通過；不是精密調音或人工聆聽 |
+| 檢查               | 最新結果                                                |
+| ------------------ | ------------------------------------------------------- |
+| Typecheck          | 通過                                                    |
+| Vitest             | 16 檔、104 項通過                                       |
+| Production Build   | 通過；主 chunk 537.87 kB / gzip 149.00 kB，既有大小警告 |
+| Samples／授權 hash | 41 音檔、4 份授權一致；17,148,524 bytes                 |
+| 四件實體隔離       | 全部 Typecheck、Piano 77、其餘各 78 tests、build 通過   |
+| Edge E2E           | 32 通過、0 失敗、0 跳過（7.2 分鐘）                     |
+| ESLint／Prettier   | 全部通過                                                |
 
-實體隔離證據：[四份 fixture 收據](.isolation/2026-10-08T15-05-41-355Z/results.json)。
-fixture 中只存在該件 Plugin，沒有移動或刪除原本目錄。
+[實體隔離收據](.isolation/2026-10-08T16-53-14-953Z/results.json)：每個 fixture
+只存在該件 Plugin；原目錄未移除或改名。M2 重現性涵蓋三模式 × 四 Seed ×
+280 小節（每次超過 10 分鐘）、全部非空樂器子集合、反向載入順序、完整事件及
+Tempo／Harmony Plan；不是只比較音量亂數。
 
-最終瀏覽器證據：[e2e.log](.verification/2026-10-08T15-05-35-028Z/final-e2e/e2e.log)、
-[合奏截圖](.verification/2026-10-08T15-05-35-028Z/final-e2e/browser/screenshots/ensemble-m1.png)。
-已檢視截圖，四件真實音色標記、Start／Stop／Mute／Solo／Lab 連結皆正常呈現。
-每件 offline-render-metrics.json 保存在同一 browser 目錄的測試子資料夾。
-四件 Lab 的本輪截圖亦保存在 browser/screenshots。
+真實 AudioContext 的 18 小節變速測試單獨執行已通過（45.5 秒），三條測試音軌
+起音相對解析式誤差小於 0.2 ms，並驗證 mute 邊界。先前 OfflineContext 測試配置
+只跑前三小節而失敗，已改為真實時鐘；不把該次失敗當成同步證據。
+M0 golden 與原測試保留為歷史；M2 作曲輸出刻意改變，不宣稱 m0.1 事件相容。
 
-瀏覽器實際驗證：加入前無 sample 請求、單件只載入自己的音檔、WAV／FLAC
-原生解碼並用該 buffer 發聲、多音疊加、力度差異、Release 後歸零、未來起音取消、
-HTTP／decode 失敗與其他聲部隔離、取消／Stop／重試、反覆 live Remove／加入、
-Stop 後所有已啟動取樣 sources 均 ended。完整合奏的 Mute／Solo／Remove 安全小節
-及空 Host 邊演奏邊加入維持通過。
+## 試聽稿與人工驗收
 
-排程恢復已驗證 9.5 秒主執行緒停頓後不補奏過期音符，及 AudioContext 實際
-suspend／resume。原 headless 批次的背景案例曾跳過，另以獨立測試 profile 啟動
-原生有視窗 Edge，再以 CDP `noDefaults: true` 連接，保留正常背景政策並停用
-focus emulation，觀察真實 visible → hidden → visible。實際隱藏 10,116.8 ms，
-小節 1 → 4，回前景後有新取樣起音；前 500 ms 只有 2 次起音、遲到音符 0。
-Stop 後 sources 全部釋放，測試專用 Edge 程序亦確認退出。啟動使用與一般
-Playwright 測試相同的 `--no-sandbox` 執行環境旗標；沒有停用背景節流。
+已生成 [alpha / Balanced 試聽 WAV](.verification/listening-2026-10-08T16-59-37-055Z/alpha-balanced.wav)
+與 [段落／完整事件／量測](.verification/listening-2026-10-08T16-59-37-055Z/plan-and-metrics.json)。
+602.47 秒、250 小節、23 段，9 個 BPM 值（95–104）、8 個調性；未經 limiter 的
+sample Peak -9.71 dBFS、RMS -28.41 dBFS。這些是結構與波形證據，不是好聽的證據。
+真實 Samples、原 voice、Master 0.65，22050 Hz stereo PCM；未 Normalize，
+不是 live Transport 錄音。先前試聽稿與所有量測收據仍保留，未覆蓋。
 
-補驗證據：[background-result.json](.verification/2026-10-08T15-05-35-028Z/background-result.json)、
-[background-policy.log](.verification/2026-10-08T15-05-35-028Z/background-policy.log)、
-[背景可見性與音訊指標](.verification/2026-10-08T15-05-35-028Z/background-browser/audio-real-background-brow-783e2-ynchronized-sample-playback/background-visibility.json)。
-先前四次測試設定／啟動失敗紀錄亦保留；最後補驗 1 通過、0 失敗、0 跳過，
-其後 Typecheck／ESLint／Prettier 通過。這不涵蓋作業系統長時間睡眠或省電策略。
+**[M2 人工聆聽表](docs/M2_LISTENING.md)：alpha、beta、音樂、0 各 10 分鐘仍 Pending。**
+M1 使用者回饋已記錄，但沒有擅填聆聽時間或核可。重點確認持續 10 分鐘風格一致、
+速度／和弦／主題／節奏／編曲有自然可辨變化，以及 Bass／Violin 平衡、Click／Pop、
+loop、Release 與疲勞感。
 
-隨後的最終完整 29 項 E2E 同批全數通過，原 28 項與原生 Edge worker 可共存。
-該批次背景分頁實際隱藏 10,127 ms，恢復後前 500 ms 只有 2 次起音、遲到音符 0；
-音訊與小節仍前進。測試專用原生 Edge PID 43116 已確認退出，見
-[process-cleanup.json](.verification/2026-10-08T15-05-35-028Z/final-e2e/process-cleanup.json)。
-舊批次、補驗及先前失敗證據皆未覆蓋。
+極長背景凍結可有安靜追趕區；略過未提交的過期 attacks／tempo 轉換，在下一個
+未來安全小節恢復 BPM，不回寫歷史 automation。未驗證 OS 長時間睡眠、行動裝置
+或所有瀏覽器。沒有擴充 M4 UI、M3 replay 匯出或 LLM 網路服務。
+架構與取捨見 [ARCHITECTURE](docs/ARCHITECTURE.md)、[M2 ADR](docs/adr-m2-generative.md)。
 
-來源與音高證據：[sample-provenance.json](docs/sample-provenance.json)、
-[sample-pitch-audit.json](docs/sample-pitch-audit.json)。Piano 某單一片段二次諧波偏強，
-保留原本歧義並用第二個獨立片段的相同門檻確認，沒有放寬判定或改動錄音。
+## 最終瀏覽器證據
 
-## 驗證命令與證據
+完整 32 項 E2E 同批通過，包含原 M1 的 29 項 Samples、Stop／Release、取消、
+重試、活躍 sources 歸零、主執行緒停頓、AudioContext suspend／resume 及真實背景測試。
+新增完整 10 分鐘渲染、四 Seed RMS／Peak 稽核、原生 Transport 變速測試。
+[瀏覽器 log](.verification/2026-10-08T16-53-08-653Z/e2e.log)。
 
-```sh
-npm run verify:m1
-npm run verify:samples
-```
+背景實際 visible → hidden → visible，隱藏 10,168.7 ms、小節 1 → 4；
+回到前景前 500 ms 只有 2 次新起音、遲到起音 0。
+[背景收據](.verification/2026-10-08T16-53-08-653Z/browser/audio-real-background-brow-783e2-ynchronized-sample-playback/background-visibility.json)。
 
-verify:m1 依序執行 Typecheck、Vitest、Production Build、素材完整性、四件實體隔離、
-Playwright、ESLint、Prettier，保留 `.verification/<UTC timestamp>/results.json`、各步 log
-與 browser 證據。任一步失敗即停止且保留收據；不是人工品質核可。
-
-Windows 本機 npm 捷徑損壞時使用：
-
-```powershell
-node 'C:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js' run verify:m1
-```
-
-未修改全域 npm、Git 設定，未部署。
-
-## 尚未完成與進入 M2 的條件
-
-- **Pending：** `alpha`、`beta`、`音樂`、`0` 各 10 分鐘真實人工聆聽，共 40 分鐘。
-  步驟與空白驗收表見 [M1_LISTENING](docs/M1_LISTENING.md)。
-- 自然音色、Click／Pop、Violin loop／換音、合奏音量、長時間疲勞感，仍需人耳認可。
-- 真實作業系統長時間節能／凍結、行動裝置及其他瀏覽器未驗證。極長凍結後可能
-  有安靜的追趕時間，不宣稱瀏覽器被凍結時仍無間斷播放。
-- 共用 JS chunk 約 531 kB 的 Vite 警告仍為非阻擋項，未為此重構。
-
-**M1 尚未達到包含人工聆聽的完整完成標準，暫不進入 M2。**
-授權與來源見 [SAMPLE_LICENSES](docs/SAMPLE_LICENSES.md)；架構變更與取捨見
-[ARCHITECTURE](docs/ARCHITECTURE.md)、兩份 M1 ADR。
+最終 M2 四 Seed 32 小節混音 Peak -10.9 至 -9.7 dBFS，Violin RMS -31.2 至
+-28.5、Bass -31.3 至 -30.6 dBFS；保留不同音色／角色的差異，沒有自動對齊 Peak。
+[最終混音收據](.verification/mix-2026-10-08T16-59-42-009Z/metrics-and-events.json)。
+已檢視 [M2 UI 截圖](.verification/2026-10-08T16-53-08-653Z/browser/ensemble-m1.png)，
+變化模式、實際 BPM／和聲／段落、四件控制正常呈現；截圖沿用既有測試檔名。

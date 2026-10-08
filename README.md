@@ -1,8 +1,16 @@
-# Generative Ensemble · M1
+# Generative Ensemble · M2
 
-TypeScript + React + Vite + Tone.js 的程序式樂團。四個獨立 Plugin：Piano、Violin、Drums、Electric Bass。每件可獨奏或共同演奏，由同一個 MusicDirector 提供 4/4、88 BPM、C Major 與 Cmaj7 → Am7 → Dm7 → G7。
+TypeScript + React + Vite + Tone.js 的生成式樂團。Piano、Violin、Drums、Electric Bass
+是四個完全獨立的 Plugin，由同一 Transport 與 MusicDirector 共享速度、和聲及段落。
 
-M1 將發聲層改為 Plugin 自有的真實錄音取樣，處理載入取消、自然釋放、停止淡出及排程落後恢復。M0 的音樂生成器、Seed、兩階段意圖協調與未接線的 LLM 創意接口保留。**四個 Seed 各 10 分鐘人工聆聽仍為 Pending；M1 尚未正式驗收完成，未開始 M2–M5。** 各項實作與最新測試證據以 [開發狀態](CURRENT_STATE.md) 為準。
+M2 依 Seed 選擇 80–105 BPM、大／小調與功能和聲，在 8–16 小節段落間演化速度、
+轉調與能量。Violin 記住 2–4 小節旋律主題；四件透過匿名 EnsembleIntent 協調音域、
+密度與重音。三種變化模式 Subtle／Balanced／Experimental，預設 Balanced。
+M1 真實 Samples 與生命週期保留，Bass gain -12 dB、Violin -5 dB。
+
+**工程驗證不代表音樂品質驗收。10 分鐘人工聆聽仍 Pending**，見
+[M2 聆聽表](docs/M2_LISTENING.md) 與 [最新實作／測試證據](CURRENT_STATE.md)。
+沒有 LLM API、後端或金鑰。
 
 ## 啟動
 
@@ -32,7 +40,7 @@ Piano 使用兩層力度的 Kawai 錄音；Web 子集保留每個來源前最多
 ## 驗證
 
 ```sh
-npm run verify:m1
+npm run verify:m2
 ```
 
 此命令依序執行 Typecheck、Vitest、Production Build、素材完整性、四件實體隔離、瀏覽器 E2E、ESLint 與 Prettier。記錄放在 `.verification/<timestamp>/`，包含逐項 log、`results.json` 與瀏覽器證據；遇到失敗即停止，未執行項目不能視為通過。人工聆聽狀態仍記為 Pending。
@@ -50,7 +58,7 @@ npm run lint
 npm run format:check
 ```
 
-`verify:samples` 核對 provenance 所列檔案的授權文字 hash、音檔 SHA-256、格式標頭及大小；這是素材完整性檢查，不代替來源授權審核或人工音質驗收。Vitest 保留 M0 測試，另覆蓋取消／重試、Stop 競爭、逐音釋放、過期排程及固定 M0 事件資料比對。
+`verify:samples` 核對 provenance 所列檔案的授權文字 hash、音檔 SHA-256、格式標頭及大小；這是素材完整性檢查，不代替來源授權審核或人工音質驗收。Vitest 保留生命週期、依賴與隔離測試，並驗證 M2 三模式、四個 Seed 各 280 小節、全部樂器子集合、tempo／和聲／主題與協作。M0 事件 golden 與原測試保留為歷史資料；引擎版本已更新為 m2.1，不再要求 M2 產生 M0 事件。
 
 E2E 預設使用已安裝的 Microsoft Edge。若環境沒有 Edge，先安裝 Playwright 支援的瀏覽器，並調整 `playwright.config.ts` 的 channel。測試使用 Web Audio analyser、原生 source 追蹤與離線渲染，檢查實際輸出、取樣請求、失敗隔離、釋放、停止、重啟及受控停頓後恢復；自動化量測不等於人工耳聽。
 
@@ -78,4 +86,8 @@ docs/             架構、ADR、授權、provenance、人工驗收與未來 LLM
 
 ## 人工聆聽關卡
 
-依 [M1_LISTENING](docs/M1_LISTENING.md) 執行 `alpha`、`beta`、`音樂`、`0` 四個 Seed，各實聽至少 10 分鐘，並完成四件 Lab 獨奏與生命週期操作。記錄 Click／Pop、尾音、loop／換音、和聲、重複與節奏問題。此 40 分鐘人工關卡目前為 **Pending**；尚不能宣布 M1 正式完成或直接進入 M2。
+依 [M2_LISTENING](docs/M2_LISTENING.md) 連續聽完整合奏，另測獨奏、Mute／Solo、
+Stop／Release 與背景恢復。四個 Seed 各 10 分鐘仍待人工填表。瀏覽器測試會輸出
+`alpha` 的完整 10 分鐘 WAV 與段落／事件計畫到 `.verification/listening-*/`，供複聽。
+WAV 使用真實 Samples、原 voice 包絡、Master 0.65，未 Normalize，未經 limiter；
+它是離線試聽稿，不是即時 Transport 錄音，也不代替真人驗收。

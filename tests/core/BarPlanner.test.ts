@@ -4,16 +4,11 @@ import { MusicDirector } from "../../src/core/MusicDirector";
 import { coordinate } from "../../src/core/EnsembleCoordinator";
 import type { MusicEvent } from "../../src/contracts/music";
 
-it("uses the fixed shared M0 harmonic plan and immutable structures", () => {
+it("uses a seeded shared harmonic plan and immutable structures", () => {
   const director = new MusicDirector("test");
-  expect(
-    Array.from({ length: 5 }, (_, index) => director.planBar(index).chord),
-  ).toEqual(["Cmaj7", "Am7", "Dm7", "G7", "Cmaj7"]);
   const plan = director.planBar(0);
   expect(plan).toMatchObject({
-    bpm: 88,
     meter: "4/4",
-    key: "C Major",
     rootSeed: "test",
   });
   expect(plan.groove).toHaveLength(16);
@@ -60,7 +55,45 @@ it("aggregates no instruments to neutral intent", () => {
     midRegisterLoad: 0,
     highRegisterLoad: 0,
     leadActivity: 0,
+    pulseAccents: Array(16).fill(0),
   });
+});
+
+it("advances muted sessions while excluding inaudible lead intentions", () => {
+  const heard: number[] = [];
+  const generate = vi.fn((_plan, _own, ensemble) => {
+    heard.push(ensemble.leadActivity);
+    return [];
+  });
+  const tracks = [
+    {
+      id: "lead",
+      active: true,
+      muted: true,
+      solo: false,
+      session: {
+        propose: () => ({
+          accents: Array(16).fill(0),
+          density: 0.5,
+          leadActivity: 1,
+        }),
+        generate,
+      },
+    },
+    {
+      id: "other",
+      active: true,
+      muted: false,
+      solo: false,
+      session: {
+        propose: () => ({ accents: Array(16).fill(0), density: 0.5 }),
+        generate,
+      },
+    },
+  ];
+  new BarPlanner(new MusicDirector("mute")).prepare(tracks, () => {});
+  expect(generate).toHaveBeenCalledTimes(2);
+  expect(heard).toEqual([0, 0]);
 });
 
 it.each([

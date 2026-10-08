@@ -33,6 +33,7 @@ export function validateEvents(events: readonly MusicEvent[]): void {
       (!Number.isFinite(event.durationSteps) ||
         event.durationSteps <= 0 ||
         event.durationSteps > 16 ||
+        event.step + event.durationSteps > 16 ||
         !Number.isInteger(event.midi) ||
         event.midi < 0 ||
         event.midi > 127)
@@ -40,9 +41,10 @@ export function validateEvents(events: readonly MusicEvent[]): void {
       throw new Error("Invalid note");
     if (event.kind === "hit" && !event.sampleKey)
       throw new Error("Missing sample key");
-    // M0 deliberately accepts no microtiming until the M1 safety policy exists.
+    // Keep attacks on the shared tick grid. Articulation and velocity supply
+    // expression; no per-track timer or note duration crosses a tempo boundary.
     if (event.microOffsetMs !== undefined && event.microOffsetMs !== 0)
-      throw new Error("Microtiming is not supported in M0");
+      throw new Error("Microtiming is not supported");
     lastStep = event.step;
   }
 }
@@ -69,7 +71,22 @@ export class BarPlanner {
         onError(track.id, error);
       }
     }
-    const ensemble = coordinate(proposals);
+    // Muted/solo-suppressed sessions still advance state, but their inaudible
+    // intentions must not reserve register or prevent audible accompaniment.
+    const anySolo = ordered.some((track) => track.active && track.solo);
+    const ensemble = coordinate(
+      new Map(
+        ordered
+          .filter(
+            (track) =>
+              track.active &&
+              !track.muted &&
+              (!anySolo || track.solo) &&
+              proposals.has(track.id),
+          )
+          .map((track) => [track.id, proposals.get(track.id)!]),
+      ),
+    );
     return Object.freeze({
       plan,
       tracks: Object.freeze(

@@ -16,7 +16,20 @@ const plan: BarPlan = {
   chord: "C",
   nextChord: "Am",
   chordPitchClasses: [0, 4, 7],
-  section: "loop",
+  section: "Main",
+  nextChordPitchClasses: [9, 0, 4],
+  scalePitchClasses: [0, 2, 4, 5, 7, 9, 11],
+  tonic: 0,
+  tonality: "major",
+  harmonyFunction: "I",
+  sectionIndex: 0,
+  sectionBar: 0,
+  sectionLength: 8,
+  phraseLength: 4,
+  density: 0.5,
+  complexity: 0.55,
+  variationMode: "Balanced",
+  development: "repeat",
   phrasePosition: 0,
   energy: 0.5,
   groove: Array.from({ length: 16 }, (_, step) => (step % 4 === 0 ? 1 : 0.25)),
@@ -41,13 +54,35 @@ function generate(context: BarPlan = plan) {
 }
 
 describe("drums independent plugin", () => {
+  it("proposes its real kick grid and shortens fills beneath an active lead", () => {
+    const state = plugin.createInitialState();
+    const ending = { ...plan, sectionBar: 7, phrasePosition: 3 };
+    const own = plugin.proposeBar(ending, state);
+    const quiet = plugin.generateBar(ending, own, ensemble, state).events;
+    const busy = plugin.generateBar(
+      ending,
+      own,
+      { ...ensemble, leadActivity: 0.95 },
+      state,
+    ).events;
+    const kicks = quiet
+      .filter((event) => event.kind === "hit" && event.sampleKey === "kick")
+      .map((event) => event.step);
+    expect(
+      own.pulseAccents!.flatMap((value, step) => (value ? [step] : [])),
+    ).toEqual(kicks);
+    expect(quiet.filter((event) => event.step >= 13).length).toBeGreaterThan(
+      busy.filter((event) => event.step >= 13).length,
+    );
+    expect(quiet).not.toEqual(busy);
+  });
   it("emits playable local kit keys with an independent pulse and backbeat", () => {
     const events = generate().events;
     const stepsFor = (key: string) =>
       events
         .filter((event) => event.kind === "hit" && event.sampleKey === key)
         .map((event) => event.step);
-    expect(stepsFor("kick")).toEqual([0, 8]);
+    expect(stepsFor("kick")).toContain(0);
     expect(stepsFor("snare")).toEqual([4, 12]);
     expect(stepsFor("hat")).toEqual([0, 2, 4, 6, 8, 10, 12, 14]);
     for (const event of events) {

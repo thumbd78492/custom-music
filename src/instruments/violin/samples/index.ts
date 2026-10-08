@@ -29,7 +29,7 @@ export const sampleBank: SampleBank = {
   },
   attackSeconds: 0.045,
   releaseSeconds: 0.35,
-  gainDb: -12,
+  gainDb: -5,
   maxVoices: 6,
   monophonic: true,
   transitionSeconds: 0.09,

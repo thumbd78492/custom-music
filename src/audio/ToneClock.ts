@@ -5,7 +5,9 @@ export class ToneClock {
   private readonly transport = Tone.getTransport();
   private readonly scheduled = new Set<number>();
   private readonly boundaryTimers = new Set<ReturnType<typeof setTimeout>>();
-  private bpm = 88;
+  private readonly tempos = new Map<number, number>();
+  private lastTempo?: number;
+  private startTime = 0;
   private running = false;
   private generation = 0;
 
@@ -54,11 +56,42 @@ export class ToneClock {
 
   start(bpm: number): void {
     if (this.running) return;
-    this.bpm = bpm;
-    this.transport.bpm.value = bpm;
+    this.transport.bpm.cancelScheduledValues(0);
+    this.transport.bpm.setValueAtTime(bpm, 0);
     this.transport.timeSignature = 4;
+    this.startTime = Tone.now() + 0.12;
+    let time = this.startTime;
+    let previousBar = 0;
+    let previousBpm = bpm;
+    for (const [bar, tempo] of this.tempos) {
+      time += ((bar - previousBar) * 240) / previousBpm;
+      this.transport.bpm.setValueAtTime(tempo, time);
+      previousBar = bar;
+      previousBpm = tempo;
+    }
+    this.lastTempo = previousBpm;
+    this.tempos.clear();
     this.running = true;
-    this.transport.start(Tone.now() + 0.12, 0);
+    this.transport.start(this.startTime, 0);
+  }
+
+  /** Install automation BEFORE the lookahead callbacks encounter this boundary. */
+  scheduleTempo(barIndex: number, bpm: number): void {
+    if (!Number.isFinite(bpm) || bpm <= 0) throw new Error("Invalid tempo");
+    if (!this.running) {
+      this.tempos.set(barIndex, bpm);
+      return;
+    }
+    if (bpm === this.lastTempo) return;
+    const now = Math.max(Tone.immediate(), this.startTime);
+    const ticks = this.transport.getTicksAtTime(now);
+    const remaining = barIndex * 4 * this.transport.PPQ - ticks;
+    if (remaining <= 0) throw new Error("Cannot automate an elapsed bar");
+    // TickParam integrates the already installed automation. No fixed-BPM
+    // seconds-to-bars conversion and no BPM mutation inside an audio callback.
+    const time = now + this.transport.bpm.getDurationOfTicks(remaining, now);
+    this.transport.bpm.setValueAtTime(bpm, time);
+    this.lastTempo = bpm;
   }
 
   stop(): void {
@@ -69,13 +102,19 @@ export class ToneClock {
     for (const timer of this.boundaryTimers) clearTimeout(timer);
     this.boundaryTimers.clear();
     this.transport.stop(Tone.immediate());
+    this.transport.bpm.cancelScheduledValues(Tone.immediate());
+    this.tempos.clear();
+    this.lastTempo = undefined;
   }
 
   currentBar(): number {
     if (!this.running) return 0;
     return Math.max(
       0,
-      Math.floor(this.transport.seconds / ((60 / this.bpm) * 4)),
+      Math.floor(
+        (this.transport.getTicksAtTime(Tone.immediate()) + 1e-7) /
+          (this.transport.PPQ * 4),
+      ),
     );
   }
 }

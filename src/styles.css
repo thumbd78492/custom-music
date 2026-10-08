@@ -61,7 +61,8 @@ footer span {
   color: #bbc8c4;
   margin-top: 8px;
 }
-input {
+input,
+select {
   display: block;
   margin-top: 6px;
   width: 180px;

@@ -7,6 +7,7 @@ import type { AudioEnginePort, PreparedBar } from "../audio/AudioEngine";
 import { BarPlanner } from "./BarPlanner";
 import { createPluginSession } from "./PluginSession";
 import { MusicDirector } from "./MusicDirector";
+import type { BarPlan, VariationMode } from "../contracts/music";
 
 interface Flags {
   active: boolean;
@@ -39,6 +40,8 @@ export interface HostSnapshot {
   readonly starting: boolean;
   readonly barIndex: number;
   readonly chord: string;
+  readonly music: BarPlan;
+  readonly variationMode: VariationMode;
   readonly error?: string;
   readonly tracks: readonly {
     readonly manifest: PluginDescriptor["manifest"];
@@ -61,7 +64,9 @@ export class EnsembleHost {
   private running = false;
   private starting = false;
   private barIndex = 0;
-  private chord = "Cmaj7";
+  private variationMode: VariationMode = "Balanced";
+  private music = new MusicDirector(this.seed).planBar(0);
+  private chord = this.music.chord;
   private error?: string;
   private disposed = false;
   private epoch = 0;
@@ -102,6 +107,8 @@ export class EnsembleHost {
       starting: this.starting,
       barIndex: this.barIndex,
       chord: this.chord,
+      music: this.music,
+      variationMode: this.variationMode,
       error: this.error,
       tracks: [...this.entries.values()].map((entry) => ({
         manifest: entry.descriptor.manifest,
@@ -123,6 +130,18 @@ export class EnsembleHost {
     if (this.running || this.starting)
       throw new Error("Stop before changing the seed");
     this.seed = seed;
+    this.music = new MusicDirector(seed, this.variationMode).planBar(0);
+    this.chord = this.music.chord;
+    this.publish();
+  }
+  setVariationMode(mode: VariationMode) {
+    if (this.running || this.starting)
+      throw new Error("Stop before changing variation mode");
+    if (!["Subtle", "Balanced", "Experimental"].includes(mode))
+      throw new Error("Invalid variation mode");
+    this.variationMode = mode;
+    this.music = new MusicDirector(this.seed, mode).planBar(0);
+    this.chord = this.music.chord;
     this.publish();
   }
   private async ensureVoice(
@@ -268,11 +287,13 @@ export class EnsembleHost {
         }
       }
       this.barIndex = 0;
-      this.chord = "Cmaj7";
-      this.planner = new BarPlanner(new MusicDirector(this.seed));
+      const director = new MusicDirector(this.seed, this.variationMode);
+      this.music = director.planBar(0);
+      this.chord = this.music.chord;
+      this.planner = new BarPlanner(director);
       this.running = true;
       this.refill(2, true);
-      this.audio.start(88);
+      this.audio.start(this.music.bpm);
       this.timer = setInterval(
         () => this.refill(this.audio.currentBar() + 2),
         100,
@@ -321,6 +342,7 @@ export class EnsembleHost {
     if (!this.running || bar.plan.barIndex < this.barIndex) return;
     this.barIndex = bar.plan.barIndex;
     this.chord = bar.plan.chord;
+    this.music = bar.plan;
     for (const track of bar.tracks) {
       const entry = this.entry(track.id);
       entry.actual = {

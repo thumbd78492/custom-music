@@ -1,6 +1,9 @@
-# M1 架構
+# M2 架構
 
-M1 在 M0 的 Plugin 邊界、音樂生成與共同時鐘上，加入真實錄音取樣及音訊生命週期處理。沒有修改 M0 作曲演算法，也沒有提前實作 M2–M5。[CURRENT_STATE](../CURRENT_STATE.md) 記錄各項實作及測試結果；[四個 Seed 各 10 分鐘人工聆聽](M1_LISTENING.md) 仍為 Pending，因此 M1 尚未正式驗收完成。
+M2 在 M1 真實 Samples、Plugin 獨立性與音訊生命週期上加入生成式音樂。
+2026-10-09 使用者明確授權先調整 M1 混音再實作 M2，並納入主題記憶。
+工程證據見 [CURRENT_STATE](../CURRENT_STATE.md)，人工聆聽仍見
+[M2_LISTENING](M2_LISTENING.md)，不得以自動化測試代替。
 
 ## 模組邊界
 
@@ -36,13 +39,33 @@ Plugin 以 module-relative URL 指定本地 `.wav`／`.flac`，production build 
 
 ## 音樂生成
 
-MusicDirector 維持 M0 的 BPM、調性與和弦來源：4/4、88 BPM、C Major、Cmaj7 → Am7 → Dm7 → G7。Tonal 僅由 Director 使用；計算好的 pitch classes 放進 BarPlan，各 Plugin 自行選擇音域、音長與音量。
+MusicDirector 只產生共用音樂上下文。SectionPlan 用 Seed、上段能量與狀態決定
+Introduction／Main／Variation／Breakdown／Return 的條件式轉移，並限制連續高能量
+段落。長度為 8、12 或 16 小節，4 小節樂句。HarmonyPlan 擁有大／小調功能和聲，
+多組進行與近系／關係調候選；轉調最後兩小節採共同和弦 pivot、新調 dominant，
+新段落 tonic 落地。BarPlan 的 scale／chord／nextChord pitch classes 由 Director
+計算，Plugin 不解析調名、不改 sample tuning 模擬轉調。引擎音樂版本為 m2.1。
 
-每小節先讓所有 active Plugin `proposeBar`，按 ID 穩定排序聚合匿名 `EnsembleIntent`，再逐件 `generateBar`。Mute／Solo 只改混音，仍推進所有 active Plugin 的 state。Plugin state 藉 closure 封裝，Host 不可讀寫；各次呼叫取得 JSON snapshot，只有 nextState 被提交。
+初始 BPM 80–105；後續速度只在段落邊界依能量方向小幅變化。Subtle／Balanced／
+Experimental 的最大步幅為 2／4／7 BPM，並調整轉調機率、複雜度及主題更新頻率。
+預設 Balanced，播放前可在 UI 選擇，播放中設定凍結。CreativeDirectorPort 保留，
+Director constructor 可接受一般 CreativeIntent；沒有 LLM adapter 或網路呼叫。
 
-Seed 使用 `JSON.stringify([rootSeed, barIndex, pluginId, purpose])`、FNV-1a 與 Mulberry32。Director、Coordinator、PRNG、四件 generator、MusicEvent 與原有創意接口保持不變。固定 M0 事件資料用來檢查更換音色沒有改變相同輸入的 MusicEvent。
+BarPlanner 先收集所有 active Plugin 提案，再聚合匿名 EnsembleIntent。leadActivity
+採 max；pitch register load 排除 rhythmic 提案；pulseAccents 是匿名低頻節奏重音。
+Mute／Solo 隱藏的聲部仍推進私有 state，但不參與可聽見的意圖聚合。
+Coordinator 不知道樂器身份，也不傳送其他 Plugin 的事件。
 
-保證相同引擎版本、輸入、state、操作生效小節的 MusicEvent 相同；載入順序不影響事件，不保證不同裝置上的音訊位元相同。LLM port 與離線 adapter 仍未接線；詳見 [LLM_FUTURE](LLM_FUTURE.md)。
+各 Plugin 自己決定音符：Piano 用三音轉位、鄰近聲部連接、和弦／琶音及留白裝飾，
+主奏活躍時限制上緣，低頻聲部存在時避免低音。Violin 私有 Motif 保存 2–4 小節
+節奏、相對音階音程與輪廓，依和弦調整強拍，重現／變奏／更新並在 Return 引用原主題；
+MIDI 69–84，最短音長 1.8 steps（105 BPM 約 257 ms），不用急促碎音假裝 arco 技巧。
+Drums 每樂句選擇 groove，回應主奏密度、樂句尾及段落 fill；Bass 跟隨匿名 pulse，
+在低密度時保留兩個錨點，加入五度／八度、切分與通往下一和弦的經過音。
+
+Seed 使用 JSON tuple、FNV-1a、Mulberry32，各用途分流。相同版本、Seed、模式、
+Plugin state 與操作生效小節，可重現完整計畫及事件；不保證跨裝置音訊 bit-perfect。
+M0 golden 保留為 M1 歷史資料，原測試移到 history，不偽造新 golden 假稱向後事件相容。
 
 ## 取樣聲部與資源
 
@@ -56,7 +79,7 @@ Seed 使用 `JSON.stringify([rootSeed, barIndex, pluginId, purpose])`、FNV-1a �
 
 ## 排程與非同步生命週期
 
-開始時預先準備小節 0、1、2。100 ms 的控制執行緒 timer 補至目前小節後兩小節；它不是音樂時鐘。Tone Transport 是唯一播放時間基準，使用 musical ticks 排程。Audio callback 只套用凍結 flags 與呼叫 voice.play，不作曲或載入。
+開始時預先準備小節 0、1、2。每次提交先安裝 BPM automation，再提交事件。100 ms 的控制執行緒 timer 補至目前小節後兩小節；它不是音樂時鐘。Tone Transport 是唯一播放時間基準，使用 musical ticks 排程。currentBar 讀取 immediate audio time 的 getTicksAtTime，不使用固定 BPM 除秒數，也不使用帶 lookahead 的 now 定位 UI 操作。未來變速以 TickParam.getDurationOfTicks 積分已提交的 tempo timeline，提前在正確 audio time 安裝 setValueAtTime；小節內 BPM 固定，不作 ramp。音符音長限於當前小節，release 尾音維持 Plugin 的秒數。Audio callback 只套用凍結 flags 與呼叫 voice.play，不作曲或載入。
 
 生成結果一旦提交即不可變。播放中的加入／移除／Mute／Solo 記錄 `requestedAtBar` 與 `effectiveAtBar`；前者讀取 audio bar，後者不早於第一個未規劃小節及目前 audio bar 的下一小節。UI 顯示 pending，該件在生效前停用下一次操作。
 
@@ -68,11 +91,11 @@ UI／生命週期通知使用檢查 audio deadline 的 timer，停止時取消�
 
 ## 背景分頁與排程落後
 
-Transport callback 若已落後於 AudioContext，略過該音符，不補奏過期 attacks。Host 每次 refill 最多處理 32 個小節；缺少的生成器 state 仍逐小節推進，但過期及目前小節不再提交音訊。追上後從未來小節恢復，保持原 Seed 與 state 演進。追趕過程會同步清除已生效 pending、處理移除，延遲通知不能把 UI 小節倒退。
+Transport callback 若已落後於 AudioContext，略過該音符，不補奏過期 attacks。Host 每次 refill 最多處理 32 個小節；缺少的生成器 state 仍逐小節推進，但過期及目前小節不再提交音訊。追上後從未來小節恢復，保持原 Seed 與 state 演進。停頓跨過未提交的變速時不回寫過去 automation；時鐘先維持最後已提交速度，在第一個未來安全小節採用新計畫 BPM。追趕過程會同步清除已生效 pending、處理移除，延遲通知不能把 UI 小節倒退。
 
 因此極長停頓可能產生安靜的恢復區間，無法保證作業系統凍結分頁時仍連續出聲。AudioContext 暫停時音訊時間停止；恢復後繼續使用同一時間基準。已用有視窗的原生 Edge、獨立 profile 及 CDP `noDefaults: true` 驗證真實分頁隱藏／恢復，避免 Playwright 預設 focus emulation 及停用背景節流的旗標遮蔽問題。單次受控停頓、suspend／resume 與約 10 秒背景切換的證據，不代表所有裝置、省電政策或長時間人工音質已驗收。
 
-本階段仍不接受非零 microOffset，未加入 M2 的人性化作曲。所有事件繼續驗證 step、排序、音長、MIDI、力度。單一生成失敗標示該件錯誤並停用該件；其他件可繼續。
+本階段仍不接受非零 microOffset，表情來自節奏、力度與 Plugin 音長；沒有第二套 humanization timer。所有事件繼續驗證 step、排序、音長、MIDI、力度。單一生成失敗標示該件錯誤並停用該件；其他件可繼續。
 
 ## ADR-001：在契約補充和弦 pitch classes
 
@@ -89,13 +112,15 @@ M0 建立 track-scoped AudioServices，Plugin 擁有 envelope／音色與 mappin
 
 ## 驗證與延後項目
 
-`npm run verify:m1` 依序執行全部工程檢查，將 log、`results.json` 及瀏覽器證據保存到 `.verification/<timestamp>/`。`npm run verify:samples` 另外核對 provenance 所列授權文字／音檔 hash、格式標頭及大小；不代替授權來源審核。完整結果見 [CURRENT_STATE](../CURRENT_STATE.md)，不以待執行的檢查推定通過。
+`npm run verify:m2` 依序執行全部工程檢查，將 log、`results.json` 及瀏覽器證據保存到 `.verification/<timestamp>/`。`npm run verify:samples` 另外核對 provenance 所列授權文字／音檔 hash、格式標頭及大小；不代替授權來源審核。完整結果見 [CURRENT_STATE](../CURRENT_STATE.md)，不以待執行的檢查推定通過。
 
-- 四個 Seed 各 10 分鐘人工聆聽仍為 Pending；音色自然度、Click／Pop、loop 可聞度與長時間疲勞感須填入 [聆聽紀錄](M1_LISTENING.md)。未完成前不正式結案 M1 或開始 M2。
-- 未加入 motif memory、長程段落、進階互相避讓、多曲風或 LLM 網路服務。行動裝置與不同瀏覽器的完整驗收仍待後續。
+- 四個 Seed 各 10 分鐘人工聆聽仍為 Pending；音色、loop、合奏平衡與長程生成品質須填入 [M2 聆聽紀錄](M2_LISTENING.md)。本次已有明確 M2 實作授權，尚未宣告人工品質通過。
+- 尚無多曲風、LLM 網路服務或完整 replay UI。行動裝置及跨瀏覽器驗收仍待後續。
 - OperationLog 僅保留本次 Host 內的控制記錄；未提供 M3 匯出／完整 replay UI。
 - 沒有 service worker、後端或遠端模型服務。資產由本地伺服器或靜態部署提供；首次載入仍需取得頁面、模組與所選音檔。
 - 共用 React／Tone.js 主 chunk 在 M0 約 528 kB（gzip 約 145 kB）；保留 Vite 非阻擋大小警告，未因此大幅重構。各 Plugin／voice 仍為 lazy chunks，音檔為獨立資產；實際大小以 build log 為準。
 - 部分 Tonal 套件的 CommonJS main 指向未提供的檔案；Vitest 設定經 Vite inline 並優先解析 ESM module，未修改 node_modules。
 
 實作以 lockfile 安裝的型別與本地原始碼為準；取樣 source 使用同一 AudioContext，沒有第二套演奏時鐘。
+
+M2 共用契約與時鐘取捨見 [ADR](adr-m2-generative.md)。

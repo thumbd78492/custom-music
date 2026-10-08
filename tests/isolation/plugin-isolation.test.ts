@@ -25,6 +25,7 @@ describe.each(descriptors)("$manifest.id in isolation", (descriptor) => {
       const first = createPluginSession(plugin);
       const replay = createPluginSession(plugin);
       const director = new MusicDirector(seed);
+      let notes = 0;
       for (let index = 0; index < 12; index++) {
         const plan = director.planBar(index);
         const intent = first.propose(plan);
@@ -32,12 +33,13 @@ describe.each(descriptors)("$manifest.id in isolation", (descriptor) => {
           new Map([[descriptor.manifest.id, intent]]),
         );
         const events = first.generate(plan, intent, ensemble);
-        expect(events.length).toBeGreaterThan(0);
+        notes += events.length;
         expect(() => validateEvents(events)).not.toThrow();
         expect(replay.generate(plan, replay.propose(plan), ensemble)).toEqual(
           events,
         );
       }
+      expect(notes).toBeGreaterThan(0);
     }
   });
 
@@ -50,22 +52,26 @@ describe.each(descriptors)("$manifest.id in isolation", (descriptor) => {
       expect(host.getSnapshot().error).toBeUndefined();
       expect(host.getSnapshot().running).toBe(true);
       expect(audio.tracks).toEqual(new Set([descriptor.manifest.id]));
-      expect(audio.start).toHaveBeenCalledWith(88);
+      expect(audio.start).toHaveBeenCalledWith(host.getSnapshot().music.bpm);
       expect(audio.bars.length).toBeGreaterThanOrEqual(2);
       for (const bar of audio.bars) {
         expect(bar.tracks).toHaveLength(1);
         expect(bar.tracks[0]?.events.length).toBeGreaterThan(0);
         expect(bar.plan).toMatchObject({
-          bpm: 88,
+          bpm: host.getSnapshot().music.bpm,
           meter: "4/4",
-          key: "C Major",
+          key: host.getSnapshot().music.key,
         });
       }
       // Exercise the plugin's voice contract with the exact generated events.
       const voice = audio.voices.get(descriptor.manifest.id)!;
       const prepared = audio.bars[0]!;
       for (const event of prepared.tracks[0]!.events)
-        voice.play(event, (event.step * 60) / 88 / 4, 60 / 88 / 4);
+        voice.play(
+          event,
+          (event.step * 15) / prepared.plan.bpm,
+          15 / prepared.plan.bpm,
+        );
       expect(voice.play).toHaveBeenCalledTimes(
         prepared.tracks[0]!.events.length,
       );

@@ -16,7 +16,20 @@ const plan: BarPlan = {
   chord: "C",
   nextChord: "Am",
   chordPitchClasses: [0, 4, 7],
-  section: "loop",
+  section: "Main",
+  nextChordPitchClasses: [9, 0, 4],
+  scalePitchClasses: [0, 2, 4, 5, 7, 9, 11],
+  tonic: 0,
+  tonality: "major",
+  harmonyFunction: "I",
+  sectionIndex: 0,
+  sectionBar: 0,
+  sectionLength: 8,
+  phraseLength: 4,
+  density: 0.5,
+  complexity: 0.55,
+  variationMode: "Balanced",
+  development: "repeat",
   phrasePosition: 0,
   energy: 0.5,
   groove: Array.from({ length: 16 }, (_, step) => (step % 4 === 0 ? 1 : 0.25)),
@@ -41,6 +54,35 @@ function generate(context: BarPlan = plan) {
 }
 
 describe("piano independent plugin", () => {
+  it("clears the lead register and relinquishes low notes to another low voice", () => {
+    const state = plugin.createInitialState();
+    const own = plugin.proposeBar(plan, state);
+    const solo = plugin.generateBar(plan, own, ensemble, state).events;
+    const backing = plugin.generateBar(
+      plan,
+      own,
+      { ...ensemble, leadActivity: 0.9, lowRegisterLoad: 0.6 },
+      state,
+    ).events;
+    expect(backing).not.toEqual(solo);
+    expect(new Set(backing.map((event) => event.step)).size).toBeLessThan(
+      new Set(solo.map((event) => event.step)).size,
+    );
+    for (const event of backing)
+      if (event.kind === "note") {
+        expect(event.midi).toBeGreaterThanOrEqual(60);
+        expect(event.midi).toBeLessThanOrEqual(72);
+      }
+    expect(solo.some((event) => event.kind === "note" && event.midi > 72)).toBe(
+      true,
+    );
+    const polyphony = Math.max(
+      ...backing.map(
+        (event) => backing.filter((other) => other.step === event.step).length,
+      ),
+    );
+    expect(polyphony).toBeGreaterThan(1);
+  });
   it("replays identical events and advances only returned state", () => {
     const state = Object.freeze(plugin.createInitialState());
     const proposal = plugin.proposeBar(plan, state);
@@ -86,8 +128,8 @@ describe("piano independent plugin", () => {
             expect(event.durationSteps).toBeGreaterThan(0);
             expect(event.step + event.durationSteps).toBeLessThanOrEqual(16);
             expect(Number.isInteger(event.midi)).toBe(true);
-            expect(event.midi).toBeGreaterThanOrEqual(60);
-            expect(event.midi).toBeLessThanOrEqual(71);
+            expect(event.midi).toBeGreaterThanOrEqual(55);
+            expect(event.midi).toBeLessThanOrEqual(79);
             expect(pitchClasses).toContain(event.midi % 12);
           } else {
             expect(["kick", "snare", "hat"]).toContain(event.sampleKey);

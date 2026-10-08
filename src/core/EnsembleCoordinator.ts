@@ -12,7 +12,8 @@ export function coordinate(
       : 0;
   const load = (register: string) =>
     mean((intent) =>
-      intent.register === register || intent.register === "wide"
+      !intent.rhythmic &&
+      (intent.register === register || intent.register === "wide")
         ? intent.density
         : 0,
     );
@@ -26,6 +27,17 @@ export function coordinate(
     lowRegisterLoad: load("low"),
     midRegisterLoad: load("mid"),
     highRegisterLoad: load("high"),
-    leadActivity: mean((intent) => intent.leadActivity ?? 0),
+    leadActivity: Math.max(
+      0,
+      ...intents.map((intent) => intent.leadActivity ?? 0),
+    ),
+    pulseAccents: Object.freeze(
+      Array.from({ length: 16 }, (_, step) =>
+        Math.max(
+          0,
+          ...intents.map((intent) => intent.pulseAccents?.[step] ?? 0),
+        ),
+      ),
+    ),
   });
 }

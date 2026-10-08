@@ -99,6 +99,7 @@ export class AudioEngine implements AudioEnginePort {
         `Bar ${bar.plan.barIndex} was already scheduled or is out of order`,
       );
     this.lastSubmittedBar = bar.plan.barIndex;
+    this.clock.scheduleTempo(bar.plan.barIndex, bar.plan.bpm);
     const secondsPerStep = 60 / bar.plan.bpm / 4;
     const startBeat = bar.plan.barIndex * 4;
     const anySolo = bar.tracks.some((track) => track.active && track.solo);

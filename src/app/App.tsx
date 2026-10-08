@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from "react";
 import type { EnsembleHost } from "../core/EnsembleHost";
+import type { VariationMode } from "../contracts/music";
 
 export function App({
   host,
@@ -13,13 +14,13 @@ export function App({
   return (
     <main>
       <header>
-        <p className="eyebrow">GENERATIVE ENSEMBLE / M1</p>
+        <p className="eyebrow">GENERATIVE ENSEMBLE / M2</p>
         <h1>{lab ? "InstrumentLab" : "即興樂團"}</h1>
         <p>獨立樂器，共同節拍。每個聲部從 Seed 生成演奏事件。</p>
       </header>
       <section className="transport" aria-label="播放控制">
         <div className="context">
-          4/4 · 88 BPM · C Major
+          4/4 · {state.music.bpm} BPM · {state.music.key}
           <span data-testid="position">
             第 {state.barIndex + 1} 小節 · {state.chord}
           </span>
@@ -32,6 +33,21 @@ export function App({
             disabled={state.running || busy}
             onChange={(event) => host.setSeed(event.target.value)}
           />
+        </label>
+        <label>
+          變化程度
+          <select
+            aria-label="變化程度"
+            value={state.variationMode}
+            disabled={state.running || busy}
+            onChange={(event) =>
+              host.setVariationMode(event.target.value as VariationMode)
+            }
+          >
+            <option>Subtle</option>
+            <option>Balanced</option>
+            <option>Experimental</option>
+          </select>
         </label>
         <div className="buttons">
           <button
@@ -48,7 +64,9 @@ export function App({
           </button>
         </div>
         <p role="status">
-          {state.running ? "播放中" : "已停止"} · Cmaj7 → Am7 → Dm7 → G7
+          {state.running ? "播放中" : "已停止"} · {state.music.section} · 能量{" "}
+          {Math.round(state.music.energy * 100)}% · {state.chord} →{" "}
+          {state.music.nextChord}
         </p>
       </section>
       {state.error && <p role="alert">{state.error}</p>}
@@ -122,7 +140,7 @@ export function App({
       </section>
       {state.tracks.length === 0 && <p>未發現 Plugin；共同時鐘仍可啟動。</p>}
       <footer>
-        {lab ? <a href="/">返回合奏</a> : "M1 · Plugin-first · 本地音色資產"}
+        {lab ? <a href="/">返回合奏</a> : "M2 · Plugin-first · 本地音色資產"}
         <span>Stop 後重新 Start 會從相同 Seed 的第一小節開始。</span>
       </footer>
     </main>

@@ -12,9 +12,15 @@ const mock = vi.hoisted(() => {
   }[] = [];
   const transport = {
     PPQ: 192,
-    bpm: { value: 120 },
+    bpm: {
+      value: 120,
+      setValueAtTime: vi.fn(),
+      cancelScheduledValues: vi.fn(),
+      getDurationOfTicks: vi.fn((ticks: number) => ((ticks / 192) * 60) / 88),
+    },
     timeSignature: 4,
     seconds: 0,
+    getTicksAtTime: vi.fn(() => 0),
     scheduleOnce: vi.fn((callback: (time: number) => void, ticks: string) => {
       const id = scheduled.length + 1;
       scheduled.push({ id, callback, ticks });
@@ -62,6 +68,7 @@ beforeEach(() => {
   mock.now = 10;
   mock.transport.bpm.value = 120;
   mock.transport.seconds = 0;
+  mock.transport.getTicksAtTime.mockReturnValue(0);
 });
 afterEach(() => {
   vi.clearAllTimers();
@@ -84,7 +91,10 @@ const track = (id: string, flags = {}) => ({
   ...flags,
 });
 function prepared(index: number, tracks: PreparedBar["tracks"]): PreparedBar {
-  return { plan: new MusicDirector("audio-test").planBar(index), tracks };
+  return {
+    plan: { ...new MusicDirector("audio-test").planBar(index), bpm: 88 },
+    tracks,
+  };
 }
 function fireThrough(ticks: number) {
   for (const entry of mock.scheduled.filter(
@@ -113,7 +123,7 @@ it("schedules in PPQ ticks before starting at 88 BPM, then dispatches MusicEvent
   ]);
   expect(voice.play).not.toHaveBeenCalled();
   engine.start(88);
-  expect(mock.transport.bpm.value).toBe(88);
+  expect(mock.transport.bpm.setValueAtTime).toHaveBeenCalledWith(88, 0);
   expect(mock.transport.start).toHaveBeenCalledWith(10.12, 0);
   fireThrough(960);
   expect(voice.play).toHaveBeenNthCalledWith(
@@ -132,6 +142,30 @@ it("schedules in PPQ ticks before starting at 88 BPM, then dispatches MusicEvent
   mock.now = 20;
   vi.advanceTimersByTime(10_000);
   expect(onBoundary).toHaveBeenCalledTimes(2);
+  engine.dispose();
+});
+
+it("uses current audio ticks despite seconds/BPM disagreement and installs future tempo before callbacks", () => {
+  const engine = new AudioEngine();
+  engine.scheduleBar(prepared(0, []), () => {});
+  engine.start(88);
+  mock.now = 20;
+  mock.transport.seconds = 900;
+  mock.transport.getTicksAtTime.mockReturnValue(8 * 4 * 192 - 1);
+  expect(engine.currentBar()).toBe(7);
+  expect(mock.transport.getTicksAtTime).toHaveBeenLastCalledWith(20);
+  const next = prepared(8, []);
+  engine.scheduleBar({ ...next, plan: { ...next.plan, bpm: 100 } }, () => {});
+  expect(mock.transport.bpm.getDurationOfTicks).toHaveBeenCalledWith(1, 20);
+  expect(mock.transport.bpm.setValueAtTime).toHaveBeenLastCalledWith(
+    100,
+    20 + 60 / 88 / 192,
+  );
+  mock.transport.getTicksAtTime.mockReturnValue(8 * 4 * 192);
+  expect(engine.currentBar()).toBe(8);
+  engine.stop();
+  expect(mock.transport.bpm.cancelScheduledValues).toHaveBeenLastCalledWith(20);
+  expect(engine.currentBar()).toBe(0);
   engine.dispose();
 });
 

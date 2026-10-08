@@ -1,7 +1,7 @@
-# Drums Plugin — M1
+# Drums Plugin — M2
 
-Virtuosity Drums 真實錄音。`generator.ts` 保留 M0 的 Kick／Snare／Hi-hat
-節奏與 Seed 事件；`voice.ts` 擁有力度層選擇及交替 Hi-hat 錄音邏輯，
+Virtuosity Drums 真實錄音。`generator.ts` 依樂句生成 Kick／Snare／Hi-hat groove，提出匿名 Kick 重音並依主奏留白安排 Fill；
+`voice.ts` 擁有力度層選擇及交替 Hi-hat 錄音邏輯，
 不依賴其他樂器。每次起音使用獨立 source／gain，重擊不改變前次尾音的力度。
 
 Kick 兩層、Snare 三層、閉合 Hi-hat 兩層各兩次錄音。鼓擊播放自然尾音；

@@ -16,7 +16,20 @@ const plan: BarPlan = {
   chord: "C",
   nextChord: "Am",
   chordPitchClasses: [0, 4, 7],
-  section: "loop",
+  section: "Main",
+  nextChordPitchClasses: [9, 0, 4],
+  scalePitchClasses: [0, 2, 4, 5, 7, 9, 11],
+  tonic: 0,
+  tonality: "major",
+  harmonyFunction: "I",
+  sectionIndex: 0,
+  sectionBar: 0,
+  sectionLength: 8,
+  phraseLength: 4,
+  density: 0.5,
+  complexity: 0.55,
+  variationMode: "Balanced",
+  development: "repeat",
   phrasePosition: 0,
   energy: 0.5,
   groove: Array.from({ length: 16 }, (_, step) => (step % 4 === 0 ? 1 : 0.25)),
@@ -41,6 +54,25 @@ function generate(context: BarPlan = plan) {
 }
 
 describe("bass independent plugin", () => {
+  it("follows anonymous kick anchors and reduces density under low-register congestion", () => {
+    const state = plugin.createInitialState();
+    const own = plugin.proposeBar(plan, state);
+    const intent = {
+      ...ensemble,
+      pulseAccents: Array.from({ length: 16 }, (_, i) =>
+        [0, 6, 11].includes(i) ? 1 : 0,
+      ),
+    };
+    const following = plugin.generateBar(plan, own, intent, state).events;
+    expect(following.map((event) => event.step)).toEqual([0, 6, 11]);
+    expect(
+      plugin.generateBar(plan, own, { ...intent, lowRegisterLoad: 0.8 }, state)
+        .events,
+    ).toHaveLength(2);
+    expect(following).not.toEqual(
+      plugin.generateBar(plan, own, ensemble, state).events,
+    );
+  });
   it("anchors every harmony with a low root on the downbeat", () => {
     for (const pitchClasses of [
       [0, 4, 7],
@@ -52,7 +84,7 @@ describe("bass independent plugin", () => {
         ...plan,
         chordPitchClasses: pitchClasses,
       }).events;
-      expect(events.map((event) => event.step)).toEqual([0, 4, 8, 12]);
+      expect(events.length).toBeGreaterThanOrEqual(2);
       expect(events[0]).toMatchObject({
         kind: "note",
         midi: 36 + pitchClasses[0]!,
@@ -106,7 +138,7 @@ describe("bass independent plugin", () => {
             expect(event.step + event.durationSteps).toBeLessThanOrEqual(16);
             expect(Number.isInteger(event.midi)).toBe(true);
             expect(event.midi).toBeGreaterThanOrEqual(36);
-            expect(event.midi).toBeLessThanOrEqual(47);
+            expect(event.midi).toBeLessThanOrEqual(55);
             expect(pitchClasses).toContain(event.midi % 12);
           } else {
             expect(["kick", "snare", "hat"]).toContain(event.sampleKey);

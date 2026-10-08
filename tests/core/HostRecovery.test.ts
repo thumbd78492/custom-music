@@ -105,3 +105,34 @@ it("reconciles an already committed removal when animation frames never arrive",
   expect(audio.tracks.size).toBe(0);
   expect(audio.bars.slice(3).every((bar) => bar.plan.barIndex > 12)).toBe(true);
 });
+
+it("keeps tempo/harmony plans and safe operations intact across a section transition", async () => {
+  vi.useFakeTimers();
+  const { host, audio } = setup();
+  host.setSeed("alpha");
+  await host.add("independent");
+  await host.start();
+  const initialBpm = host.getSnapshot().music.bpm;
+  for (let bar = 1; bar <= 7; bar++) {
+    audio.boundary(bar);
+    await vi.advanceTimersByTimeAsync(100);
+  }
+  host.mute("independent", true);
+  const effective = host.operations.at(-1)!.effectiveAtBar;
+  expect(effective).toBeGreaterThanOrEqual(9);
+  audio.boundary(8);
+  expect(host.getSnapshot().music.bpm).not.toBe(initialBpm);
+  expect(host.getSnapshot().tracks[0]!.pendingAt).toBe(effective);
+  for (let bar = 9; bar <= effective; bar++) {
+    await vi.advanceTimersByTimeAsync(100);
+    audio.boundary(bar);
+  }
+  expect(host.getSnapshot().tracks[0]!.pendingAt).toBeUndefined();
+  expect(
+    audio.bars.find((bar) => bar.plan.barIndex === effective)!.tracks[0]!.muted,
+  ).toBe(true);
+  expect(() => host.setVariationMode("Subtle")).toThrow("Stop");
+  host.stop();
+  host.setVariationMode("Subtle");
+  expect(host.getSnapshot().variationMode).toBe("Subtle");
+});

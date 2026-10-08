@@ -25,7 +25,7 @@ export const sampleBank: SampleBank = {
   },
   attackSeconds: 0.003,
   releaseSeconds: 0.18,
-  gainDb: -9,
+  gainDb: -12,
   maxVoices: 6,
   monophonic: true,
   transitionSeconds: 0.035,

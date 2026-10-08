@@ -6,6 +6,7 @@ import type {
 import type { BarPlan, EnsembleIntent } from "../../../contracts/music";
 import { plugin } from "../index";
 import { sampleBank } from "../samples";
+import { material } from "../motif";
 
 const plan: BarPlan = {
   barIndex: 0,
@@ -16,7 +17,20 @@ const plan: BarPlan = {
   chord: "C",
   nextChord: "Am",
   chordPitchClasses: [0, 4, 7],
-  section: "loop",
+  section: "Main",
+  nextChordPitchClasses: [9, 0, 4],
+  scalePitchClasses: [0, 2, 4, 5, 7, 9, 11],
+  tonic: 0,
+  tonality: "major",
+  harmonyFunction: "I",
+  sectionIndex: 0,
+  sectionBar: 0,
+  sectionLength: 8,
+  phraseLength: 4,
+  density: 0.5,
+  complexity: 0.55,
+  variationMode: "Balanced",
+  development: "repeat",
   phrasePosition: 0,
   energy: 0.5,
   groove: Array.from({ length: 16 }, (_, step) => (step % 4 === 0 ? 1 : 0.25)),
@@ -41,23 +55,94 @@ function generate(context: BarPlan = plan) {
 }
 
 describe("violin independent plugin", () => {
-  it("holds two separate melody notes with room to release", () => {
-    const events = generate().events;
-    expect(events).toHaveLength(2);
-    expect(events[0]).toMatchObject({
-      kind: "note",
-      step: 0,
-      durationSteps: 7.5,
-      articulation: "sustain",
-    });
-    expect(events[1]).toMatchObject({
-      kind: "note",
-      step: 8,
-      durationSteps: 7.5,
-      articulation: "sustain",
-    });
+  it("retains a 2–4 bar contour, repeats rhythm, varies it, recalls it and creates new themes", () => {
+    const initial = plugin.createInitialState();
+    const first = plugin.generateBar(
+      plan,
+      plugin.proposeBar(plan, initial),
+      ensemble,
+      initial,
+    );
+    const state = first.nextState;
+    expect([2, 4]).toContain(state.theme!.bars.length);
+    const repeatedPlan = { ...plan, barIndex: state.theme!.bars.length };
+    expect(material(repeatedPlan, state).notes).toEqual(
+      material(plan, initial).notes,
+    );
+    expect(
+      material({ ...repeatedPlan, development: "vary" }, state).notes,
+    ).not.toEqual(material(repeatedPlan, state).notes);
+    const repeated = plugin.generateBar(
+      repeatedPlan,
+      plugin.proposeBar(repeatedPlan, state),
+      ensemble,
+      state,
+    );
+    expect(repeated.events.map((event) => event.step)).toEqual(
+      first.events.map((event) => event.step),
+    );
+    const renewal = { ...plan, barIndex: 32, development: "renew" as const };
+    const fresh = plugin.generateBar(
+      renewal,
+      plugin.proposeBar(renewal, state),
+      ensemble,
+      state,
+    ).nextState;
+    expect(fresh.theme!.id).not.toBe(state.theme!.id);
+    expect(
+      material({ ...plan, barIndex: 40, development: "recall" }, fresh).theme,
+    ).toEqual(state.theme);
+    const newHarmony = {
+      ...repeatedPlan,
+      chordPitchClasses: [2, 6, 9, 1],
+      tonic: 2,
+      scalePitchClasses: [2, 4, 6, 7, 9, 11, 1],
+    };
+    const adapted = plugin.generateBar(
+      newHarmony,
+      plugin.proposeBar(newHarmony, state),
+      ensemble,
+      state,
+    );
+    expect(adapted.nextState.theme).toEqual(state.theme);
+    for (const event of adapted.events)
+      if (event.kind === "note" && event.step % 4 === 0)
+        expect(newHarmony.chordPitchClasses).toContain(event.midi % 12);
   });
 
+  it("breathes, respects its recorded register and responds to upper-register congestion", () => {
+    const state = plugin.createInitialState(),
+      own = plugin.proposeBar(plan, state);
+    const solo = plugin.generateBar(plan, own, ensemble, state);
+    const crowded = plugin.generateBar(
+      plan,
+      own,
+      { ...ensemble, highRegisterLoad: 0.8 },
+      state,
+    );
+    expect(crowded.events.length).toBeLessThan(solo.events.length);
+    expect(solo.events.length).toBeGreaterThan(2);
+    const resting = {
+      ...plan,
+      section: "Breakdown" as const,
+      phrasePosition: 1,
+    };
+    expect(plugin.proposeBar(resting, state).leadActivity).toBe(0);
+    expect(
+      plugin.generateBar(
+        resting,
+        plugin.proposeBar(resting, state),
+        ensemble,
+        state,
+      ).events,
+    ).toEqual([]);
+    for (const event of solo.events)
+      if (event.kind === "note") {
+        expect((event.durationSteps * 15) / plan.bpm).toBeGreaterThan(0.25);
+        expect(event.midi).toBeGreaterThanOrEqual(69);
+        expect(event.midi).toBeLessThanOrEqual(84);
+      }
+  });
   it("replays identical events and advances only returned state", () => {
     const state = Object.freeze(plugin.createInitialState());
     const proposal = plugin.proposeBar(plan, state);
@@ -103,9 +188,11 @@ describe("violin independent plugin", () => {
             expect(event.durationSteps).toBeGreaterThan(0);
             expect(event.step + event.durationSteps).toBeLessThanOrEqual(16);
             expect(Number.isInteger(event.midi)).toBe(true);
-            expect(event.midi).toBeGreaterThanOrEqual(72);
-            expect(event.midi).toBeLessThanOrEqual(83);
-            expect(pitchClasses).toContain(event.midi % 12);
+            expect(event.midi).toBeGreaterThanOrEqual(69);
+            expect(event.midi).toBeLessThanOrEqual(84);
+            expect(
+              event.step % 4 === 0 ? pitchClasses : plan.scalePitchClasses,
+            ).toContain(event.midi % 12);
           } else {
             expect(["kick", "snare", "hat"]).toContain(event.sampleKey);
           }

@@ -16,6 +16,9 @@ export type MusicEvent =
       readonly microOffsetMs?: number;
     };
 
+export type VariationMode = "Subtle" | "Balanced" | "Experimental";
+export type SectionName =
+  "Introduction" | "Main" | "Variation" | "Breakdown" | "Return";
 export interface BarPlan {
   readonly barIndex: number;
   readonly rootSeed: string;
@@ -26,9 +29,23 @@ export interface BarPlan {
   readonly nextChord: string;
   /** Pitch classes, calculated by the Director. Plugins choose their own register. */
   readonly chordPitchClasses: readonly number[];
-  readonly section: string;
+  readonly nextChordPitchClasses: readonly number[];
+  readonly scalePitchClasses: readonly number[];
+  readonly tonic: number;
+  readonly tonality: "major" | "minor";
+  readonly harmonyFunction: string;
+  readonly modulation?: "pivot" | "dominant" | "arrival";
+  readonly section: SectionName;
+  readonly sectionIndex: number;
+  readonly sectionBar: number;
+  readonly sectionLength: number;
+  readonly phraseLength: number;
   readonly phrasePosition: number;
   readonly energy: number;
+  readonly density: number;
+  readonly complexity: number;
+  readonly variationMode: VariationMode;
+  readonly development: "repeat" | "vary" | "renew" | "recall";
   readonly groove: readonly number[];
 }
 
@@ -37,6 +54,9 @@ export interface InstrumentIntent {
   readonly density: number;
   readonly register?: "low" | "mid" | "high" | "wide";
   readonly leadActivity?: number;
+  /** Anonymous low-frequency percussive anchors, not plugin IDs or events. */
+  readonly pulseAccents?: readonly number[];
+  readonly rhythmic?: boolean;
 }
 
 export interface EnsembleIntent {
@@ -46,4 +66,5 @@ export interface EnsembleIntent {
   readonly midRegisterLoad: number;
   readonly highRegisterLoad: number;
   readonly leadActivity: number;
+  readonly pulseAccents?: readonly number[];
 }
