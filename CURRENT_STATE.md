@@ -35,6 +35,8 @@ Seed alpha、5 voices／tracks 不重建，實際演奏三種 Groove，含 Mute�
 
 A1 完成度：律動引擎、Live 切換與73.6秒比較／診斷稿完成，停在可執行子交付點；
 **整體工程驗收未全通過**。背景失敗的所有 trace／log 與嘗試保留，未刪測試或降低門檻。
+實作 SHA：`63b83d20ffb6404100ce5458771537c794186b79`；最終本機／remote SHA
+核對收據為 `.verification/m3-a1-2026-10-09/delivery.json`。
 先在能取得真正 visible 的桌面環境續查並補驗原生背景案例，詳見 handoff。
 下一必做為 M3-A2 播放中 Style 轉場；A1 不等於多曲風完成。
 M3-B／C、M4／M5 保留，本輪停止於 A1。

@@ -45,6 +45,7 @@ Typecheck／Build／四件隔離／Samples／Lint／Format 通過。完整 E2E *
 原生 Edge 背景案例在播放前仍 hidden，沒有通過背景驗收，整體工程驗收尚未全過。
 收據、可執行停止點與續查步驟見 [M3_HANDOFF](docs/M3_HANDOFF.md)。
 人工品質 Pending；先補 A1 真實背景驗證，再依新一輪授權接續 A2。
+本輪實作提交為 `63b83d20ffb6404100ce5458771537c794186b79`，背景收尾沒有開始下一階段。
 
 ## 2026-10-09 範圍補充
 
