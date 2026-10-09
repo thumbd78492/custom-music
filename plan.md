@@ -4,6 +4,48 @@
 >
 > 第一版樂器：**鋼琴 Piano、小提琴 Violin、鼓組 Drums、電貝斯 Electric Bass**。
 
+## M3 分段增補（2026-10-09；最新授權）
+
+以 `b79cdfce3dba150ac36150a6bb89065e2e72db0f` 為審查基準。保留本文件歷史規劃，
+本次授權優先於下方前輪「不開始 M3」的停止點，不用附件中的舊 plan 覆蓋本文件。
+詳見本次提供的 [M2 review](custom_music_M3_next_step/M2_REVIEW_b79cdfc.md) 與
+[M3 implementation plan](custom_music_M3_next_step/M3_IMPLEMENTATION_PLAN.md)。
+
+| 子階段 | 必做內容                                                                                         | 本輪範圍                     |
+| ------ | ------------------------------------------------------------------------------------------------ | ---------------------------- |
+| M3-A1  | Straight、Light Swing、Half-time；共同律動、起止時間映射、播放中 Live Groove、有限節奏與問答變奏 | 可執行子交付；背景驗收未通過 |
+| M3-A2  | 同一控制 timeline 上的播放中曲風轉場；先兩種再三種，維持 session／主題／角色                     | 下一個必做交付，不延後到 M5  |
+| M3-B   | 長期主題發展、回想、長時間資源與品質                                                             | 後續                         |
+| M3-C   | 版本化 Session／操作重播、logical/playback 事件匯出與保存                                        | 後續；A1 先保存控制收據      |
+| M4     | UI、拖放、動畫、產品與行動裝置品質                                                               | 保留                         |
+| M5     | LLM 高層意圖，沿用 validated control port                                                        | 保留                         |
+
+A1 保留五角色、雙鋼琴獨立 state／PRNG／voice／track、雙主奏與小提琴 0.2.2
+素材／校準／起播／包絡／連奏／-9 dB。音色平衡不重做，人工品質仍 Pending。
+每個 Plugin 自行決定音符與 Pattern，Host 不寫具名樂器分支。
+Groove 與 Style、VariationMode、Energy 分開；Half-time 維持同 BPM。
+
+Live Groove 立即接受／驗證，從最近未提交安全小節生效；保留兩小節 lookahead。
+通用 timeline 保存 command ID、sequence、source、target、revision、requested tick、
+effective bar／tick、版本及狀態；未提交 latest-wins 並保留 superseded，已提交不回寫。
+不 Stop／Start、不重建 Director／AudioContext、不重設 Seed／角色／主題。
+4/4、每小節固定 BPM，沿用跨小節階梯變速；不加入 ramp、換拍號或跨小節 nominal note-off。
+logical MusicEvent 與 PlaybackEvent 分開，on／off 同映射，Transport.swing=0。
+
+驗收：先基線與 R4 故障 Solo 接手回歸；純 timing、同 Seed／操作重現、快切、提交不變、
+角色控制、背景恢復、小提琴連奏，保留全部舊測試及四件實體隔離。
+交付同 Seed／固定 BPM 的 60–90 秒三種 Groove Full／同次 stems、timing-only 診斷及
+真實 Live Transport 證據。離線 WAV 與人工品質不能代替播放中測試。
+Typecheck、Vitest、Build、隔離、瀏覽器 E2E、Lint／Format 須保留實際命令與收據；
+未執行標 Pending。依 README 授權 commit／push 並核對遠端，不 force push。
+更新 CURRENT_STATE 與 docs/M3_HANDOFF.md 後停在 A1，不自行開始 A2／B／C／M4／M5。
+
+本輪 A1 實作、Live Groove、起止映射、小提琴連奏與音訊稿完成；183 Vitest／31檔、
+Typecheck／Build／四件隔離／Samples／Lint／Format 通過。完整 E2E **42通過、1失敗**：
+原生 Edge 背景案例在播放前仍 hidden，沒有通過背景驗收，整體工程驗收尚未全過。
+收據、可執行停止點與續查步驟見 [M3_HANDOFF](docs/M3_HANDOFF.md)。
+人工品質 Pending；先補 A1 真實背景驗證，再依新一輪授權接續 A2。
+
 ## 2026-10-09 範圍補充
 
 本次依使用者明確要求，先修正 M1 Bass／Violin 平衡，再進入 M2；將原 M3 的

@@ -1,6 +1,16 @@
 import * as Tone from "tone";
 import type { AudioServices, InstrumentVoice } from "../contracts/instrument";
-import type { BarPlan, MusicEvent, PhraseAssignment } from "../contracts/music";
+import type {
+  BarPlan,
+  MusicEvent,
+  PhraseAssignment,
+  PreparedPlaybackEvent,
+} from "../contracts/music";
+import {
+  mapPlaybackEvents,
+  playbackSecondsPerStep,
+  TICKS_PER_BAR,
+} from "../core/GroovePlan";
 import { TrackAudioServices } from "./AudioServices";
 import { MasterMixer, TRACK_FADE_SECONDS } from "./MasterMixer";
 import { ToneClock } from "./ToneClock";
@@ -15,6 +25,7 @@ export interface PreparedBar {
     readonly volume?: number;
     readonly assignment?: PhraseAssignment;
     readonly events: readonly MusicEvent[];
+    readonly playbackEvents?: readonly PreparedPlaybackEvent[];
   }[];
 }
 
@@ -28,6 +39,7 @@ export interface AudioEnginePort {
   dispose(): void;
   scheduleBar(bar: PreparedBar, onBoundary: (bar: PreparedBar) => void): void;
   currentBar(): number;
+  currentTick?(): number;
 }
 
 interface Track {
@@ -102,8 +114,7 @@ export class AudioEngine implements AudioEnginePort {
       );
     this.lastSubmittedBar = bar.plan.barIndex;
     this.clock.scheduleTempo(bar.plan.barIndex, bar.plan.bpm);
-    const secondsPerStep = 60 / bar.plan.bpm / 4;
-    const startBeat = bar.plan.barIndex * 4;
+    const startTick = bar.plan.barIndex * TICKS_PER_BAR;
     const anySolo = bar.tracks.some((track) => track.active && track.solo);
     const owners = new Map(
       bar.tracks.map((state) => [state.id, this.tracks.get(state.id)]),
@@ -114,8 +125,8 @@ export class AudioEngine implements AudioEnginePort {
       (track.volume ?? 1) > 0 &&
       (!anySolo || track.solo);
 
-    this.clock.schedule(
-      startBeat,
+    this.clock.scheduleTick(
+      startTick,
       (time) => {
         for (const state of bar.tracks) {
           const track = owners.get(state.id);
@@ -131,17 +142,14 @@ export class AudioEngine implements AudioEnginePort {
     );
     for (const state of bar.tracks) {
       if (!audible(state)) continue;
-      for (const event of state.events) {
-        // A negative humanization cannot precede this bar's mixing boundary.
-        const offsetBeats = Math.max(
-          0,
-          event.step / 4 +
-            (((event.microOffsetMs ?? 0) / 1000) * bar.plan.bpm) / 60,
-        );
-        this.clock.schedule(startBeat + offsetBeats, (time) => {
+      const playbackEvents =
+        state.playbackEvents ?? mapPlaybackEvents(state.events, bar.plan);
+      for (const playback of playbackEvents) {
+        const secondsPerStep = playbackSecondsPerStep(playback, bar.plan.bpm);
+        this.clock.scheduleTick(playback.onTick, (time) => {
           const track = owners.get(state.id);
           if (track && this.tracks.get(state.id) === track)
-            track.voice?.play(event, time, secondsPerStep);
+            track.voice?.play(playback.event, time, secondsPerStep);
         });
       }
     }
@@ -149,6 +157,10 @@ export class AudioEngine implements AudioEnginePort {
 
   currentBar(): number {
     return this.clock.currentBar();
+  }
+
+  currentTick(): number {
+    return this.clock.currentTick();
   }
 
   stop(): void {

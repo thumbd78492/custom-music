@@ -10,9 +10,61 @@ export interface PianoState {
   readonly barsPlayed: number;
   readonly voicing?: readonly number[];
 }
+function liveComping(plan: BarPlan, activeLead: boolean, dualLead: boolean) {
+  const shared = plan.groovePlan!;
+  const random = new SeededRandom(
+    deriveSeed(
+      plan.rootSeed,
+      plan.barIndex - shared.cyclePosition,
+      "piano",
+      `comping:${shared.patternVariantId}`,
+    ),
+  );
+  const variant = random.integer(2);
+  const families = {
+    straight: activeLead
+      ? [
+          [0, 7],
+          [2, 10],
+        ]
+      : [
+          [0, 4, 7, 10],
+          [0, 3, 8, 12],
+        ],
+    "light-swing": activeLead
+      ? [
+          [2, 6],
+          [6, 14],
+        ]
+      : [
+          [2, 6, 10, 14],
+          [0, 6, 10],
+        ],
+    "half-time": activeLead
+      ? [[0], [0, 10]]
+      : [
+          [0, 10],
+          [0, 8],
+        ],
+  };
+  let steps = [...families[shared.familyId][variant]!];
+  if (shared.cyclePosition === 2 && !dualLead)
+    steps =
+      shared.familyId === "half-time"
+        ? [0, 8]
+        : steps.map((step, i) =>
+            i === steps.length - 1 && step < 14 ? step + 1 : step,
+          );
+  if (shared.cyclePosition === 3 && shared.fill && !activeLead)
+    steps = [...steps.filter((step) => step < 14), 14];
+  if (plan.density < 0.4)
+    steps = shared.familyId === "light-swing" ? [2, 10] : [0, 8];
+  if (shared.break) steps = steps.slice(0, 1);
+  return steps;
+}
 export function proposeBar(plan: BarPlan): InstrumentIntent {
   return {
-    accents: plan.groove.map(
+    accents: (plan.groovePlan?.accents ?? plan.groove).map(
       (value, step) => value * (step % 4 === 0 ? 0.6 : 0.3),
     ),
     density: plan.density * 0.55,
@@ -83,6 +135,7 @@ export function generateBar(
   if (dualLead)
     steps = plan.phrasePosition === plan.phraseLength - 1 ? [0, 9] : [2, 10];
   if (plan.density < 0.4) steps = [0, 8];
+  if (plan.groovePlan) steps = liveComping(plan, activeLead, dualLead);
   const arpeggio = !activeLead && random.next() < 0.55;
   const performance = new SeededRandom(
     deriveSeed(plan.rootSeed, plan.barIndex, "piano", "touch"),
@@ -95,7 +148,15 @@ export function generateBar(
         kind: "note",
         step,
         durationSteps: Math.min(
-          activeLead ? 2.5 : arpeggio ? 2.1 : 3.5,
+          plan.groovePlan?.familyId === "half-time"
+            ? activeLead
+              ? 4
+              : 6
+            : activeLead
+              ? 2.5
+              : arpeggio
+                ? 2.1
+                : 3.5,
           16 - step,
         ),
         midi,
@@ -106,7 +167,12 @@ export function generateBar(
       }),
     );
   });
-  if (!activeLead && plan.density >= 0.4) {
+  if (
+    !activeLead &&
+    plan.density >= 0.4 &&
+    !plan.groovePlan?.break &&
+    plan.groovePlan?.familyId !== "half-time"
+  ) {
     const upper = candidates.filter((midi) => midi >= 72);
     if (upper.length)
       events.push({

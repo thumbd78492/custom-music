@@ -1,7 +1,35 @@
-# M2 架構（m2.2：角色實例與雙主奏）
+# 架構（m3.a1：共同律動與 Live 控制）
+
+M3-A1 在 M2 五角色／私有實例上加法擴充；詳細契約與相容性見
+[M3 Groove ADR](adr-m3-groove-timeline.md)，交付及下一步見 [M3_HANDOFF](M3_HANDOFF.md)。
+
+```text
+Live UI -> Host.requestGroove -> ControlTimeline (validate / latest-wins / receipts)
+first uncommitted bar -> BarPlanner -> frozen GroovePlan + phrase assignments
+each Plugin -> own logical events -> common mapPlaybackEvents -> frozen playback ticks
+AudioEngine -> single ToneClock -> exact mapped voice duration / original sample performance
+```
+
+ControlTimeline 使用一個精確 Transport tick 樣本選擇安全邊界，不受 Director 的段落
+cache 限制；已提交 suffix 不回寫、不撤回、不重複推進 state。命令狀態以 immutable
+receipt 替换，保留 requested tick／target／sequence／revision／effective bar／tick。
+future-llm 必須提供 expectedRevision，過期回應不能蓋掉手動操作；A1 尚無 LLM。
+Control kinds 為一般鍵，A2 可延伸同一 port；A1 只驗證及執行 Groove，沒有 Style UI。
+
+固定 PPQ 192 與拍內單調映射；note-on／off 均為 absolute ticks，連奏共同邊界保持
+對齊。Audio adapter 由實際 duration 換算 voice 參數，保留 logical events 與 sample
+source recording 單位。Transport.swing=0，tempo／mixer／小節通知沒有 Swing。
+每小節固定 BPM，沿用既有階梯變速。所有素材、Piano voice、SampleVoice 與小提琴
+voice／performance／regions／校準／-9 dB 保留基準。
+
+R4 故障角色退出 Solo suppression，刻意 Mute Solo 維持靜音。生成採通用 Solo／task
+排序，失敗角色不重試，每次故障重建可聽 roster；最多一輪健康重規劃，session checkpoint
+與 phrase history rollback 防止 state／領奏紀錄重複提交。沒有具名樂器分支。
+
+以下為 M2 歷史架構，最新 Groove／時序契約以上方增補為準。人工音樂品質仍 Pending。
 
 2026-10-09 收尾增補；[實作前 ADR／相容性](adr-m2-role-instances.md)。
-M3–M5 保留，本輪停在 M2，人工品質仍 Pending。
+當時停在 M2，人工品質仍 Pending；最新授權只推進 M3-A1。
 
 ## 收尾增補後的模組與契約
 

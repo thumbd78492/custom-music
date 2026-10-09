@@ -1,6 +1,12 @@
 import { useSyncExternalStore } from "react";
 import type { EnsembleHost } from "../core/EnsembleHost";
-import type { VariationMode } from "../contracts/music";
+import type { GrooveId, VariationMode } from "../contracts/music";
+
+const grooveLabels: Record<GrooveId, string> = {
+  straight: "Straight",
+  "light-swing": "Light Swing",
+  "half-time": "Half-time",
+};
 
 export function App({
   host,
@@ -14,7 +20,7 @@ export function App({
   return (
     <main>
       <header>
-        <p className="eyebrow">GENERATIVE ENSEMBLE / M2</p>
+        <p className="eyebrow">GENERATIVE ENSEMBLE / M3-A1</p>
         <h1>{lab ? "InstrumentLab" : "即興樂團"}</h1>
         <p>獨立樂器，共同節拍。每個聲部從 Seed 生成演奏事件。</p>
       </header>
@@ -34,6 +40,41 @@ export function App({
             onChange={(event) => host.setSeed(event.target.value)}
           />
         </label>
+        <label>
+          律動
+          <select
+            aria-label="Groove"
+            value={state.requestedGroove}
+            disabled={state.starting}
+            onChange={(event) =>
+              host.requestGroove(event.target.value as GrooveId)
+            }
+          >
+            {Object.entries(grooveLabels).map(([id, label]) => (
+              <option key={id} value={id}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <p data-testid="groove-status" role="status">
+          目前律動：
+          {grooveLabels[state.music.groovePlan?.familyId ?? "straight"]}
+          {state.controls
+            .filter(
+              (command) =>
+                command.kind === "groove" &&
+                (command.status === "accepted" ||
+                  command.status === "scheduled"),
+            )
+            .map((command) => (
+              <span key={command.commandId}>
+                {" · "}等待 {grooveLabels[command.target as GrooveId]}：第{" "}
+                {command.effectiveBar + 1} 小節 （tick {command.effectiveTick}，
+                {command.status === "accepted" ? "待提交" : "已提交"}）
+              </span>
+            ))}
+        </p>
         <label>
           變化程度
           <select
@@ -167,7 +208,7 @@ export function App({
       </section>
       {state.tracks.length === 0 && <p>未發現 Plugin；共同時鐘仍可啟動。</p>}
       <footer>
-        {lab ? <a href="/">返回合奏</a> : "M2 · Plugin-first · 本地音色資產"}
+        {lab ? <a href="/">返回合奏</a> : "M3-A1 · Plugin-first · 本地音色資產"}
         <span>Stop 後重新 Start 會從相同 Seed 的第一小節開始。</span>
       </footer>
     </main>

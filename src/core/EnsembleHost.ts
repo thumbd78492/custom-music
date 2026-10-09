@@ -10,7 +10,11 @@ import { BarPlanner } from "./BarPlanner";
 import { createPluginSession } from "./PluginSession";
 import { instances } from "./CharacterInstances";
 import { MusicDirector } from "./MusicDirector";
-import type { BarPlan, VariationMode } from "../contracts/music";
+import type { BarPlan, VariationMode, GrooveId } from "../contracts/music";
+import { createGroovePlan, TICKS_PER_BAR } from "./GroovePlan";
+import { ENGINE_VERSION } from "./MusicDirector";
+import { ControlTimeline } from "./ControlTimeline";
+import type { CommandSource, ControlCommand } from "./ControlTimeline";
 
 interface Flags {
   active: boolean;
@@ -51,6 +55,8 @@ export interface HostSnapshot {
   readonly chord: string;
   readonly music: BarPlan;
   readonly variationMode: VariationMode;
+  readonly requestedGroove: GrooveId;
+  readonly controls: readonly ControlCommand[];
   readonly error?: string;
   readonly tracks: readonly {
     readonly identity: InstrumentInstance;
@@ -77,6 +83,12 @@ export class EnsembleHost {
   private starting = false;
   private barIndex = 0;
   private variationMode: VariationMode = "Balanced";
+  private requestedGroove: GrooveId = "straight";
+  private plannedGroove: { familyId: GrooveId; revision: number } = {
+    familyId: "straight",
+    revision: 0,
+  };
+  readonly controlTimeline = new ControlTimeline(TICKS_PER_BAR, ENGINE_VERSION);
   private music = new MusicDirector(this.seed).planBar(0);
   private chord = this.music.chord;
   private error?: string;
@@ -130,6 +142,8 @@ export class EnsembleHost {
       chord: this.chord,
       music: this.music,
       variationMode: this.variationMode,
+      requestedGroove: this.requestedGroove,
+      controls: this.controlTimeline.commands,
       error: this.error,
       tracks: [...this.entries.values()].map((entry) => ({
         identity: entry.identity,
@@ -161,7 +175,15 @@ export class EnsembleHost {
     if (this.running || this.starting)
       throw new Error("Stop before changing the seed");
     this.seed = seed;
-    this.music = new MusicDirector(seed, this.variationMode).planBar(0);
+    const base = new MusicDirector(seed, this.variationMode).planBar(0);
+    this.music = Object.freeze({
+      ...base,
+      groovePlan: createGroovePlan(
+        base,
+        this.requestedGroove,
+        this.controlTimeline.revision("groove"),
+      ),
+    });
     this.chord = this.music.chord;
     this.publish();
   }
@@ -171,9 +193,62 @@ export class EnsembleHost {
     if (!["Subtle", "Balanced", "Experimental"].includes(mode))
       throw new Error("Invalid variation mode");
     this.variationMode = mode;
-    this.music = new MusicDirector(this.seed, mode).planBar(0);
+    const base = new MusicDirector(this.seed, mode).planBar(0);
+    this.music = Object.freeze({
+      ...base,
+      groovePlan: createGroovePlan(
+        base,
+        this.requestedGroove,
+        this.controlTimeline.revision("groove"),
+      ),
+    });
     this.chord = this.music.chord;
     this.publish();
+  }
+  requestGroove(
+    target: GrooveId,
+    options: {
+      source?: CommandSource;
+      expectedRevision?: number;
+    } = {},
+  ): ControlCommand<GrooveId> {
+    const requestedAtTick = this.running
+      ? (this.audio.currentTick?.() ?? this.audio.currentBar() * TICKS_PER_BAR)
+      : 0;
+    const effectiveBar = this.running
+      ? Math.max(
+          this.planner!.nextBarIndex,
+          Math.floor(requestedAtTick / TICKS_PER_BAR) + 1,
+        )
+      : 0;
+    const command = this.controlTimeline.request({
+      kind: "groove",
+      target,
+      ...options,
+      requestedAtTick,
+      effectiveBar,
+      rejection: this.disposed
+        ? "Host disposed"
+        : this.starting
+          ? "Session is starting"
+          : !["straight", "light-swing", "half-time"].includes(target)
+            ? "Unsupported groove"
+            : undefined,
+    });
+    if (command.status !== "rejected") {
+      this.requestedGroove = target;
+      if (!this.running) {
+        this.controlTimeline.commit(0);
+        this.controlTimeline.boundary(0);
+        this.plannedGroove = { familyId: target, revision: command.revision };
+        this.music = Object.freeze({
+          ...this.music,
+          groovePlan: createGroovePlan(this.music, target, command.revision),
+        });
+      }
+    }
+    this.publish();
+    return command;
   }
   private async ensureVoice(
     id: string,
@@ -334,6 +409,10 @@ export class EnsembleHost {
       }
       this.barIndex = 0;
       const director = new MusicDirector(this.seed, this.variationMode);
+      this.plannedGroove = {
+        familyId: this.requestedGroove,
+        revision: this.controlTimeline.revision("groove"),
+      };
       this.music = director.planBar(0);
       this.chord = this.music.chord;
       this.planner = new BarPlanner(director);
@@ -358,10 +437,19 @@ export class EnsembleHost {
   }
   private refill(throughBar: number, initial = false) {
     if (!this.running || !this.planner) return;
+    let controlsChanged = false;
     // Preserve each generator's state without an unbounded synchronous catch-up.
     let remaining = 32;
     while (this.planner.nextBarIndex <= throughBar && remaining-- > 0) {
       const index = this.planner.nextBarIndex;
+      for (const command of this.controlTimeline.commit(index)) {
+        controlsChanged = true;
+        if (command.kind === "groove")
+          this.plannedGroove = {
+            familyId: command.target as GrooveId,
+            revision: command.revision,
+          };
+      }
       const tracks = [...this.entries]
         .filter(([, entry]) => entry.session)
         .map(([id, entry]) => ({
@@ -371,11 +459,15 @@ export class EnsembleHost {
             : entry.desired),
           session: entry.session!,
         }));
-      const prepared = this.planner.prepare(tracks, (id, error) => {
-        const entry = this.entry(id);
-        entry.error = String(error);
-        entry.desired.active = false;
-      });
+      const prepared = this.planner.prepare(
+        tracks,
+        (id, error) => {
+          const entry = this.entry(id);
+          entry.error = String(error);
+          entry.desired.active = false;
+        },
+        this.plannedGroove,
+      );
       if (!initial && index <= this.audio.currentBar()) {
         // Omit stale attacks, but reconcile controls and cleanup even offscreen.
         this.onBoundary(prepared);
@@ -383,12 +475,14 @@ export class EnsembleHost {
         this.audio.scheduleBar(prepared, (bar) => this.onBoundary(bar));
       }
     }
+    if (controlsChanged) this.publish();
   }
   private onBoundary(bar: PreparedBar) {
     if (!this.running || bar.plan.barIndex < this.barIndex) return;
     this.barIndex = bar.plan.barIndex;
     this.chord = bar.plan.chord;
     this.music = bar.plan;
+    this.controlTimeline.boundary(bar.plan.barIndex);
     for (const track of bar.tracks) {
       const entry = this.entry(track.id);
       entry.actual = {
@@ -413,6 +507,7 @@ export class EnsembleHost {
     clearInterval(this.timer);
     this.timer = undefined;
     this.audio.stop();
+    this.controlTimeline.stop();
     for (const [id, entry] of this.entries) {
       ++entry.request;
       ++entry.voiceRequest;

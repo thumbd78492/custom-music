@@ -1,4 +1,5 @@
 import * as Tone from "tone";
+import { PPQ, TICKS_PER_BAR } from "../core/GroovePlan";
 
 /** Owns only its callback IDs on the single shared Tone Transport. */
 export class ToneClock {
@@ -11,6 +12,11 @@ export class ToneClock {
   private running = false;
   private generation = 0;
 
+  constructor() {
+    if (this.transport.PPQ !== PPQ)
+      throw new Error(`Transport PPQ must remain ${PPQ}`);
+  }
+
   async unlock(): Promise<void> {
     await Tone.start();
   }
@@ -20,19 +26,24 @@ export class ToneClock {
     callback: (audioTime: number) => void,
     allowLate = false,
   ): void {
+    this.scheduleTick(beats * PPQ, callback, allowLate);
+  }
+
+  scheduleTick(
+    tick: number,
+    callback: (audioTime: number) => void,
+    allowLate = false,
+  ): void {
+    if (!Number.isFinite(tick) || tick < 0)
+      throw new Error("Invalid Transport tick");
     const generation = this.generation;
-    const id = this.transport.scheduleOnce(
-      (time) => {
-        this.scheduled.delete(id);
-        if (generation !== this.generation) return;
-        const now = Tone.immediate();
-        if (time < now && !allowLate) return;
-        callback(Math.max(time, now));
-        // Tone's "i" syntax accepts integer ticks; musical steps are exact, optional
-        // humanization is rounded to the Transport's tick resolution.
-      },
-      `${Math.round(beats * this.transport.PPQ)}i`,
-    );
+    const id = this.transport.scheduleOnce((time) => {
+      this.scheduled.delete(id);
+      if (generation !== this.generation) return;
+      const now = Tone.immediate();
+      if (time < now && !allowLate) return;
+      callback(Math.max(time, now));
+    }, Tone.Ticks(tick));
     this.scheduled.add(id);
   }
 
@@ -59,6 +70,8 @@ export class ToneClock {
     this.transport.bpm.cancelScheduledValues(0);
     this.transport.bpm.setValueAtTime(bpm, 0);
     this.transport.timeSignature = 4;
+    // Custom shared mapping is the only swing implementation.
+    this.transport.swing = 0;
     this.startTime = Tone.now() + 0.12;
     let time = this.startTime;
     let previousBar = 0;
@@ -85,7 +98,7 @@ export class ToneClock {
     if (bpm === this.lastTempo) return;
     const now = Math.max(Tone.immediate(), this.startTime);
     const ticks = this.transport.getTicksAtTime(now);
-    const remaining = barIndex * 4 * this.transport.PPQ - ticks;
+    const remaining = barIndex * TICKS_PER_BAR - ticks;
     if (remaining <= 0) throw new Error("Cannot automate an elapsed bar");
     // TickParam integrates the already installed automation. No fixed-BPM
     // seconds-to-bars conversion and no BPM mutation inside an audio callback.
@@ -108,13 +121,12 @@ export class ToneClock {
   }
 
   currentBar(): number {
-    if (!this.running) return 0;
-    return Math.max(
-      0,
-      Math.floor(
-        (this.transport.getTicksAtTime(Tone.immediate()) + 1e-7) /
-          (this.transport.PPQ * 4),
-      ),
-    );
+    return Math.floor((this.currentTick() + 1e-7) / TICKS_PER_BAR);
+  }
+
+  currentTick(): number {
+    return this.running
+      ? Math.max(0, this.transport.getTicksAtTime(Tone.immediate()))
+      : 0;
   }
 }

@@ -16,6 +16,7 @@
     "lint": "eslint .",
     "format:check": "prettier --check src tests scripts docs plan.md README.md CURRENT_STATE.md package.json package-lock.json tsconfig.json vite.config.ts playwright.config.ts eslint.config.js index.html",
     "verify:m2": "node scripts/verify-m1.mjs --m2",
+    "verify:m3-a1": "node scripts/verify-m1.mjs --m3-a1",
     "export:violin-ab": "node --experimental-strip-types scripts/export-violin-ab.mjs"
   },
   "dependencies": {

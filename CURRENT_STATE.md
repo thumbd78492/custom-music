@@ -1,5 +1,46 @@
 # 開發狀態
 
+## M3-A1（2026-10-09；最新階段）
+
+引擎 m3.a1。本輪範圍為共用律動／起止時間映射與 **播放中 Live Groove**；
+保留 M2 五角色、雙鋼琴獨立實例、雙主奏與小提琴 0.2.2／-9 dB。
+Straight／Light Swing／Half-time 在同 BPM 下由各 Plugin 自有 Pattern 適配，
+含有限四小節變奏／Ghost／Fill／Break，主奏 theme 保留與問答布局變化。
+沒有重新調音色平衡；**人工品質 Pending**。
+
+純 timing、控制 timeline／快切／immutable committed plans、故障 Solo 回歸、
+三 Groove×31角色組合／相同 Seed／操作重現、theme 保留、bounded lag 單元回歸與
+AudioContext suspend/resume、小提琴 warped duration／連奏／Stop 通過。
+現有全部 M2 測試保留；基線127項通過，最終31檔183項通過。
+原生 Edge 真實背景案例尚未通過，與前述可控停頓／音訊 suspend/resume 分開。
+
+真實 Live UI 最終完整 E2E 驗證：38.4秒，start1／stop0，Context／Transport 同一物件，
+Seed alpha、5 voices／tracks 不重建，實際演奏三種 Groove，含 Mute／Solo 與 suspend/resume。
+固定與階梯 BPM 時序、48kHz impulse、原小提琴映射後連奏／Stop targeted 另通過。
+收據：`.verification/m3-a1-2026-10-09/live-transport.json`／live-groove.png，
+完整 [工程收據](.verification/m3-a1-2026-10-09/final-results.json)、
+[短稿與 timing-only](docs/M3_LISTENING.md)、[M3_HANDOFF](docs/M3_HANDOFF.md)、
+[ADR](docs/adr-m3-groove-timeline.md)。
+
+| 檢查              | 本輪實際結果                                                                  |
+| ----------------- | ----------------------------------------------------------------------------- |
+| Typecheck／Vitest | 通過；31檔183項，原127項保留                                                  |
+| Production Build  | 通過；主 chunk553.51 kB，既有 >500 kB警告保留                                 |
+| Samples／授權     | 41音檔與4授權 hash 通過；保護來源未修改                                       |
+| 四件實體隔離      | 全部 Typecheck／Vitest／Build 通過；Bass129／Drums129／Piano138／Violin136    |
+| Edge E2E          | **42通過、1失敗、0跳過**，10.2分鐘；所有新 Groove／Live／timing 案例通過      |
+| 原生背景補驗      | **失敗／驗收 Pending**；隔離 Edge 在播放前 hidden，樣本與時序尚未進入被測路徑 |
+| ESLint／Prettier  | 分別補跑通過；完整 runner 在 E2E 失敗後未執行這兩項                           |
+| 人工音樂品質      | **Pending**；沒有以自動量測代替耳聽                                           |
+
+A1 完成度：律動引擎、Live 切換與73.6秒比較／診斷稿完成，停在可執行子交付點；
+**整體工程驗收未全通過**。背景失敗的所有 trace／log 與嘗試保留，未刪測試或降低門檻。
+先在能取得真正 visible 的桌面環境續查並補驗原生背景案例，詳見 handoff。
+下一必做為 M3-A2 播放中 Style 轉場；A1 不等於多曲風完成。
+M3-B／C、M4／M5 保留，本輪停止於 A1。
+
+以下為 M2 歷史紀錄，原人工品質與收據保留。
+
 日期：2026-10-09。最新範圍為 **M2 收尾增補：雙主奏編曲＋雙鋼琴角色**，音樂版本 m2.2。
 使用者最新回饋：小提琴發聲已明顯改善，保存為基準；希望鋼琴與小提琴對等主奏，
 另一位鋼琴手獨立伴奏。本輪未開始 M3，整體音樂品質／人工試聽仍 **Pending**。

@@ -943,7 +943,9 @@ const backgroundTest = test.extend({
           "--edge-skip-compat-layer-relaunch",
           "about:blank",
         ],
-        { windowsHide: true, stdio: ["ignore", "ignore", "pipe"] },
+        // This particular test requires a real visible native window (README).
+        // Avoid imposing SW_HIDE on that prerequisite; verify visibility below.
+        { windowsHide: false, stdio: ["ignore", "ignore", "pipe"] },
       );
       writeFileSync(
         join(profile, "native-launch.json"),
@@ -1035,6 +1037,23 @@ backgroundTest.describe("real background browser policy", () => {
       });
       const musicWindow = await musicCdp.send("Browser.getWindowForTarget", {});
       await page.bringToFront();
+      // Fail explicitly before UI actionability if this host cannot expose the
+      // isolated native window. A hidden setup cannot prove background recovery.
+      writeFileSync(
+        testInfo.outputPath("background-window-setup.json"),
+        JSON.stringify(
+          {
+            musicWindow,
+            visibility: await page.evaluate(() => document.visibilityState),
+            focusEmulationDisabled: true,
+          },
+          null,
+          2,
+        ) + "\n",
+      );
+      await expect
+        .poll(() => page.evaluate(() => document.visibilityState))
+        .toBe("visible");
       await addAllRoles(page);
       await page.getByRole("button", { name: "Start", exact: true }).click();
       await expect

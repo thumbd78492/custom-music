@@ -1,0 +1,35 @@
+{
+  "method": "Independent measurement of supplied WAV PCM; stereo-channel mean square RMS; sample peak only, not true peak or perceived loudness. No separation, normalization or manual quality certification.",
+  "files": [
+    {
+      "file": "melody-piano-full.wav",
+      "sha256": "b85feae98766f091aa678b679a0cb7943b3d4fc04cad1f934fadeb4600dc8dc3",
+      "sample_rate": 22050,
+      "channels": 2,
+      "duration_seconds": 46.83047619047619,
+      "rms_dbfs": -31.63734166324339,
+      "sample_peak_dbfs": -15.012031555326143,
+      "full_scale_sample_count": 0
+    },
+    {
+      "file": "equal-duet-full.wav",
+      "sha256": "384092019a63617c2c9ffd371f597a1fa1f7b6d2e107d5a5de5320f5d47747d7",
+      "sample_rate": 22050,
+      "channels": 2,
+      "duration_seconds": 78.30349206349206,
+      "rms_dbfs": -34.3641110304846,
+      "sample_peak_dbfs": -15.089999670976413,
+      "full_scale_sample_count": 0
+    },
+    {
+      "file": "five-role-full.wav",
+      "sha256": "b57c33c430463e41322625625cb87e3b9f7e36a4698c171a086ca8984ed95a8e",
+      "sample_rate": 22050,
+      "channels": 2,
+      "duration_seconds": 78.30349206349206,
+      "rms_dbfs": -29.77438234344676,
+      "sample_peak_dbfs": -10.328999254827952,
+      "full_scale_sample_count": 0
+    }
+  ]
+}

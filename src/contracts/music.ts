@@ -19,6 +19,32 @@ export type MusicEvent =
     };
 
 export type VariationMode = "Subtle" | "Balanced" | "Experimental";
+export type GrooveId = "straight" | "light-swing" | "half-time";
+
+/** Shared musical policy; every plugin owns the notes and pattern interpretation. */
+export interface GroovePlan {
+  readonly familyId: GrooveId;
+  readonly revision: number;
+  readonly patternVariantId: string;
+  readonly cycleBars: 4;
+  readonly cyclePosition: number;
+  readonly swingRatio: number;
+  readonly pulseAccents: readonly number[];
+  readonly accents: readonly number[];
+  readonly density: number;
+  readonly syncopation: number;
+  readonly fill: boolean;
+  readonly break: boolean;
+}
+
+/** Absolute Transport ticks, separate from the unchanged logical composition. */
+export interface PreparedPlaybackEvent {
+  readonly eventIndex: number;
+  readonly event: MusicEvent;
+  readonly onTick: number;
+  readonly offTick?: number;
+  readonly grooveRevision: number;
+}
 export type SectionName =
   "Introduction" | "Main" | "Variation" | "Breakdown" | "Return";
 export interface BarPlan {
@@ -49,6 +75,8 @@ export interface BarPlan {
   readonly variationMode: VariationMode;
   readonly development: "repeat" | "vary" | "renew" | "recall";
   readonly groove: readonly number[];
+  /** Absent in historical M2 fixtures; playback then uses Straight timing. */
+  readonly groovePlan?: GroovePlan;
 }
 
 export interface InstrumentIntent {
@@ -76,6 +104,8 @@ export interface EnsembleIntent {
 
 export interface PhraseAssignment {
   readonly phraseStartBar: number;
+  /** One deterministic question/answer layout shared across the whole phrase. */
+  readonly layoutId?: string;
   readonly task: PhraseTask;
   /** Allowed attacks and note ends in this bar, end exclusive. */
   readonly stepRange: readonly [number, number];

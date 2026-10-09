@@ -168,6 +168,9 @@ export interface InstrumentPlugin<State = unknown> {
 export interface InstrumentSession {
   readonly instance?: InstrumentInstance;
   readonly character?: CharacterDefinition;
+  /** Opaque transaction state; Host can retain it but never inspect it. */
+  checkpoint?(): unknown;
+  restore?(checkpoint: unknown): void;
   propose(plan: BarPlan): InstrumentIntent;
   generate(
     plan: BarPlan,

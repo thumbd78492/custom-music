@@ -148,6 +148,29 @@ export function generateMelody(
     notes = notes
       .slice(0, 1)
       .map((n) => ({ ...n, duration: Math.min(5, end - n.step) }));
+  if (plan.groovePlan?.familyId === "half-time" && notes.length >= 3) {
+    // Keep the theme and contour; one interior attack becomes a longer breath.
+    // This is a performance view, never a replacement for the saved material.
+    notes = notes.filter((_, i) => i !== 1);
+    notes = notes.map((note, i) =>
+      i === 0
+        ? {
+            ...note,
+            duration: Math.min(8, notes[i + 1]!.step - note.step - 0.6),
+          }
+        : note,
+    );
+  }
+  if (
+    plan.groovePlan?.familyId === "light-swing" &&
+    assignment?.task === "respond" &&
+    notes.length
+  )
+    notes = notes.map((note, i) =>
+      i === notes.length - 1
+        ? { ...note, duration: Math.max(1.2, note.duration - 0.5) }
+        : note,
+    );
   const random = new SeededRandom(
     deriveSeed(
       plan.rootSeed,

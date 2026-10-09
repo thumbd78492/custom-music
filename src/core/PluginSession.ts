@@ -43,6 +43,10 @@ export function createPluginSession<State>(
     character: instance
       ? characters(plugin.manifest).find((c) => c.id === instance.characterId)
       : undefined,
+    checkpoint: () => snapshot(state),
+    restore: (checkpoint) => {
+      state = snapshot(checkpoint) as State;
+    },
     propose: (plan) =>
       plugin.proposeBar(scope(plan), snapshot(state), instance),
     generate: (plan, own, ensemble) => {

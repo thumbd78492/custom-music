@@ -70,6 +70,19 @@ export function generateBar(
       duration: Math.min(6, end - note.step),
       rebow: true,
     }));
+  if (plan.groovePlan?.familyId === "half-time" && notes.length >= 4) {
+    // Omit one interior attack and sustain its neighbour. The motif remains
+    // untouched, and the next saved rebow still determines the breath.
+    notes = notes.filter((_, index) => index !== 1);
+    notes = notes.map((note, index) =>
+      index === 0
+        ? {
+            ...note,
+            duration: notes[1]!.step - note.step - (notes[1]!.rebow ? 0.6 : 0),
+          }
+        : note,
+    );
+  }
   let previous = state.previousMidi;
   let previousEnd = state.previousEndStep ?? -100;
   const targetVelocity =

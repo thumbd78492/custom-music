@@ -68,6 +68,7 @@ for (const [name, executable, args] of checks) {
   await new Promise((resolve) => log.end(resolve));
   results.push({
     name,
+    command: [process.execPath, path.join(root, executable), ...args],
     exitCode,
     passed: exitCode === 0,
     durationMs: Date.now() - began,
@@ -75,7 +76,7 @@ for (const [name, executable, args] of checks) {
   });
   writeFileSync(
     path.join(output, "results.json"),
-    `${JSON.stringify({ milestone: process.argv.includes("--m2") ? "M2" : "current", checks: results, humanListening: "Pending" }, null, 2)}\n`,
+    `${JSON.stringify({ milestone: process.argv.includes("--m3-a1") ? "M3-A1" : process.argv.includes("--m2") ? "M2" : "current", checks: results, humanListening: "Pending" }, null, 2)}\n`,
   );
   if (name === "e2e")
     cpSync(path.join(root, "test-results"), path.join(output, "browser"), {

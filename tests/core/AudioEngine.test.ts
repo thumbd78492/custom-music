@@ -2,6 +2,7 @@ import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { AudioEngine } from "../../src/audio/AudioEngine";
 import type { PreparedBar } from "../../src/audio/AudioEngine";
 import { MusicDirector } from "../../src/core/MusicDirector";
+import { createGroovePlan, mapPlaybackEvents } from "../../src/core/GroovePlan";
 import { fakeVoice } from "../helpers/FakeAudioEngine";
 
 const mock = vi.hoisted(() => {
@@ -42,6 +43,7 @@ const mock = vi.hoisted(() => {
 });
 vi.mock("tone", () => ({
   getTransport: () => mock.transport,
+  Ticks: (ticks: number) => `${ticks}i`,
   start: async () => {},
   now: () => mock.now,
   immediate: () => mock.now,
@@ -101,7 +103,7 @@ function fireThrough(ticks: number) {
     (entry) => Number.parseInt(entry.ticks) <= ticks,
   )) {
     entry.callback(
-      10 + ((Number.parseInt(entry.ticks) / mock.transport.PPQ) * 60) / 88,
+      10 + ((Number.parseFloat(entry.ticks) / mock.transport.PPQ) * 60) / 88,
     );
   }
 }
@@ -142,6 +144,93 @@ it("schedules in PPQ ticks before starting at 88 BPM, then dispatches MusicEvent
   mock.now = 20;
   vi.advanceTimersByTime(10_000);
   expect(onBoundary).toHaveBeenCalledTimes(2);
+  engine.dispose();
+});
+
+it("schedules fractional swing attacks and exact warped durations with unchanged mixing and tempo boundaries", () => {
+  const engine = new AudioEngine();
+  const voice = fakeVoice();
+  engine.createTrack("test");
+  engine.setVoice("test", voice);
+  const bar = prepared(0, [track("test")]);
+  const plan = {
+    ...bar.plan,
+    groovePlan: createGroovePlan(bar.plan, "light-swing", 2),
+  };
+  const events = [
+    { ...note, step: 0, durationSteps: 2 },
+    { ...note, step: 2, durationSteps: 2 },
+  ];
+  const playbackEvents = mapPlaybackEvents(events, plan);
+  engine.scheduleBar(
+    { plan, tracks: [track("test", { events, playbackEvents })] },
+    () => {},
+  );
+  expect(mock.scheduled.map((entry) => Number.parseFloat(entry.ticks))).toEqual(
+    [0, 0, expect.closeTo(115.2, 12)],
+  );
+  engine.start(88);
+  expect(mock.transport).toMatchObject({ PPQ: 192, swing: 0 });
+  fireThrough(192);
+  expect(voice.play).toHaveBeenNthCalledWith(
+    1,
+    events[0],
+    10,
+    expect.closeTo((60 / 88 / 4) * 1.2),
+  );
+  expect(voice.play).toHaveBeenNthCalledWith(
+    2,
+    events[1],
+    10 + (0.6 * 60) / 88,
+    expect.closeTo((60 / 88 / 4) * 0.8),
+  );
+  expect(mock.mixer.setAudible).toHaveBeenCalledWith("test", true, 10, 1);
+  expect(mock.transport.bpm.setValueAtTime).toHaveBeenCalledWith(88, 10.12);
+  engine.dispose();
+});
+
+it("does not move boundary flags or old callbacks when consecutive bars use different frozen groove mappings", () => {
+  const engine = new AudioEngine();
+  const voice = fakeVoice();
+  engine.createTrack("test");
+  engine.setVoice("test", voice);
+  const first = prepared(0, [
+    track("test", { events: [{ ...note, step: 2 }] }),
+  ]);
+  const second = prepared(1, [
+    track("test", { events: [{ ...note, step: 2 }] }),
+  ]);
+  engine.scheduleBar(
+    {
+      ...first,
+      plan: {
+        ...first.plan,
+        groovePlan: createGroovePlan(first.plan, "light-swing", 1),
+      },
+    },
+    () => {},
+  );
+  const submitted = mock.scheduled.map((entry) => entry.ticks);
+  engine.scheduleBar(
+    {
+      ...second,
+      plan: {
+        ...second.plan,
+        groovePlan: createGroovePlan(second.plan, "half-time", 2),
+      },
+    },
+    () => {},
+  );
+  expect(
+    mock.scheduled.slice(0, submitted.length).map((entry) => entry.ticks),
+  ).toEqual(submitted);
+  expect(mock.scheduled.map((entry) => Number.parseFloat(entry.ticks))).toEqual(
+    [0, expect.closeTo(115.2, 12), 768, 864],
+  );
+  engine.start(88);
+  mock.transport.getTicksAtTime.mockReturnValue(785.2);
+  expect(engine.currentTick()).toBe(785.2);
+  expect(engine.currentBar()).toBe(1);
   engine.dispose();
 });
 

@@ -5,12 +5,21 @@ import { BarPlanner } from "../../src/core/BarPlanner";
 import { MusicDirector, ENGINE_VERSION } from "../../src/core/MusicDirector";
 import { loadSampleVoice } from "../../src/audio/SampleVoice";
 import type { PreparedBar } from "../../src/audio/AudioEngine";
+import type { GrooveId } from "../../src/contracts/music";
+import {
+  createGroovePlan,
+  mapPlaybackEvents,
+  playbackSecondsPerStep,
+  PPQ,
+  TICKS_PER_BAR,
+} from "../../src/core/GroovePlan";
 
 /** Single multichannel render: stems and Full use exactly the same events and PCM. */
 export async function renderRoles(
   seed: string,
   characterIds: readonly string[],
   seconds: number,
+  options: { groove?: GrooveId; fixedBpm?: number; timingOnly?: boolean } = {},
 ) {
   const descriptors = await discoverPlugins();
   const performers = await Promise.all(
@@ -29,16 +38,64 @@ export async function renderRoles(
     solo: false,
     session: createPluginSession(p.plugin, p.identity),
   }));
-  const planner = new BarPlanner(new MusicDirector(seed));
+  const director = new MusicDirector(seed);
+  if (options.fixedBpm !== undefined) {
+    const planBar = director.planBar.bind(director);
+    director.planBar = (index) =>
+      Object.freeze({ ...planBar(index), bpm: options.fixedBpm! });
+  }
+  const planner = new BarPlanner(director);
   const bars: PreparedBar[] = [],
     starts: number[] = [];
+  const themeHistory: {
+    barIndex: number;
+    instances: { id: string; themeId?: string; homeThemeId?: string }[];
+  }[] = [];
   let duration = 0.1;
   while (duration < seconds) {
-    const bar = planner.prepare(tracks, (_, error) => {
-      throw error;
-    });
+    let bar = planner.prepare(
+      tracks,
+      (_, error) => {
+        throw error;
+      },
+      {
+        familyId: options.timingOnly
+          ? "straight"
+          : (options.groove ?? "straight"),
+        revision: 0,
+      },
+    );
+    if (options.timingOnly) {
+      const plan = Object.freeze({
+        ...bar.plan,
+        groovePlan: createGroovePlan(bar.plan, options.groove ?? "straight"),
+      });
+      bar = Object.freeze({
+        plan,
+        tracks: Object.freeze(
+          bar.tracks.map((track) =>
+            Object.freeze({
+              ...track,
+              playbackEvents: mapPlaybackEvents(track.events, plan),
+            }),
+          ),
+        ),
+      });
+    }
     starts.push(duration);
     bars.push(bar);
+    themeHistory.push({
+      barIndex: bar.plan.barIndex,
+      instances: tracks.map((track) => {
+        const state = track.session.checkpoint?.() as
+          { theme?: { id?: string }; homeTheme?: { id?: string } } | undefined;
+        return {
+          id: track.id,
+          themeId: state?.theme?.id,
+          homeThemeId: state?.homeTheme?.id,
+        };
+      }),
+    });
     duration += 240 / bar.plan.bpm;
   }
   const rate = 22050;
@@ -86,11 +143,15 @@ export async function renderRoles(
         voices[
           performers.findIndex((p) => p.identity.instanceId === track.id)
         ]!;
-      for (const event of track.events)
+      for (const playback of track.playbackEvents ??
+        mapPlaybackEvents(track.events, bar.plan))
         voice.play(
-          event,
-          starts[index]! + (event.step * 15) / bar.plan.bpm,
-          15 / bar.plan.bpm,
+          playback.event,
+          starts[index]! +
+            (((playback.onTick - bar.plan.barIndex * TICKS_PER_BAR) / PPQ) *
+              60) /
+              bar.plan.bpm,
+          playbackSecondsPerStep(playback, bar.plan.bpm),
         );
     }
   };
@@ -128,6 +189,9 @@ export async function renderRoles(
     metadata: {
       seed,
       mode: "Balanced",
+      groove: options.groove ?? "straight",
+      fixedBpm: options.fixedBpm,
+      timingOnly: options.timingOnly ?? false,
       engineVersion: ENGINE_VERSION,
       performers: performers.map((p) => ({
         ...p.identity,
@@ -141,6 +205,7 @@ export async function renderRoles(
       gains,
       starts,
       bars,
+      themeHistory,
       rendering:
         "One real-sample multichannel render; Full is the sum of these stems. No limiter, compressor or Normalize. Chronological refill. Not realtime Transport recording.",
       humanListening: "Pending",
