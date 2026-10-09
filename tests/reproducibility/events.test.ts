@@ -55,7 +55,10 @@ it("replays a fixed boundary operation sequence with identical committed events 
         command();
         const boundary = host
           .getSnapshot()
-          .tracks.find((track) => track.manifest.id === id)!.pendingAt!;
+          .tracks.find(
+            (track) =>
+              track.manifest.id === id && track.pendingAt !== undefined,
+          )!.pendingAt!;
         audio.boundary(boundary - 1);
         await vi.advanceTimersByTimeAsync(100);
         audio.boundary(boundary);

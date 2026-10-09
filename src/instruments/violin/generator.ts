@@ -37,7 +37,39 @@ export function generateBar(
       "dynamics",
     ),
   );
-  const { theme, startedAt, notes } = material(plan, state);
+  const { theme, startedAt, notes: original } = material(plan, state);
+  const assignment = ensemble.assignment;
+  const [start, end] = assignment?.stepRange ?? [0, 16];
+  let notes =
+    assignment?.task === "rest"
+      ? []
+      : original.filter(
+          (note) =>
+            note.step >= start && end - note.step >= (assignment ? 2.5 : 0),
+        );
+  if (
+    !notes.length &&
+    assignment &&
+    assignment.task !== "rest" &&
+    end > start
+  ) {
+    const source =
+      theme.bars[(plan.barIndex - startedAt) % theme.bars.length]![0]!;
+    notes = [
+      {
+        ...source,
+        step: start,
+        duration: Math.min(5, end - start),
+        rebow: true,
+      },
+    ];
+  }
+  if (assignment?.task === "support")
+    notes = notes.slice(0, 1).map((note) => ({
+      ...note,
+      duration: Math.min(6, end - note.step),
+      rebow: true,
+    }));
   let previous = state.previousMidi;
   let previousEnd = state.previousEndStep ?? -100;
   const targetVelocity =
@@ -51,7 +83,12 @@ export function generateBar(
   const events: MusicEvent[] = [];
   notes.forEach((note, index) => {
     // A crowded upper register leaves a breathing space; never split the saved theme.
-    if (ensemble.highRegisterLoad > 0.55 && index === notes.length - 1) return;
+    if (
+      !assignment &&
+      ensemble.highRegisterLoad > 0.55 &&
+      index === notes.length - 1
+    )
+      return;
     const midi = pitch(plan, note.degree, note.step, previous);
     const absoluteStep = plan.barIndex * 16 + note.step;
     const connected =
@@ -59,7 +96,7 @@ export function generateBar(
       previous !== undefined &&
       Math.abs(midi - previous) <= 4 &&
       !note.rebow;
-    const durationSteps = Math.min(note.duration, 16 - note.step);
+    const durationSteps = Math.min(note.duration, end - note.step);
     previous = midi;
     events.push({
       kind: "note",

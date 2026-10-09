@@ -2,6 +2,7 @@ import { discoverPlugins } from "../../src/app/discoverPlugins";
 import { MusicDirector, ENGINE_VERSION } from "../../src/core/MusicDirector";
 import { BarPlanner } from "../../src/core/BarPlanner";
 import { createPluginSession } from "../../src/core/PluginSession";
+import { instances } from "../../src/core/CharacterInstances";
 import { loadSampleVoice } from "../../src/audio/SampleVoice";
 import type { PreparedBar } from "../../src/audio/AudioEngine";
 
@@ -11,12 +12,15 @@ export async function renderListening(seed: string) {
   const plugins = await Promise.all(
     descriptors.map(async (d) => (await d.load()).plugin),
   );
-  const tracks = plugins.map((plugin) => ({
-    id: plugin.manifest.id,
+  const performers = plugins.flatMap((plugin) =>
+    instances(plugin.manifest).map((role) => ({ ...role, plugin })),
+  );
+  const tracks = performers.map(({ plugin, identity }) => ({
+    id: identity.instanceId,
     active: true,
     muted: false,
     solo: false,
-    session: createPluginSession(plugin),
+    session: createPluginSession(plugin, identity),
   }));
   const planner = new BarPlanner(new MusicDirector(seed));
   let duration = 0.1;
@@ -40,7 +44,7 @@ export async function renderListening(seed: string) {
   master.gain.value = 0.65;
   master.connect(context.destination);
   const voices = await Promise.all(
-    plugins.map((plugin) =>
+    performers.map(({ plugin }) =>
       plugin.createVoice({
         createSynthVoice() {
           throw new Error("Real samples required");
@@ -64,7 +68,9 @@ export async function renderListening(seed: string) {
     const bar = bars[index]!;
     for (const track of bar.tracks) {
       const voice =
-        voices[plugins.findIndex((plugin) => plugin.manifest.id === track.id)]!;
+        voices[
+          performers.findIndex((p) => p.identity.instanceId === track.id)
+        ]!;
       for (const event of track.events)
         voice.play(
           event,

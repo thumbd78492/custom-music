@@ -104,14 +104,14 @@ describe("Host async lifecycle ownership", () => {
     const { host, audio } = setup([source]);
     const oldAdd = host.add("generic");
     await Promise.resolve();
-    expect(audio.tracks.has("generic")).toBe(true);
+    expect(audio.tracks.has("generic:1")).toBe(true);
     host.stop();
     expect(host.getSnapshot().tracks[0]?.loading).toBe(false);
     await host.add("generic");
-    const currentVoice = audio.voices.get("generic");
+    const currentVoice = audio.voices.get("generic:1");
     obsolete.reject(new Error("aborted old request"));
     await oldAdd;
-    expect(audio.voices.get("generic")).toBe(currentVoice);
+    expect(audio.voices.get("generic:1")).toBe(currentVoice);
     expect(host.getSnapshot().tracks[0]).toMatchObject({
       active: true,
       loading: false,
@@ -133,12 +133,12 @@ describe("Host async lifecycle ownership", () => {
     host.remove("generic");
     expect(audio.tracks.size).toBe(0);
     await host.add("generic");
-    const currentVoice = audio.voices.get("generic");
+    const currentVoice = audio.voices.get("generic:1");
     const oldVoice = fakeVoice();
     obsolete.resolve(oldVoice);
     await oldAdd;
     expect(oldVoice.dispose).toHaveBeenCalledTimes(1);
-    expect(audio.voices.get("generic")).toBe(currentVoice);
+    expect(audio.voices.get("generic:1")).toBe(currentVoice);
     expect(currentVoice?.dispose).not.toHaveBeenCalled();
   });
 
@@ -237,15 +237,15 @@ describe("Host async lifecycle ownership", () => {
     await oldStart;
 
     expect(obsoleteVoice.dispose).toHaveBeenCalledTimes(1);
-    expect(setVoice).not.toHaveBeenCalledWith("generic", obsoleteVoice);
+    expect(setVoice).not.toHaveBeenCalledWith("generic:1", obsoleteVoice);
     expect(audio.removeTrack).toHaveBeenCalledTimes(removeCalls);
-    expect(audio.tracks.has("generic")).toBe(true);
+    expect(audio.tracks.has("generic:1")).toBe(true);
     expect(host.getSnapshot().starting).toBe(true);
 
     const currentVoice = fakeVoice();
     current.resolve(currentVoice);
     await newStart;
-    expect(audio.voices.get("generic")).toBe(currentVoice);
+    expect(audio.voices.get("generic:1")).toBe(currentVoice);
     expect(currentVoice.dispose).not.toHaveBeenCalled();
     expect(host.getSnapshot()).toMatchObject({
       running: true,
@@ -266,7 +266,7 @@ describe("Host async lifecycle ownership", () => {
     await Promise.resolve();
     host.stop();
     await host.start();
-    const currentVoice = audio.voices.get("generic")!;
+    const currentVoice = audio.voices.get("generic:1")!;
     const removeCalls = audio.removeTrack.mock.calls.length;
     const stopCalls = audio.stop.mock.calls.length;
 
@@ -275,7 +275,7 @@ describe("Host async lifecycle ownership", () => {
 
     expect(audio.removeTrack).toHaveBeenCalledTimes(removeCalls);
     expect(audio.stop).toHaveBeenCalledTimes(stopCalls);
-    expect(audio.voices.get("generic")).toBe(currentVoice);
+    expect(audio.voices.get("generic:1")).toBe(currentVoice);
     expect(currentVoice.dispose).not.toHaveBeenCalled();
     expect(host.getSnapshot()).toMatchObject({
       running: true,
@@ -320,19 +320,21 @@ describe("Host async lifecycle ownership", () => {
         .getSnapshot()
         .tracks.find((track) => track.manifest.id === "healthy"),
     ).toMatchObject({ active: true, error: undefined });
-    expect(audio.tracks.has("broken")).toBe(false);
-    expect(audio.tracks.has("healthy")).toBe(true);
+    expect(audio.tracks.has("broken:1")).toBe(false);
+    expect(audio.tracks.has("healthy:1")).toBe(true);
     expect(audio.start).toHaveBeenCalledTimes(2);
     expect(healthyVoice).toHaveBeenCalledTimes(2);
     const restartBars = audio.bars.slice(priorBarCount);
     expect(restartBars).toHaveLength(3);
     for (const bar of restartBars) {
-      expect(bar.tracks.find((track) => track.id === "broken")).toMatchObject({
-        active: false,
-        events: [],
-      });
+      expect(bar.tracks.find((track) => track.id === "broken:1")).toMatchObject(
+        {
+          active: false,
+          events: [],
+        },
+      );
       expect(
-        bar.tracks.find((track) => track.id === "healthy")?.events.length,
+        bar.tracks.find((track) => track.id === "healthy:1")?.events.length,
       ).toBeGreaterThan(0);
     }
   });

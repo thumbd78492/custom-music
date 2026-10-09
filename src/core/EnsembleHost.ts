@@ -1,11 +1,14 @@
 import type {
   InstrumentPlugin,
   InstrumentSession,
+  InstrumentInstance,
+  CharacterDefinition,
   PluginDescriptor,
 } from "../contracts/instrument";
 import type { AudioEnginePort, PreparedBar } from "../audio/AudioEngine";
 import { BarPlanner } from "./BarPlanner";
 import { createPluginSession } from "./PluginSession";
+import { instances } from "./CharacterInstances";
 import { MusicDirector } from "./MusicDirector";
 import type { BarPlan, VariationMode } from "../contracts/music";
 
@@ -13,8 +16,11 @@ interface Flags {
   active: boolean;
   muted: boolean;
   solo: boolean;
+  volume: number;
 }
 interface Entry {
+  identity: InstrumentInstance;
+  character: CharacterDefinition;
   descriptor: PluginDescriptor;
   plugin?: InstrumentPlugin;
   session?: InstrumentSession;
@@ -28,9 +34,12 @@ interface Entry {
   voiceRequest: number;
 }
 export interface Operation {
-  readonly type: "add" | "remove" | "mute" | "solo";
+  readonly type: "add" | "remove" | "mute" | "solo" | "volume";
   readonly id: string;
-  readonly value: boolean;
+  readonly pluginId: string;
+  readonly characterId: string;
+  readonly instanceId: string;
+  readonly value: boolean | number;
   readonly requestedAtBar: number;
   readonly effectiveAtBar: number;
 }
@@ -44,10 +53,13 @@ export interface HostSnapshot {
   readonly variationMode: VariationMode;
   readonly error?: string;
   readonly tracks: readonly {
+    readonly identity: InstrumentInstance;
+    readonly character: CharacterDefinition;
     readonly manifest: PluginDescriptor["manifest"];
     readonly active: boolean;
     readonly muted: boolean;
     readonly solo: boolean;
+    readonly volume: number;
     readonly loading: boolean;
     readonly loaded: boolean;
     readonly pendingAt?: number;
@@ -77,18 +89,27 @@ export class EnsembleHost {
     descriptors: readonly PluginDescriptor[],
     private readonly audio: AudioEnginePort,
   ) {
+    const pluginIds = new Set<string>();
     for (const descriptor of descriptors) {
-      const id = descriptor.manifest.id;
-      if (this.entries.has(id)) throw new Error(`Duplicate plugin id: ${id}`);
-      this.entries.set(id, {
-        descriptor,
-        desired: { active: false, muted: false, solo: false },
-        actual: { active: false, muted: false, solo: false },
-        loading: false,
-        voiceReady: false,
-        request: 0,
-        voiceRequest: 0,
-      });
+      if (pluginIds.has(descriptor.manifest.id))
+        throw new Error(`Duplicate plugin id: ${descriptor.manifest.id}`);
+      pluginIds.add(descriptor.manifest.id);
+      for (const { identity, character } of instances(descriptor.manifest)) {
+        const id = identity.instanceId;
+        if (this.entries.has(id))
+          throw new Error(`Duplicate instance id: ${id}`);
+        this.entries.set(id, {
+          identity,
+          character,
+          descriptor,
+          desired: { active: false, muted: false, solo: false, volume: 1 },
+          actual: { active: false, muted: false, solo: false, volume: 1 },
+          loading: false,
+          voiceReady: false,
+          request: 0,
+          voiceRequest: 0,
+        });
+      }
     }
     this.publish();
   }
@@ -111,6 +132,8 @@ export class EnsembleHost {
       variationMode: this.variationMode,
       error: this.error,
       tracks: [...this.entries.values()].map((entry) => ({
+        identity: entry.identity,
+        character: entry.character,
         manifest: entry.descriptor.manifest,
         ...entry.desired,
         loading: entry.loading,
@@ -122,7 +145,15 @@ export class EnsembleHost {
     this.listeners.forEach((listener) => listener());
   }
   private entry(id: string): Entry {
-    const entry = this.entries.get(id);
+    // Legacy plugin shortcut resolves metadata's default; tracks always use instanceId.
+    const entry =
+      this.entries.get(id) ??
+      [...this.entries.values()].find(
+        (e) =>
+          e.identity.pluginId === id &&
+          (e.character.default ||
+            instances(e.descriptor.manifest).length === 1),
+      );
     if (!entry) throw new Error(`Unknown plugin: ${id}`);
     return entry;
   }
@@ -179,6 +210,7 @@ export class EnsembleHost {
   }
   async add(id: string): Promise<void> {
     const entry = this.entry(id);
+    id = entry.identity.instanceId;
     if (
       this.disposed ||
       this.starting ||
@@ -194,10 +226,10 @@ export class EnsembleHost {
     try {
       const module = await entry.descriptor.load();
       if (this.disposed || request !== entry.request) return;
-      if (module.plugin.manifest.id !== id)
+      if (module.plugin.manifest.id !== entry.identity.pluginId)
         throw new Error("Plugin manifest id mismatch");
       entry.plugin = module.plugin;
-      entry.session ??= createPluginSession(entry.plugin);
+      entry.session ??= createPluginSession(entry.plugin, entry.identity);
       if (!(await this.ensureVoice(id, entry, this.epoch))) return;
       if (this.disposed || request !== entry.request) return;
       this.command(id, "add", true);
@@ -213,6 +245,7 @@ export class EnsembleHost {
   }
   remove(id: string) {
     const entry = this.entry(id);
+    id = entry.identity.instanceId;
     if (entry.loading) {
       ++entry.request;
       ++entry.voiceRequest;
@@ -233,17 +266,30 @@ export class EnsembleHost {
   solo(id: string, value: boolean) {
     this.command(id, "solo", value);
   }
-  private command(id: string, type: Operation["type"], value: boolean) {
+  setVolume(id: string, value: number) {
+    if (!Number.isFinite(value) || value < 0 || value > 1)
+      throw new Error("Invalid volume");
+    this.command(id, "volume", value);
+  }
+  private command(
+    id: string,
+    type: Operation["type"],
+    value: boolean | number,
+  ) {
     const entry = this.entry(id);
+    id = entry.identity.instanceId;
     if (this.disposed || this.starting || entry.pendingAt !== undefined) return;
-    if (type === "add" || type === "remove") entry.desired.active = value;
-    if (type === "mute") entry.desired.muted = value;
-    if (type === "solo") entry.desired.solo = value;
+    if (type === "add" || type === "remove")
+      entry.desired.active = value as boolean;
+    if (type === "mute") entry.desired.muted = value as boolean;
+    if (type === "solo") entry.desired.solo = value as boolean;
+    if (type === "volume") entry.desired.volume = value as number;
     const effectiveAtBar = this.running
       ? Math.max(this.planner!.nextBarIndex, this.audio.currentBar() + 1)
       : 0;
     this.operations.push({
       id,
+      ...entry.identity,
       type,
       value,
       requestedAtBar: this.running ? this.audio.currentBar() : this.barIndex,
@@ -279,7 +325,7 @@ export class EnsembleHost {
         try {
           if (!(await this.ensureVoice(id, entry, epoch))) return;
           if (epoch !== this.epoch || this.disposed) return;
-          entry.session = createPluginSession(entry.plugin!);
+          entry.session = createPluginSession(entry.plugin!, entry.identity);
         } catch (error) {
           if (epoch !== this.epoch || this.disposed) return;
           entry.error = String(error);
@@ -349,6 +395,7 @@ export class EnsembleHost {
         active: track.active,
         muted: track.muted,
         solo: track.solo,
+        volume: track.volume ?? 1,
       };
       if (entry.pendingAt !== undefined && entry.pendingAt <= this.barIndex)
         entry.pendingAt = undefined;

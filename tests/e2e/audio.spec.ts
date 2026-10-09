@@ -146,6 +146,17 @@ const ids = readdirSync("src/instruments", { withFileTypes: true })
   .filter((entry) => entry.isDirectory())
   .map((entry) => entry.name);
 
+async function addAllRoles(page: Page) {
+  const cards = page.locator("article");
+  for (let index = 0; index < (await cards.count()); index++) {
+    const card = cards.nth(index);
+    await card.getByRole("button", { name: "加入", exact: true }).click();
+    await expect(
+      card.getByRole("button", { name: "移除", exact: true }),
+    ).toBeEnabled();
+  }
+}
+
 for (const id of ids)
   test(`${id} alone lazy loads, produces audio, stops, and restarts`, async ({
     page,
@@ -162,7 +173,8 @@ for (const id of ids)
     await expect(
       page.getByRole("heading", { name: "InstrumentLab" }),
     ).toBeVisible();
-    await expect(page.locator("article")).toHaveCount(1);
+    await expect(page.locator("article")).toHaveCount(id === "piano" ? 2 : 1);
+    const card = page.getByTestId(`instrument-${id}`);
     expect(
       requested.filter((url) =>
         /\/src\/instruments\/.*\/(index|voice|generator)\.ts/.test(url),
@@ -172,9 +184,9 @@ for (const id of ids)
     const firstSample = page.waitForResponse((response) =>
       sampleRequest(response.request()),
     );
-    await page.getByRole("button", { name: "加入", exact: true }).click();
+    await card.getByRole("button", { name: "加入", exact: true }).click();
     await expect(
-      page.getByRole("button", { name: "移除", exact: true }),
+      card.getByRole("button", { name: "移除", exact: true }),
     ).toBeEnabled();
     const response = await firstSample;
     expect(response.ok()).toBe(true);
@@ -233,14 +245,8 @@ test("ensemble plays together and applies Solo, Mute, removal at pending bar bou
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/");
-  await expect(page.locator("article")).toHaveCount(ids.length);
-  for (const id of ids) {
-    const card = page.getByTestId(`instrument-${id}`);
-    await card.getByRole("button", { name: "加入", exact: true }).click();
-    await expect(
-      card.getByRole("button", { name: "移除", exact: true }),
-    ).toBeEnabled();
-  }
+  await expect(page.locator("article")).toHaveCount(ids.length + 1);
+  await addAllRoles(page);
   await page.getByRole("button", { name: "Start", exact: true }).click();
   const level = () =>
     page.evaluate(
@@ -273,6 +279,129 @@ test("ensemble plays together and applies Solo, Mute, removal at pending bar bou
     fullPage: true,
   });
   expect(errors).toEqual([]);
+});
+
+test("Piano Lab runs two real voices and removing one leaves the other playing", async ({
+  page,
+}, info) => {
+  test.setTimeout(90000);
+  await page.goto("/?instrument=piano");
+  const melody = page.locator('[data-character-id="piano-melody"]');
+  const comping = page.locator('[data-character-id="piano-accompaniment"]');
+  await expect(page.locator("article")).toHaveCount(2);
+  await addAllRoles(page);
+  await expect
+    .poll(async () => (await probe(page)).decoded)
+    .toBeGreaterThanOrEqual(28);
+  await page.getByRole("button", { name: "Start", exact: true }).click();
+  await expect
+    .poll(async () => (await probe(page)).peak)
+    .toBeGreaterThan(0.0001);
+  await melody.getByRole("button", { name: "Solo", exact: true }).click();
+  await expect(
+    melody.getByRole("button", { name: "Mute", exact: true }),
+  ).toBeEnabled({ timeout: 12000 });
+  await expect
+    .poll(async () => (await probe(page)).peak)
+    .toBeGreaterThan(0.0001);
+  await melody.getByRole("button", { name: "Solo", exact: true }).click();
+  await expect(
+    melody.getByRole("button", { name: "Mute", exact: true }),
+  ).toBeEnabled({ timeout: 12000 });
+  await melody.getByRole("button", { name: "Mute", exact: true }).click();
+  await expect(
+    melody.getByRole("button", { name: "Mute", exact: true }),
+  ).toBeEnabled({ timeout: 12000 });
+  await expect
+    .poll(async () => (await probe(page)).peak)
+    .toBeGreaterThan(0.0001);
+  await melody.getByRole("button", { name: "Mute", exact: true }).click();
+  await expect(
+    melody.getByRole("button", { name: "Mute", exact: true }),
+  ).toBeEnabled({ timeout: 12000 });
+  await comping.getByRole("button", { name: "移除", exact: true }).click();
+  await expect(
+    comping.getByRole("button", { name: "加入", exact: true }),
+  ).toBeEnabled({ timeout: 12000 });
+  const before = (await probe(page)).sampleStarts;
+  await expect
+    .poll(async () => (await probe(page)).sampleStarts, { timeout: 8000 })
+    .toBeGreaterThan(before);
+  await expect
+    .poll(async () => (await probe(page)).peak)
+    .toBeGreaterThan(0.0001);
+  await expect(melody.getByRole("status")).toContainText("已加入");
+  await page.getByRole("button", { name: "Stop", exact: true }).click();
+  await expectSilentAndReleased(page);
+  await page.getByRole("button", { name: "Start", exact: true }).click();
+  await expect
+    .poll(async () => (await probe(page)).sampleStarts)
+    .toBeGreaterThan(before);
+  await expect
+    .poll(async () => (await probe(page)).peak)
+    .toBeGreaterThan(0.0001);
+  await page.getByRole("button", { name: "Stop", exact: true }).click();
+  await expectSilentAndReleased(page);
+  await page.screenshot({
+    path: info.outputPath("piano-two-roles.png"),
+    fullPage: true,
+  });
+  await info.attach("two-piano-voices", {
+    body: JSON.stringify(await probe(page)),
+    contentType: "application/json",
+  });
+});
+
+test("one Piano role's failed or cancelled sample load leaves its partner and retry intact", async ({
+  page,
+}) => {
+  test.setTimeout(45000);
+  await page.goto("/?instrument=piano");
+  const melody = page.locator('[data-character-id="piano-melody"]');
+  const comping = page.locator('[data-character-id="piano-accompaniment"]');
+  await comping.getByRole("button", { name: "加入", exact: true }).click();
+  await expect(
+    comping.getByRole("button", { name: "移除", exact: true }),
+  ).toBeEnabled();
+  let fail = true,
+    hold = false,
+    delayed = 0;
+  let release!: () => void;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.route(sampleUrl, async (route) => {
+    if (!sampleRequest(route.request())) return route.continue();
+    if (fail) return route.fulfill({ status: 404, body: "one role failure" });
+    if (hold) {
+      delayed++;
+      await gate;
+    }
+    await route.continue();
+  });
+  await melody.getByRole("button", { name: "加入", exact: true }).click();
+  await expect(melody.getByRole("alert")).toContainText("失敗");
+  await expect(comping.getByRole("alert")).toHaveCount(0);
+  await page.getByRole("button", { name: "Start", exact: true }).click();
+  await expect
+    .poll(async () => (await probe(page)).peak)
+    .toBeGreaterThan(0.0001);
+  fail = false;
+  hold = true;
+  await melody.getByRole("button", { name: "加入", exact: true }).click();
+  await expect.poll(() => delayed).toBeGreaterThan(0);
+  await melody.getByRole("button", { name: "取消載入", exact: true }).click();
+  await expect(comping.getByRole("status")).toContainText("已加入");
+  hold = false;
+  release();
+  await melody.getByRole("button", { name: "加入", exact: true }).click();
+  await expect(
+    melody.getByRole("button", { name: "移除", exact: true }),
+  ).toBeEnabled({ timeout: 12000 });
+  await expect(melody.getByRole("alert")).toHaveCount(0);
+  await expect(comping.getByRole("alert")).toHaveCount(0);
+  await page.getByRole("button", { name: "Stop", exact: true }).click();
+  await expectSilentAndReleased(page);
 });
 
 test("empty host can start and add an instrument while playing", async ({
@@ -693,13 +822,7 @@ test("audio-clock recovery after a main-thread stall skips overdue sample attack
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/");
-  for (const id of ids) {
-    const card = page.getByTestId(`instrument-${id}`);
-    await card.getByRole("button", { name: "加入", exact: true }).click();
-    await expect(
-      card.getByRole("button", { name: "移除", exact: true }),
-    ).toBeEnabled();
-  }
+  await addAllRoles(page);
   await page.getByRole("button", { name: "Start", exact: true }).click();
   await expect
     .poll(async () => (await probe(page)).sampleStarts)
@@ -737,13 +860,7 @@ test("native AudioContext suspension and resume retain a recoverable audio clock
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/");
-  for (const id of ids) {
-    const card = page.getByTestId(`instrument-${id}`);
-    await card.getByRole("button", { name: "加入", exact: true }).click();
-    await expect(
-      card.getByRole("button", { name: "移除", exact: true }),
-    ).toBeEnabled();
-  }
+  await addAllRoles(page);
   await page.getByRole("button", { name: "Start", exact: true }).click();
   await expect
     .poll(async () => (await probe(page)).sampleStarts)
@@ -918,13 +1035,7 @@ backgroundTest.describe("real background browser policy", () => {
       });
       const musicWindow = await musicCdp.send("Browser.getWindowForTarget", {});
       await page.bringToFront();
-      for (const id of ids) {
-        const card = page.getByTestId(`instrument-${id}`);
-        await card.getByRole("button", { name: "加入", exact: true }).click();
-        await expect(
-          card.getByRole("button", { name: "移除", exact: true }),
-        ).toBeEnabled();
-      }
+      await addAllRoles(page);
       await page.getByRole("button", { name: "Start", exact: true }).click();
       await expect
         .poll(async () => (await probe(page)).sampleStarts)

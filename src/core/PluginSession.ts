@@ -1,7 +1,10 @@
 import type {
   InstrumentPlugin,
   InstrumentSession,
+  InstrumentInstance,
 } from "../contracts/instrument";
+import type { BarPlan } from "../contracts/music";
+import { characters } from "./CharacterInstances";
 
 function snapshot<T>(state: T): T {
   const encoded = JSON.stringify(state);
@@ -12,12 +15,44 @@ function snapshot<T>(state: T): T {
 
 export function createPluginSession<State>(
   plugin: InstrumentPlugin<State>,
+  instance?: InstrumentInstance,
 ): InstrumentSession {
-  let state = snapshot(plugin.createInitialState());
+  if (
+    instance &&
+    (instance.pluginId !== plugin.manifest.id ||
+      !characters(plugin.manifest).some((c) => c.id === instance.characterId))
+  )
+    throw new Error("Instance does not belong to this plugin/character");
+  let state = snapshot(plugin.createInitialState(instance));
+  const scope = (plan: BarPlan): BarPlan =>
+    instance
+      ? Object.freeze({
+          ...plan,
+          rootSeed: JSON.stringify([
+            plan.rootSeed,
+            "instance-v1",
+            instance.pluginId,
+            instance.characterId,
+            instance.instanceId,
+            plugin.manifest.version,
+          ]),
+        })
+      : plan;
   return {
-    propose: (plan) => plugin.proposeBar(plan, snapshot(state)),
+    instance,
+    character: instance
+      ? characters(plugin.manifest).find((c) => c.id === instance.characterId)
+      : undefined,
+    propose: (plan) =>
+      plugin.proposeBar(scope(plan), snapshot(state), instance),
     generate: (plan, own, ensemble) => {
-      const result = plugin.generateBar(plan, own, ensemble, snapshot(state));
+      const result = plugin.generateBar(
+        scope(plan),
+        own,
+        ensemble,
+        snapshot(state),
+        instance,
+      );
       state = snapshot(result.nextState);
       return result.events;
     },

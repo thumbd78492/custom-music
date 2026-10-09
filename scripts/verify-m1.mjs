@@ -27,6 +27,7 @@ const checks = [
       "tests",
       "scripts",
       "docs",
+      "plan.md",
       "README.md",
       "CURRENT_STATE.md",
       "package.json",

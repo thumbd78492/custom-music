@@ -1,6 +1,6 @@
 import * as Tone from "tone";
 import type { AudioServices, InstrumentVoice } from "../contracts/instrument";
-import type { BarPlan, MusicEvent } from "../contracts/music";
+import type { BarPlan, MusicEvent, PhraseAssignment } from "../contracts/music";
 import { TrackAudioServices } from "./AudioServices";
 import { MasterMixer, TRACK_FADE_SECONDS } from "./MasterMixer";
 import { ToneClock } from "./ToneClock";
@@ -12,6 +12,8 @@ export interface PreparedBar {
     readonly active: boolean;
     readonly muted: boolean;
     readonly solo: boolean;
+    readonly volume?: number;
+    readonly assignment?: PhraseAssignment;
     readonly events: readonly MusicEvent[];
   }[];
 }
@@ -107,7 +109,10 @@ export class AudioEngine implements AudioEnginePort {
       bar.tracks.map((state) => [state.id, this.tracks.get(state.id)]),
     );
     const audible = (track: PreparedBar["tracks"][number]) =>
-      track.active && !track.muted && (!anySolo || track.solo);
+      track.active &&
+      !track.muted &&
+      (track.volume ?? 1) > 0 &&
+      (!anySolo || track.solo);
 
     this.clock.schedule(
       startBeat,
@@ -116,7 +121,7 @@ export class AudioEngine implements AudioEnginePort {
           const track = owners.get(state.id);
           if (!track || this.tracks.get(state.id) !== track) continue;
           const nextAudible = audible(state);
-          this.mixer.setAudible(state.id, nextAudible, time);
+          this.mixer.setAudible(state.id, nextAudible, time, state.volume ?? 1);
           if (track.audible && !nextAudible) track.voice?.releaseAll(time);
           track.audible = nextAudible;
         }

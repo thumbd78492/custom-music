@@ -1,4 +1,60 @@
-# M2 架構
+# M2 架構（m2.2：角色實例與雙主奏）
+
+2026-10-09 收尾增補；[實作前 ADR／相容性](adr-m2-role-instances.md)。
+M3–M5 保留，本輪停在 M2，人工品質仍 Pending。
+
+## 收尾增補後的模組與契約
+
+`manifest.id` 為 pluginId，`manifest.characters` 宣告角色。characterId 是角色設定，
+instanceId 是穩定舞台位置 `characterId:1`。Host／UI 只展開 metadata：四個 Plugin、
+五個角色，沒有具名樂器分支。Piano 的兩位演奏者共用聲音程式與唯讀 sampleBank。
+每個位置獨有 session、state／主題／和弦配置／歷史、voice／performance、track gain、
+Mute／Solo／volume、request／voiceRequest ownership。音量 0–1，預設 1，於安全小節生效。
+Lab 只載入所選 Plugin 的角色，Piano-only 可選一位或同時測兩位。
+
+```text
+Host -> CharacterInstances (metadata -> stable identities) -> PluginSession
+Director (shared plan) -> BarPlanner -> PhraseCoordinator (tasks only)
+BarPlanner -> per-recipient EnsembleCoordinator (OTHER audible occupancy)
+Plugin generator -> own events -> AudioEngine -> instance-scoped voice / mixer
+```
+
+InstrumentPlugin 的 state／propose／generate 增加可選 InstrumentInstance 上下文。
+PluginSession 以 JSON tuple 將三種身分及 Plugin version 納入 rootSeed，再沿用各用途 PRNG。
+不以 Date.now、載入順序或 Promise 完成順序產生身分／音樂亂數。相同 m2.2、Seed、模式、
+角色配置與操作生效小節可重現完整計畫、分工與事件；不保證跨裝置 PCM bit-perfect。
+舊單參數 session 保留歷史上下文；舊 Host add(pluginId) 只解析 metadata default，
+正式 UI、排程、音軌及 Operation 均使用 instanceId，收據另明記 pluginId／characterId。
+
+PhraseCoordinator 按角色 tasks、leadWeight、近期 lastLed／lastResponded、可聽 roster 與
+共同樂句 Seed 分工，不產生音符。四小節中：首兩小節完整領句，搭檔先休止、再單音支撐；
+第三小節短句／回應；末小節共同收句，主奏在 step 14 後休止。下句優先給較久未領句者。
+只有一位主奏時每小節可領句；Muted／Solo 隱藏／volume 0／移除者不占名額，在下一個
+未提交小節重新分工。Muted 私有 state 仍推進，已提交事件不改寫。
+
+EnsembleIntent.assignment 是自己的 task／stepRange／densityScale／register；其餘聚合
+只含 OTHER audible instances，避免自我避讓。leadActivity／音域佔用依其他聲部任務與
+時段縮減，pulseAccents 仍為匿名低頻節奏重音。沒有傳送其他 Plugin 的事件或對位系統。
+
+Piano 自有 generator 依角色選 `melody.ts` 或 `accompaniment.ts`。旋律保存兩小節節奏／
+音階輪廓，重複、局部變奏、更新／引用及句尾休止，主要單音且有非和弦經過音。
+MIDI 62–76，既有根音 60–72，最近根音移調最多 4 semitones；領句力度穩定在 Loud 層，
+支撐單音較輕，gain 仍 -8 dB。伴奏保留和弦／琶音與聲部連接；低頻聲部存在時採兩音
+rootless 配置，雙主奏時少拍點、上緣 69、不加高音裝飾，單獨仍有完整和聲演奏。
+低頻佔用只要大於零便保留低音空間；不能用平均密度門檻判定低頻搭檔是否存在，
+否則其他角色或疏鬆段落會稀釋貝斯意圖。移除／Mute／Solo 隱藏後佔用歸零，伴奏可補回根音。
+
+Violin 0.2.2 voice／performance／regions、所有樣本與校準、起播位置、包絡、連奏及
+-9 dB 均保持本輪基準 hash；只改 generator 的任務篩選、支撐長音與留白。
+素材檔與 Piano sampleBank 不複製；各 voice／buffers／取消獨立，未重做全域音色快取。
+CreativeDirectorPort 保留，未來透過 metadata／宣告式偏好影響分工，本輪無 LLM API。
+
+Vite 忽略 `.isolation/`／`.verification/` 監視，避免 fixture 的 tsconfig 觸發播放頁 HMR。
+測試收據與短稿見 CURRENT_STATE；新快照不是人工驗收，m2.1 程式／音訊與舊收據保留。
+
+## 前輪 M2 基礎架構紀錄
+
+以下為 m2.1 的共用音訊／時鐘與最初生成架構；角色、協調與版本以上方 m2.2 增補為準。
 
 M2 在 M1 真實 Samples、Plugin 獨立性與音訊生命週期上加入生成式音樂。
 2026-10-09 使用者明確授權先調整 M1 混音再實作 M2，並納入主題記憶。

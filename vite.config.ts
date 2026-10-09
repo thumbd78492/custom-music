@@ -3,6 +3,9 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
+  // Evidence fixtures contain their own tsconfig/package files. Watching them
+  // can reload an unrelated live browser session while a verification runs.
+  server: { watch: { ignored: ["**/.isolation/**", "**/.verification/**"] } },
   ssr: {
     noExternal: [/@tonaljs\//],
     resolve: { mainFields: ["module", "main"] },

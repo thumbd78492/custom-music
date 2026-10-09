@@ -1,5 +1,106 @@
 # 開發狀態
 
+日期：2026-10-09。最新範圍為 **M2 收尾增補：雙主奏編曲＋雙鋼琴角色**，音樂版本 m2.2。
+使用者最新回饋：小提琴發聲已明顯改善，保存為基準；希望鋼琴與小提琴對等主奏，
+另一位鋼琴手獨立伴奏。本輪未開始 M3，整體音樂品質／人工試聽仍 **Pending**。
+
+## M2 收尾增補
+
+- 四種 Plugin 的 metadata 宣告五張文字卡：旋律鋼琴、伴奏鋼琴、旋律小提琴、貝斯、鼓。
+  每位可獨立加入／移除、Mute／Solo、音量，安全小節生效；Piano Lab 可選角色或同時測兩位。
+- pluginId／characterId／instanceId 分開，穩定舞台位置各有私有 session、PRNG、主題／和弦配置、
+  演奏歷史、voice／performance、track、載入與清理 ownership。共享程式與唯讀素材。
+- 先用原 Piano 生成器完成多實例驗證，保存 phase1 source，再加入自己的 melody／accompaniment。
+- 通用 PhraseCoordinator 依角色能力／偏好與近期領句紀錄，輪替領句、回應、支撐與休止。
+  自己任務與 OTHER 可聽聲部的佔用分開；Mute／Solo／移除／volume 0 不占名額。
+- Piano melody 有兩小節主題、重複／局部變奏／引用、句尾休止與單音旋律；MIDI 62–76，
+  既有取樣最近根音移調最多 4 semitones。伴奏在貝斯存在時 rootless、雙主奏時少裝飾與拍點。
+  Piano gain 仍 -8 dB，不用提高整軌音量代替編曲。
+- Violin 0.2.2 取樣、校準、起播、包絡、連奏與 -9 dB 均保存；只改生成器任務／留白。
+  CreativeDirectorPort 保留，沒有伴奏小提琴、其他樂器、拖曳、美術動畫或外部 AI。
+
+### 基準、收據與短稿
+
+[基準與 SHA-256](.verification/m2-dual-role-2026-10-09/baseline/freeze.json)：
+本輪開始 Git 乾淨，commit `3da393987d37ff9456c718f28d2a2a7c8c65024b`。
+原始碼 tar、原短稿 Full／Violin Before／After 與受保護檔案 hash 保存，舊收據均保留。
+[第一交付收據](.verification/m2-dual-role-2026-10-09/phase1-results.json)／
+[原策略多實例 log](.verification/m2-dual-role-2026-10-09/phase1.log)，四項通過；
+phase1/src 為改旋律前的完整快照。
+
+最終待人工複聽的 alpha／Balanced 短稿（真實 Samples，Master 0.65，無 Normalize／limiter／compressor）：
+
+| 稿件                                                                                                               |    長度 | Full Peak dBFS | 人工結果 |
+| ------------------------------------------------------------------------------------------------------------------ | ------: | -------------: | -------- |
+| [旋律鋼琴](.verification/m2-dual-role-2026-10-09/listening/2026-10-09T05-29-10-315Z/melody-piano-full.wav)         | 46.83 s |         -15.01 | Pending  |
+| [鋼琴／小提琴雙主奏](.verification/m2-dual-role-2026-10-09/listening/2026-10-09T05-29-10-315Z/equal-duet-full.wav) | 78.30 s |         -15.09 | Pending  |
+| [五角色 Full](.verification/m2-dual-role-2026-10-09/listening/2026-10-09T05-29-10-315Z/five-role-full.wav)         | 78.30 s |         -10.33 | Pending  |
+
+[同次渲染的五角色 stems／完整事件／量測](.verification/m2-dual-role-2026-10-09/listening/2026-10-09T05-29-10-315Z/summary.json)。
+Full 由該次 multichannel render 的 Float32 stems 加總再量化，不重新生成各角色。
+PCM16 WAV stem 加總與 Full 可因獨立量化有微小差異，不做音量補償。
+工程領句／回應與音域證據不等於聽感上的對等或好聽。
+
+### 最終工程驗證（人工品質 Pending）
+
+[完整回歸收據](.verification/2026-10-09T05-21-45-066Z/results.json)／
+[E2E log](.verification/2026-10-09T05-21-45-066Z/e2e.log)，沒有未執行或跳過的必跑工程項目。
+
+| 檢查               | 實際結果                                                                         |
+| ------------------ | -------------------------------------------------------------------------------- |
+| Typecheck          | 通過                                                                             |
+| Vitest             | 21 檔、127 項通過                                                                |
+| Production Build   | 通過；主 chunk 544.57 kB，既有 >500 kB 警告保留                                  |
+| Samples／授權 hash | 41 音檔與 4 份授權一致                                                           |
+| 四件實體隔離       | 全部 Typecheck／Vitest／Build 通過；Bass 85、Drums 85、Piano 93、Violin 90 tests |
+| Edge E2E           | 38 通過、0 失敗、0 跳過，8.5 分鐘                                                |
+| ESLint／Prettier   | 全部通過                                                                         |
+
+[隔離收據](.isolation/2026-10-09T05-21-51-821Z/results.json)；Piano-only 保留兩個角色及多實例測試。
+測試覆蓋獨立 state／voice／PRNG、所有 31 種非空角色子集合、載入失敗／取消／過期清理、
+Stop／重啟、安全邊界與已提交事件不變、三模式／四 Seed／反向載入重現、雙主奏分工，
+以及動態 BPM、真實 Samples、實際背景分頁恢復與小提琴既有發聲回歸。
+
+[受保護來源核對](.verification/m2-dual-role-2026-10-09/protected-scope-final.json)：
+所有基準 hash 一致；所有 Samples、Piano voice 與共用 SampleVoice 未修改。
+[最終來源 SHA-256 清單](.verification/m2-dual-role-2026-10-09/source-final.json)／
+[分工與同次 WAV 分軌核對](.verification/m2-dual-role-2026-10-09/arrangement-audit-final.json)。
+Full 與五條 PCM16 stems 加總最大相差 2 整數單位（量化上限 3），沒有重新生成診斷分軌。
+五角色短稿的兩位主奏各有四個完整領句起點與回應；這些結構證據不代替人耳存在感判斷。
+
+已修正隔離 fixture 的舊單角色測試假設；Vite 忽略 fixture／收據監視，避免新增 tsconfig
+造成 HMR 重載。首輪完整回歸只在 Violin generator 的 Format 失敗，其收據保留於
+[第一輪 results](.verification/2026-10-09T05-09-53-507Z/results.json)。修正格式後，分軌核對
+發現疏鬆 Bass 意圖被平均稀釋而未觸發避讓，已修正並加入 Piano 回歸測試，再完整重跑。
+首批與第二批短稿、初次隔離失敗／HMR 截圖及全部中間嘗試均保留，不把任何失敗改成成功。
+最新短稿／stems 與 Pending 複聽表見 [M2_DUAL_LEAD_REVIEW](docs/M2_DUAL_LEAD_REVIEW.md)。
+測試後只補交付文件，另跑 Format／diff 檢查；Git commit／遠端核對記於
+[Git 交付收據](.verification/m2-dual-role-2026-10-09/delivery.json)。
+
+### 修改責任與契約
+
+- `src/contracts/instrument.ts`：宣告角色、任務偏好與三種身分，Plugin 可選 instance 上下文。
+  `src/contracts/music.ts`：加入自己的 PhraseAssignment 與 audibleLeadCount；原 MusicEvent 不變。
+- `src/core/CharacterInstances.ts`／`PluginSession.ts`／`EnsembleHost.ts`：metadata 展開、私有 state、
+  穩定 PRNG、實例控制／載入／清理。`PhraseCoordinator.ts`／`BarPlanner.ts`：通用樂句與 OTHER 佔用。
+- `src/instruments/piano/{manifest,generator,melody,accompaniment}.ts`：兩種私有生成策略；其餘三件 manifest
+  宣告角色。Violin 只改 manifest／generator，不改 motif、voice、performance、regions 或音檔。
+- `src/app/App.tsx`／`src/audio/{AudioEngine,MasterMixer}.ts`：通用文字卡與實例音量／音軌。
+  核心、Piano、重現與瀏覽器測試補上新契約；短稿 harness 一次渲染各分軌。
+- `plan.md`、README、ARCHITECTURE、LLM_FUTURE、聆聽文件與 [ADR](docs/adr-m2-role-instances.md)
+  記錄範圍及相容性。MusicDirector 只更新引擎版本為 m2.2。
+
+### 後續里程碑
+
+M3：主題記憶、初步變奏與長時間事件測試已提前部分完成；完整主題發展、長時間即興品質、
+Seed 重播與事件匯出尚待完成。M4：文字加入／移除、Mute／Solo 已部分完成，角色拖放、
+美術動畫、操作介面與產品品質尚待完成。M5：只有 port／metadata，LLM 高層創意指令未實作。
+本輪收尾後停止，不自行進入 M3。相容性與檔案責任見 [ADR](docs/adr-m2-role-instances.md)。
+
+## 以下為前輪小提琴診斷的歷史紀錄
+
+下方人工回饋描述的是當時版本；最新「已明顯改善」回饋見上方，其他未驗收項目仍 Pending。
+
 日期：2026-10-09。最新範圍為 **M2 小提琴根因定位與取樣播放修正**。
 **修正稿人工回饋未通過：小提琴音符進出太突兀、同一旋律內音量忽大忽小。其他尚未驗收項目維持 Pending；本次沒有開始 M3。**
 

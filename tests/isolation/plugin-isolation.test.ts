@@ -51,12 +51,16 @@ describe.each(descriptors)("$manifest.id in isolation", (descriptor) => {
       await host.start();
       expect(host.getSnapshot().error).toBeUndefined();
       expect(host.getSnapshot().running).toBe(true);
-      expect(audio.tracks).toEqual(new Set([descriptor.manifest.id]));
+      const selected = host.getSnapshot().tracks.find((track) => track.active)!;
+      expect(audio.tracks).toEqual(new Set([selected.identity.instanceId]));
       expect(audio.start).toHaveBeenCalledWith(host.getSnapshot().music.bpm);
       expect(audio.bars.length).toBeGreaterThanOrEqual(2);
       for (const bar of audio.bars) {
-        expect(bar.tracks).toHaveLength(1);
-        expect(bar.tracks[0]?.events.length).toBeGreaterThan(0);
+        expect(bar.tracks.filter((track) => track.active)).toHaveLength(1);
+        expect(
+          bar.tracks.find((track) => track.id === selected.identity.instanceId)
+            ?.events.length,
+        ).toBeGreaterThan(0);
         expect(bar.plan).toMatchObject({
           bpm: host.getSnapshot().music.bpm,
           meter: "4/4",
@@ -64,17 +68,18 @@ describe.each(descriptors)("$manifest.id in isolation", (descriptor) => {
         });
       }
       // Exercise the plugin's voice contract with the exact generated events.
-      const voice = audio.voices.get(descriptor.manifest.id)!;
+      const voice = audio.voices.get(selected.identity.instanceId)!;
       const prepared = audio.bars[0]!;
-      for (const event of prepared.tracks[0]!.events)
+      const preparedTrack = prepared.tracks.find(
+        (track) => track.id === selected.identity.instanceId,
+      )!;
+      for (const event of preparedTrack.events)
         voice.play(
           event,
           (event.step * 15) / prepared.plan.bpm,
           15 / prepared.plan.bpm,
         );
-      expect(voice.play).toHaveBeenCalledTimes(
-        prepared.tracks[0]!.events.length,
-      );
+      expect(voice.play).toHaveBeenCalledTimes(preparedTrack.events.length);
       host.stop();
       expect(voice.releaseAll).toHaveBeenCalled();
       expect(voice.dispose).toHaveBeenCalledTimes(1);

@@ -78,11 +78,14 @@ export function App({
           const pending = track.pendingAt !== undefined;
           return (
             <article
-              key={track.manifest.id}
-              data-testid={`instrument-${track.manifest.id}`}
+              key={track.identity.instanceId}
+              data-testid={`instrument-${track.character.default ? track.manifest.id : track.character.id}`}
+              data-instance-id={track.identity.instanceId}
+              data-plugin-id={track.identity.pluginId}
+              data-character-id={track.identity.characterId}
             >
-              <h2>{track.manifest.displayName}</h2>
-              <p className="tags">{track.manifest.capabilities.join(" · ")}</p>
+              <h2>{track.character.displayName}</h2>
+              <p className="tags">{track.character.capabilities.join(" · ")}</p>
               <p>{track.manifest.sound.label}</p>
               <p role="status">
                 {track.loading
@@ -98,7 +101,9 @@ export function App({
               {track.error && <p role="alert">載入／生成失敗：{track.error}</p>}
               <div className="buttons">
                 {track.loading && (
-                  <button onClick={() => host.remove(track.manifest.id)}>
+                  <button
+                    onClick={() => host.remove(track.identity.instanceId)}
+                  >
                     取消載入
                   </button>
                 )}
@@ -106,8 +111,8 @@ export function App({
                   disabled={track.loading || pending || state.starting}
                   onClick={() =>
                     track.active
-                      ? host.remove(track.manifest.id)
-                      : void host.add(track.manifest.id)
+                      ? host.remove(track.identity.instanceId)
+                      : void host.add(track.identity.instanceId)
                   }
                 >
                   {track.active ? "移除" : "加入"}
@@ -115,18 +120,40 @@ export function App({
                 <button
                   disabled={!track.active || pending || state.starting}
                   aria-pressed={track.muted}
-                  onClick={() => host.mute(track.manifest.id, !track.muted)}
+                  onClick={() =>
+                    host.mute(track.identity.instanceId, !track.muted)
+                  }
                 >
                   Mute
                 </button>
                 <button
                   disabled={!track.active || pending || state.starting}
                   aria-pressed={track.solo}
-                  onClick={() => host.solo(track.manifest.id, !track.solo)}
+                  onClick={() =>
+                    host.solo(track.identity.instanceId, !track.solo)
+                  }
                 >
                   Solo
                 </button>
               </div>
+              <label>
+                音量
+                <input
+                  type="range"
+                  aria-label={`${track.character.displayName}音量`}
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  value={track.volume}
+                  disabled={pending || state.starting}
+                  onChange={(event) =>
+                    host.setVolume(
+                      track.identity.instanceId,
+                      Number(event.target.value),
+                    )
+                  }
+                />
+              </label>
               {!lab && (
                 <a
                   href={`?instrument=${encodeURIComponent(track.manifest.id)}`}

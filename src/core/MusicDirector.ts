@@ -5,7 +5,7 @@ import { harmony, keyName, pivot, scale } from "./HarmonyPlan";
 import { modeSettings, nextSection } from "./SectionPlan";
 import type { SectionPlan } from "./SectionPlan";
 
-export const ENGINE_VERSION = "m2.1";
+export const ENGINE_VERSION = "m2.2";
 
 /** Shared musical context only: no plugin identities, events, audio or motif state. */
 export class MusicDirector {

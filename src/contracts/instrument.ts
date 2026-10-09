@@ -20,10 +20,30 @@ export interface InstrumentManifest {
   readonly version: string;
   readonly capabilities: readonly string[];
   readonly controls: readonly InstrumentControlDefinition[];
+  /** Declarative performers owned by this module; absent only for legacy plugins. */
+  readonly characters?: readonly CharacterDefinition[];
   readonly sound: {
     readonly kind: "synth-placeholder" | "samples";
     readonly label: string;
   };
+}
+
+export type PhraseTask = "lead" | "respond" | "support" | "rest";
+export interface CharacterDefinition {
+  readonly id: string;
+  readonly displayName: string;
+  readonly capabilities: readonly string[];
+  readonly default?: boolean;
+  readonly phrase: {
+    readonly tasks: readonly PhraseTask[];
+    readonly leadWeight: number;
+    readonly register?: readonly [number, number];
+  };
+}
+export interface InstrumentInstance {
+  readonly pluginId: string;
+  readonly characterId: string;
+  readonly instanceId: string;
 }
 
 export interface InstrumentVoice {
@@ -128,19 +148,26 @@ export interface AudioServices {
 
 export interface InstrumentPlugin<State = unknown> {
   readonly manifest: InstrumentManifest;
-  createInitialState(): State;
-  proposeBar(plan: BarPlan, state: Readonly<State>): InstrumentIntent;
+  createInitialState(instance?: InstrumentInstance): State;
+  proposeBar(
+    plan: BarPlan,
+    state: Readonly<State>,
+    instance?: InstrumentInstance,
+  ): InstrumentIntent;
   generateBar(
     plan: BarPlan,
     ownIntent: InstrumentIntent,
     ensemble: EnsembleIntent,
     state: Readonly<State>,
+    instance?: InstrumentInstance,
   ): { readonly events: readonly MusicEvent[]; readonly nextState: State };
   createVoice(audio: AudioServices): Promise<InstrumentVoice>;
 }
 
 /** Closure captures State so Host never casts or inspects plugin-private state. */
 export interface InstrumentSession {
+  readonly instance?: InstrumentInstance;
+  readonly character?: CharacterDefinition;
   propose(plan: BarPlan): InstrumentIntent;
   generate(
     plan: BarPlan,

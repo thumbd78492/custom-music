@@ -10,6 +10,30 @@
 Motif Memory 提前納入本輪，加入動態 BPM／調性／段落與三種變化模式。
 不擴展到 M4 UI、事件匯出或 LLM API。人工 10 分鐘品質驗收保持獨立。
 
+## M2 收尾增補（2026-10-09）
+
+本輪只完成雙主奏編曲與雙鋼琴角色，不重新規劃或取消 M0–M5。
+使用者回饋：小提琴發聲明顯改善，保存為基準；鋼琴偏伴奏且容易與貝斯融合。
+旋律鋼琴與旋律小提琴須為對等主角，另一位伴奏鋼琴手可同時加入。
+
+1. 先分開 pluginId、characterId、instanceId，以既有策略驗證同 Plugin 多實例。
+2. 四種 Plugin 宣告五個文字角色卡：旋律鋼琴、伴奏鋼琴、旋律小提琴、貝斯、鼓。
+   每個實例獨有 generator／主題／PRNG／voice／音軌／Mute／Solo／載入生命週期。
+3. Piano 自有旋律與伴奏策略，共用唯讀素材與發聲程式；Host 僅依 metadata 發現角色。
+4. 最小通用樂句任務分配 lead／respond／support／rest，排除不可聽角色與自己的佔用。
+5. 保留 Violin 0.2.2 音檔、校準、起播、包絡、連奏及 -9 dB；只改生成任務與留白。
+6. 保存舊程式／音訊；輸出短版旋律鋼琴、雙主奏、五角色 Full 與同次渲染 stems。
+   不 Normalize；工程驗證與人工品質分別記錄，未確認前人工驗收 Pending。
+7. 完成 Typecheck、Vitest、Build、四件實體隔離、E2E、Lint／Format 並保存收據。
+
+範圍狀態：M2 生成式合奏與本輪增補的工程實作／驗證已完成，音樂品質仍 Pending。
+最終 Typecheck、127 Vitest、Production Build、四件實體隔離、38 Edge E2E、Lint／Format
+均通過，收據與短稿見 [CURRENT_STATE](CURRENT_STATE.md)；不以更新快照代替人工驗收。
+M3 主題記憶／變奏與長時間事件測試已提前**部分完成**，主題發展、長時間即興品質、
+Seed 重播與事件匯出仍待 M3。M4 的文字控制已有**部分完成**，角色拖放、美術動畫、
+操作介面與產品品質仍待 M4。M5 只保留 CreativeDirectorPort，LLM 高層指令仍未實作。
+本輪不新增伴奏小提琴、其他樂器、美術動畫或外部 AI，完成後停止，不開始 M3。
+
 ## 0. 目標與完成定義
 
 玩家透過拖放或點選加入／移除樂器，樂團以同一節拍、調性與和弦即時生成音樂。音樂會記住主題、依段落變奏，而且樂器彼此在節奏、音域與密度上協調。**不是**循環播放幾首預錄歌曲，也不是把音符完全隨機排列。
@@ -84,15 +108,15 @@ Host / Director / EnsembleCoordinator / Scheduler / Mixer
 
 ## 2. 技術選擇
 
-| 區塊 | MVP 選擇 | 原因 |
-|---|---|---|
-| 語言／建置 | TypeScript（strict）、Vite | 模組化開發與 lazy import |
-| UI | React，簡單舞台與角色卡 | 先做功能，不先追求大型動畫框架 |
-| 音訊引擎 | Tone.js（採安裝時穩定版並鎖 lockfile） | Web Audio clock、Transport、Sampler、Players、效果器 |
-| 音樂理論 | Tonal（僅 core/director 使用） | 和弦、音程、調性計算 |
-| 自動測試 | Vitest；Playwright（E2E／音訊冒煙測試） | 純邏輯與瀏覽器互動分離 |
-| 格式與檢查 | ESLint、Prettier、`tsc --noEmit` | 避免跨模組耦合與型別漏洞 |
-| 儲存 | localStorage（MVP 設定與 Seed） | 無須後端；完整重播可先匯出 JSON |
+| 區塊       | MVP 選擇                                | 原因                                                 |
+| ---------- | --------------------------------------- | ---------------------------------------------------- |
+| 語言／建置 | TypeScript（strict）、Vite              | 模組化開發與 lazy import                             |
+| UI         | React，簡單舞台與角色卡                 | 先做功能，不先追求大型動畫框架                       |
+| 音訊引擎   | Tone.js（採安裝時穩定版並鎖 lockfile）  | Web Audio clock、Transport、Sampler、Players、效果器 |
+| 音樂理論   | Tonal（僅 core/director 使用）          | 和弦、音程、調性計算                                 |
+| 自動測試   | Vitest；Playwright（E2E／音訊冒煙測試） | 純邏輯與瀏覽器互動分離                               |
+| 格式與檢查 | ESLint、Prettier、`tsc --noEmit`        | 避免跨模組耦合與型別漏洞                             |
+| 儲存       | localStorage（MVP 設定與 Seed）         | 無須後端；完整重播可先匯出 JSON                      |
 
 啟動瀏覽器音訊需由玩家手勢觸發。Tone.js 與其他相依套件版本不要臆測；安裝當下確認並鎖定 lockfile。
 
@@ -163,18 +187,18 @@ Host / Director / EnsembleCoordinator / Scheduler / Mixer
 ```ts
 export type MusicEvent =
   | {
-      kind: 'note';
-      step: number;             // 4/4 中 0..15 的十六分音符位置
+      kind: "note";
+      step: number; // 4/4 中 0..15 的十六分音符位置
       durationSteps: number;
       midi: number;
-      velocity: number;         // 0..1
-      articulation?: string;   // 本 plugin 自行解讀
+      velocity: number; // 0..1
+      articulation?: string; // 本 plugin 自行解讀
       microOffsetMs?: number;
     }
   | {
-      kind: 'hit';
+      kind: "hit";
       step: number;
-      sampleKey: string;        // 本 plugin 的局部取樣鍵
+      sampleKey: string; // 本 plugin 的局部取樣鍵
       velocity: number;
       microOffsetMs?: number;
     };
@@ -183,21 +207,21 @@ export interface BarPlan {
   readonly barIndex: number;
   readonly rootSeed: string;
   readonly bpm: number;
-  readonly meter: '4/4';         // MVP 限定
+  readonly meter: "4/4"; // MVP 限定
   readonly key: string;
   readonly chord: string;
   readonly nextChord: string;
   readonly section: string;
   readonly phrasePosition: number;
-  readonly energy: number;      // 0..1
+  readonly energy: number; // 0..1
   readonly groove: readonly number[]; // 16 格重音強度
 }
 
 export interface InstrumentIntent {
-  readonly accents: readonly number[];  // 16 格，0..1
-  readonly density: number;              // 0..1
-  readonly register?: 'low' | 'mid' | 'high' | 'wide';
-  readonly leadActivity?: number;         // 0..1
+  readonly accents: readonly number[]; // 16 格，0..1
+  readonly density: number; // 0..1
+  readonly register?: "low" | "mid" | "high" | "wide";
+  readonly leadActivity?: number; // 0..1
 }
 
 export interface EnsembleIntent {
@@ -247,12 +271,12 @@ export interface InstrumentVoice {
 
 ## 5. 樂器模組規格
 
-| 樂器 | 樂團角色 | 生成責任 | 初版自然演奏重點 | 單獨演奏時 |
-|---|---|---|---|---|
-| Piano | 和聲／可獨奏 | 和弦轉位、琶音、切分伴奏、簡單短旋律 | Sample、力度、和聲節奏、避免低音混濁 | 產生完整和弦伴奏與可辨認的變奏 |
-| Violin | 主旋律 | Motif Memory、音階／和弦約束、長短句、留白 | Sustained sample、音頭音尾、連奏感與呼吸 | 依和弦規劃演奏完整單旋律，不要求其他樂器 |
-| Drums | 節奏 | Kick、Snare、Hi-hat、鼓花、Groove 與能量 | 多力度、輕微 humanization、鼓組 Fill | 生成節奏與 4–8 小節變奏／過門 |
-| Bass | 低音與律動 | 根音、五度、經過音、切分、共同重音對齊 | 真實撥弦 Sample、音域限制、音符長短 | 依內部共同 Groove 與和弦演奏低音線 |
+| 樂器   | 樂團角色     | 生成責任                                   | 初版自然演奏重點                         | 單獨演奏時                               |
+| ------ | ------------ | ------------------------------------------ | ---------------------------------------- | ---------------------------------------- |
+| Piano  | 和聲／可獨奏 | 和弦轉位、琶音、切分伴奏、簡單短旋律       | Sample、力度、和聲節奏、避免低音混濁     | 產生完整和弦伴奏與可辨認的變奏           |
+| Violin | 主旋律       | Motif Memory、音階／和弦約束、長短句、留白 | Sustained sample、音頭音尾、連奏感與呼吸 | 依和弦規劃演奏完整單旋律，不要求其他樂器 |
+| Drums  | 節奏         | Kick、Snare、Hi-hat、鼓花、Groove 與能量   | 多力度、輕微 humanization、鼓組 Fill     | 生成節奏與 4–8 小節變奏／過門            |
+| Bass   | 低音與律動   | 根音、五度、經過音、切分、共同重音對齊     | 真實撥弦 Sample、音域限制、音符長短      | 依內部共同 Groove 與和弦演奏低音線       |
 
 ### 5.1 初版音樂演算法
 
@@ -319,13 +343,13 @@ export interface InstrumentVoice {
 
 ```ts
 type CreativeIntent = {
-  mood?: 'calm' | 'bright' | 'melancholic' | 'tense';
-  energyTarget?: number;         // 0..1
-  complexityTarget?: number;     // 0..1
-  groove?: 'straight' | 'swing';
-  densityTarget?: number;        // 0..1
-  harmonyColor?: 'simple' | 'jazzy';
-  sectionRequest?: 'continue' | 'build' | 'breakdown' | 'return';
+  mood?: "calm" | "bright" | "melancholic" | "tense";
+  energyTarget?: number; // 0..1
+  complexityTarget?: number; // 0..1
+  groove?: "straight" | "swing";
+  densityTarget?: number; // 0..1
+  harmonyColor?: "simple" | "jazzy";
+  sectionRequest?: "continue" | "build" | "breakdown" | "return";
 };
 ```
 
@@ -361,18 +385,21 @@ M0 不追求逼真的即興變奏，也不要求立即下載 GB 級音色包；�
 - MusicDirector：和弦進行、段落、能量軌跡、合法轉換。
 - 兩階段 `proposeBar` → `EnsembleIntent` → `generateBar` 完整落實。
 - Bass 跟隨共同 Groove；Piano 避免低音衝突；Violin 可依高音域佔用與密度留白；Drums 能在樂句末產生 Fill。
+- 本輪加入「M2 收尾增補」：獨立角色實例、雙鋼琴與對等雙主奏，人工音樂品質仍 Pending。
 
 ### M3 — 主題記憶與長時間即興
 
 - 各 plugin 以自身 state 保存動機並自行變奏，不互相引用。
 - 4–8 小節樂句可辨識，32 小節的演化避免機械式重複；提供 Seed 重播與事件匯出。
 - 使用大量不同 Seeds 跑自動事件測試，加上至少 10 分鐘人工聆聽記錄。
+- 主題記憶、初步變奏與大量事件測試已提前部分完成；完整主題發展、長時間即興、Seed 重播與事件匯出仍待完成。
 
 ### M4 — 遊戲化 UI 與品質完善
 
 - 拖放角色、進退場動畫（跟隨音訊時鐘）、Mute／Solo／能量／重新生成。
 - 通用 manifest-based 參數控制面板；不在 Host 寫任何樂器特殊分支。
 - 行動裝置可用性、效能、音源延遲／載入測試、文檔與 Demo。
+- 文字角色卡、加入／移除與 Mute／Solo 已提前部分完成，不代表拖放、美術動畫、操作介面及產品品質完成。
 
 ### M5（未來）— LLM 創意指令
 

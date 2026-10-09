@@ -87,7 +87,7 @@ it("places a command during throttling at a future boundary and clears pending r
   await vi.advanceTimersByTimeAsync(100);
   expect(generated).toEqual(Array.from({ length: 11 }, (_, i) => i));
   expect(host.getSnapshot().tracks[0]?.pendingAt).toBe(11);
-  expect(audio.tracks.has("independent")).toBe(true);
+  expect(audio.tracks.has("independent:1")).toBe(true);
   audio.boundary(11);
   expect(host.getSnapshot().tracks[0]?.pendingAt).toBeUndefined();
   expect(audio.tracks.size).toBe(0);

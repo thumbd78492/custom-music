@@ -4,6 +4,15 @@ export const manifest = {
   displayName: "Drums",
   version: "0.1.0",
   capabilities: ["rhythm", "percussion"],
+  characters: [
+    {
+      id: "drums",
+      displayName: "鼓",
+      capabilities: ["rhythm", "percussion"],
+      default: true,
+      phrase: { tasks: ["support", "rest"], leadWeight: 0 },
+    },
+  ],
   controls: [],
   sound: {
     kind: "samples",

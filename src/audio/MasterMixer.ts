@@ -19,12 +19,12 @@ export class MasterMixer {
     return gain;
   }
 
-  setAudible(id: string, audible: boolean, time: number): void {
+  setAudible(id: string, audible: boolean, time: number, volume = 1): void {
     const track = this.tracks.get(id);
     if (!track) return;
     track.gain.cancelAndHoldAtTime(time);
     track.gain.linearRampToValueAtTime(
-      audible ? 1 : 0,
+      audible ? volume : 0,
       time + TRACK_FADE_SECONDS,
     );
   }

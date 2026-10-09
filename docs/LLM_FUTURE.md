@@ -7,3 +7,9 @@ M0 只提供 `CreativeIntent`、`CreativeDirectorPort` 型別與離線 `LocalRul
 LLM 不可持有 AudioContext、改寫 Plugin、直接發出低階音符或進入 audio callback。外部 adapter 的 timeout、錯誤 fallback、成本與使用者同意屬 M5；本輪沒有 API 呼叫、模型 SDK、金鑰、後端或假的外部接線。
 
 精細指定角色須透過 manifest capability 的宣告式映射，而不是加入具名 Plugin if/switch。
+
+M2 收尾後，四種 Plugin 由 manifest.characters 宣告五個角色。每個角色有能力、
+可擔任的 phrase.tasks、leadWeight 與預設音域；協調器按 instanceId 保留近期領句紀錄。
+未來可驗證 LLM 高層偏好，再於安全樂句交給協調器，不用修改樂器音符生成器。
+CreativeDirectorPort 保留，CreativeIntent 未新增外部接線。M5 的自然語言解析、
+adapter／驗證限幅／錯誤 fallback／成本與同意仍未完成，本輪沒有 LLM API。

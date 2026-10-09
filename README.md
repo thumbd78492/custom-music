@@ -2,17 +2,25 @@
 
 TypeScript + React + Vite + Tone.js 的生成式樂團。Piano、Violin、Drums、Electric Bass
 是四個完全獨立的 Plugin，由同一 Transport 與 MusicDirector 共享速度、和聲及段落。
+M2 收尾增補有五張文字角色卡：旋律鋼琴、伴奏鋼琴、旋律小提琴、貝斯、鼓。
+兩位鋼琴手共用 Piano Plugin／素材，各有私有生成器 state、主題、voice／音軌及載入生命週期。
+每位可獨立加入／移除、音量、Mute／Solo；旋律鋼琴與小提琴按樂句輪替領句與回應。
+音樂版本 m2.2；[角色與分工 ADR](docs/adr-m2-role-instances.md)。
 
 M2 依 Seed 選擇 80–105 BPM、大／小調與功能和聲，在 8–16 小節段落間演化速度、
 轉調與能量。Violin 記住 2–4 小節旋律主題；四件透過匿名 EnsembleIntent 協調音域、
 密度與重音。三種變化模式 Subtle／Balanced／Experimental，預設 Balanced。
 M1 真實 Samples 與生命週期保留，Bass gain -12 dB、Violin **-9 dB**。
-M2 小提琴已加入弓段連奏、平滑力度層與旋律連接修正；
+M2 小提琴保留 0.2.2 固定 Loud 層、校準音頭與弓段連奏，本輪只調整樂句任務與留白；
 [同 Seed -8／-9／-10 A/B 與人工複聽紀錄](docs/M2_VIOLIN_REVIEW.md) 仍待人工音質驗收。
 
 **工程驗證不代表音樂品質驗收。10 分鐘人工聆聽仍 Pending**，見
 [M2 聆聽表](docs/M2_LISTENING.md) 與 [最新實作／測試證據](CURRENT_STATE.md)。
 沒有 LLM API、後端或金鑰。
+
+[M2 收尾短稿與五角色 stems](docs/M2_DUAL_LEAD_REVIEW.md) 已提供，人工驗收 Pending。
+M3 主題發展／長時間即興／Seed 重播與事件匯出、M4 角色拖放／美術動畫／產品品質、
+M5 LLM 高層創意指令尚待完成；提前加入的主題記憶與文字控制僅為部分完成。
 
 ## 啟動
 
@@ -30,6 +38,7 @@ npm run dev
 背景恢復時跳過已錯過的起音，按原順序推進生成器 state，從未來小節接回共同拍點。極長停頓可能先有一段安靜的追趕時間；不會一次補奏過期音符。音樂時鐘始終由 Audio Engine 管理。
 
 單件工作台：`/?instrument=piano`、`/?instrument=violin`、`/?instrument=drums`、`/?instrument=bass`。Lab 只探索及載入指定 Plugin，不載入其餘三件。
+Piano Lab 同時顯示旋律／伴奏兩位角色，可加入其中一位或同時測兩位。
 
 ## 真實音色與素材
 
@@ -37,7 +46,7 @@ npm run dev
 
 授權與來源見 [SAMPLE_LICENSES](docs/SAMPLE_LICENSES.md)，逐檔原始／輸出 SHA-256、來源版本、轉換命令及處理限制見 [sample-provenance.json](docs/sample-provenance.json)。完整下載來源保存在被 Git 忽略的 `.sample-sources/`；網站只使用 Plugin 目錄內的精簡素材。Production build 將使用中的 `.wav`／`.flac` 音檔輸出為獨立資產，加入該件時才以 HTTP 取得及解碼。
 
-Piano 使用兩層力度的 Kawai 錄音；Web 子集保留每個來源前最多 8 秒，裁切時加上末端淡出，沒有保留完整原始長衰減。Violin 由私有演奏策略決定連奏／換弓，連奏跳過錄音音頭、平滑交叉淡化，同音延續既有 Source；兩力度層連續混合與音量補償，沒有 Pitch Glide。這不是另行錄製的 legato transition。鋼琴尾音自然度、小提琴 Vibrato、力度混合與連奏品質仍須人工聆聽。
+Piano 使用兩層力度的 Kawai 錄音；Web 子集保留每個來源前最多 8 秒，裁切時加上末端淡出，沒有保留完整原始長衰減。Violin 由私有演奏策略決定連奏／換弓，連奏跳過錄音音頭、平滑交叉淡化，同音延續既有 Source；0.2.2 固定使用校準 Loud 單層，原 velocity 控制樂句表情。這不是另行錄製的 legato transition。鋼琴尾音自然度、小提琴 Vibrato、力度混合與連奏品質仍須人工聆聽。
 
 ## 驗證
 
@@ -60,7 +69,7 @@ npm run lint
 npm run format:check
 ```
 
-`verify:samples` 核對 provenance 所列檔案的授權文字 hash、音檔 SHA-256、格式標頭及大小；這是素材完整性檢查，不代替來源授權審核或人工音質驗收。Vitest 保留生命週期、依賴與隔離測試，並驗證 M2 三模式、四個 Seed 各 280 小節、全部樂器子集合、tempo／和聲／主題與協作。M0 事件 golden 與原測試保留為歷史資料；引擎版本已更新為 m2.1，不再要求 M2 產生 M0 事件。
+`verify:samples` 核對 provenance 所列檔案的授權文字 hash、音檔 SHA-256、格式標頭及大小；這是素材完整性檢查，不代替來源授權審核或人工音質驗收。Vitest 保留生命週期、依賴與隔離測試，並驗證 M2 三模式、四個 Seed 各 280 小節、全部樂器子集合、tempo／和聲／主題與協作。M0 事件 golden 與原測試保留為歷史資料；引擎版本已更新為 m2.2，不再要求 M2 產生 M0 事件。
 
 E2E 預設使用已安裝的 Microsoft Edge。若環境沒有 Edge，先安裝 Playwright 支援的瀏覽器，並調整 `playwright.config.ts` 的 channel。測試使用 Web Audio analyser、原生 source 追蹤與離線渲染，檢查實際輸出、取樣請求、失敗隔離、釋放、停止、重啟及受控停頓後恢復；自動化量測不等於人工耳聽。
 

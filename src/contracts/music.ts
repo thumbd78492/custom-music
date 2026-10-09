@@ -1,3 +1,5 @@
+import type { PhraseTask } from "./instrument";
+
 export type MusicEvent =
   | {
       readonly kind: "note";
@@ -67,4 +69,16 @@ export interface EnsembleIntent {
   readonly highRegisterLoad: number;
   readonly leadActivity: number;
   readonly pulseAccents?: readonly number[];
+  /** Recipient's own task; occupancy fields above describe OTHER audible instances. */
+  readonly assignment?: PhraseAssignment;
+  readonly audibleLeadCount?: number;
+}
+
+export interface PhraseAssignment {
+  readonly phraseStartBar: number;
+  readonly task: PhraseTask;
+  /** Allowed attacks and note ends in this bar, end exclusive. */
+  readonly stepRange: readonly [number, number];
+  readonly densityScale: number;
+  readonly register?: readonly [number, number];
 }

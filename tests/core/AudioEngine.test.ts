@@ -193,7 +193,7 @@ it("uses anonymous active/mute/solo flags to gate every track", () => {
   engine.scheduleBar(prepared(1, [track("two", { muted: true })]), () => {});
   mock.scheduled.find((entry) => entry.ticks === "768i")!.callback(20);
   expect(voices[1]!.releaseAll).toHaveBeenCalledWith(20);
-  expect(mock.mixer.setAudible).toHaveBeenCalledWith("two", false, 20);
+  expect(mock.mixer.setAudible).toHaveBeenCalledWith("two", false, 20, 1);
   engine.dispose();
 });
 
@@ -237,7 +237,7 @@ it("drops late notes after throttling but reconciles the mix and boundary offscr
   fireThrough(192);
   vi.advanceTimersByTime(1);
   expect(voice.play).not.toHaveBeenCalled();
-  expect(mock.mixer.setAudible).toHaveBeenCalledWith("test", true, 15);
+  expect(mock.mixer.setAudible).toHaveBeenCalledWith("test", true, 15, 1);
   expect(boundary).toHaveBeenCalledTimes(1);
   engine.dispose();
 });

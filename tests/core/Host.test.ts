@@ -2,10 +2,18 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { discoverPlugins } from "../../src/app/discoverPlugins";
 import type { PluginDescriptor } from "../../src/contracts/instrument";
 import { EnsembleHost } from "../../src/core/EnsembleHost";
+import { instances } from "../../src/core/CharacterInstances";
 import { FakeAudioEngine } from "../helpers/FakeAudioEngine";
 
 const descriptors = await discoverPlugins();
 const first = descriptors[0]!;
+const firstInstance = instances(first.manifest).find(
+  (role) => role.character.default,
+)!.identity.instanceId;
+const firstTrack = (host: EnsembleHost) =>
+  host
+    .getSnapshot()
+    .tracks.find((track) => track.identity.instanceId === firstInstance)!;
 const hosts: EnsembleHost[] = [];
 function setup(selected = descriptors) {
   const audio = new FakeAudioEngine();
@@ -49,7 +57,7 @@ describe("Host lifecycle and committed bars", () => {
     const initial = structuredClone(audio.bars);
     const effective = audio.bars.length;
     host.mute(first.manifest.id, true);
-    expect(host.getSnapshot().tracks[0]?.pendingAt).toBe(effective);
+    expect(firstTrack(host)?.pendingAt).toBe(effective);
     expect(host.operations.at(-1)).toMatchObject({
       type: "mute",
       effectiveAtBar: effective,
@@ -62,12 +70,12 @@ describe("Host lifecycle and committed bars", () => {
       audio.bars.find((bar) => bar.plan.barIndex === effective)?.tracks[0]
         ?.muted,
     ).toBe(true);
-    expect(host.getSnapshot().tracks[0]?.pendingAt).toBe(effective);
+    expect(firstTrack(host)?.pendingAt).toBe(effective);
     audio.boundary(effective);
-    expect(host.getSnapshot().tracks[0]?.pendingAt).toBeUndefined();
+    expect(firstTrack(host)?.pendingAt).toBeUndefined();
 
     host.solo(first.manifest.id, true);
-    const soloAt = host.getSnapshot().tracks[0]!.pendingAt!;
+    const soloAt = firstTrack(host)!.pendingAt!;
     audio.boundary(soloAt - 1);
     await vi.advanceTimersByTimeAsync(100);
     expect(
@@ -75,9 +83,9 @@ describe("Host lifecycle and committed bars", () => {
     ).toBe(true);
     audio.boundary(soloAt);
 
-    const voice = audio.voices.get(first.manifest.id)!;
+    const voice = audio.voices.get(firstTrack(host)!.identity.instanceId)!;
     host.remove(first.manifest.id);
-    const removeAt = host.getSnapshot().tracks[0]!.pendingAt!;
+    const removeAt = firstTrack(host)!.pendingAt!;
     expect(voice.dispose).not.toHaveBeenCalled();
     audio.boundary(removeAt - 1);
     await vi.advanceTimersByTimeAsync(100);
@@ -114,7 +122,7 @@ describe("Host lifecycle and committed bars", () => {
     };
     const { host, audio } = setup([failed]);
     await host.add(first.manifest.id);
-    expect(host.getSnapshot().tracks[0]).toMatchObject({
+    expect(firstTrack(host)).toMatchObject({
       active: false,
       loading: false,
       error: expect.stringContaining("download failed"),
@@ -137,9 +145,7 @@ describe("Host lifecycle and committed bars", () => {
       },
     ]);
     await brokenVoice.host.add(first.manifest.id);
-    expect(brokenVoice.host.getSnapshot().tracks[0]?.error).toContain(
-      "voice failed",
-    );
+    expect(firstTrack(brokenVoice.host)?.error).toContain("voice failed");
     expect(brokenVoice.audio.tracks.size).toBe(0);
   });
 
@@ -161,7 +167,7 @@ describe("Host lifecycle and committed bars", () => {
     await host.add(first.manifest.id);
     await host.start();
     expect(host.getSnapshot().running).toBe(true);
-    expect(host.getSnapshot().tracks[0]?.error).toContain("generator failed");
+    expect(firstTrack(host)?.error).toContain("generator failed");
     expect(
       audio.bars.every((bar) =>
         bar.tracks.every((track) => !track.active && !track.events.length),
@@ -171,7 +177,11 @@ describe("Host lifecycle and committed bars", () => {
 
   it("keeps a healthy plugin generating when a neighboring plugin fails", async () => {
     const { plugin } = await first.load();
-    const brokenManifest = { ...plugin.manifest, id: "fault-injection" };
+    const brokenManifest = {
+      ...plugin.manifest,
+      id: "fault-injection",
+      characters: undefined,
+    };
     const broken: PluginDescriptor = {
       manifest: brokenManifest,
       load: async () => ({
@@ -197,8 +207,9 @@ describe("Host lifecycle and committed bars", () => {
     expect(
       audio.bars.every(
         (bar) =>
-          (bar.tracks.find((track) => track.id === first.manifest.id)?.events
-            .length ?? 0) > 0,
+          (bar.tracks.find(
+            (track) => track.id === firstTrack(host)!.identity.instanceId,
+          )?.events.length ?? 0) > 0,
       ),
     ).toBe(true);
   });
