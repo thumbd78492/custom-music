@@ -1,9 +1,49 @@
 # 開發狀態
 
-日期：2026-10-09。最新範圍為 **M2 小提琴音量／連奏／力度層／旋律修正**。
-**修正稿人工音質驗收 Pending；本次沒有開始 M3。**
+日期：2026-10-09。最新範圍為 **M2 小提琴根因定位與取樣播放修正**。
+**修正稿人工回饋未通過：小提琴音符進出太突兀、同一旋律內音量忽大忽小。其他尚未驗收項目維持 Pending；本次沒有開始 M3。**
 
-## 本次 M2 小提琴修正
+## 本輪 M2 根因診斷（工程完成，短稿待複聽）
+
+使用者已聽上一版修正稿，兩項聽感問題仍未通過。111 項 Vitest／34 項 E2E
+只代表當時的工程回歸，不構成音質通過。本輪凍結 Violin gainDb -9、最新
+Generator／Motif、四件 MusicEvent、BPM／和聲／Seed／Master 0.65。
+先做只載入 Violin 的 20–30 秒單因素診斷與相同合奏事件的短版 Before／After，
+保留逐音和 20／100 ms 包絡；短稿須經人工確認後才進行長時間音樂品質驗收。
+不用 Master Normalize 或強力壓縮器，不開始 M3。
+
+Violin `0.2.2`：固定使用較穩定的 Loud 單層，原 velocity 與旋律事件保留。
+Plugin 自有 `regions.ts` 為五根音保留 0.03–0.16 s 有效音頭，Detached／Rebow
+80 ms attack／transition；Legato 仍從 1.2 s 起播、70 ms crossfade、同音續 Source。
+依實際 MIDI／播放速率／offset／音長／奏法／續音位置校準 region，音頭僅作固定衰減。
+Source bytes、loop／tuning／350 ms release 保留；共用播放器、Host／Director／AudioEngine、
+CreativeDirectorPort、Generator／Motif 及其他三件來源均未修改。
+
+單因素實驗確認兩個因素都存在：固定力度上／下行，雙層相鄰差 **5.184 dB**，
+固定 Loud **1.702 dB**；統一起播不能消除雙層起伏。固定 Loud 三奏法全組跨度，
+現行起播 **4.629 dB**、統一穩定區 **2.940 dB**，音頭校準也影響一致性。
+最後固定音列的相鄰最大差 **2.068 dB**、全組最大跨度 **2.524 dB**，
+通過本輪暫定 <=3 dB 工程目標。相同合奏前綴 30 個 Violin 事件，相鄰最大差
+**7.672 → 1.644 dB**。詳見 [根因實驗與逐音資料](docs/M2_VIOLIN_DIAGNOSIS.md)。
+
+短窗仍有低谷：同音 C5 Rebow 的 20 ms 最低相對值 **-11.383 dB**；
+實際旋律 81→79 的相同案例 **-3.614 → -7.444 dB**，100 ms 約 **-1.015 → -1.219 dB**。
+沒有把這些結果寫成全時刻平順或自然度通過，最差 Before／After 曲線均保留。
+整體合奏平衡、固定 Loud 音色與長時間音樂品質也仍 Pending。
+
+- [27.72 秒 Violin Before](.verification/violin-diagnosis-2026-10-09/ensemble/2026-10-08T19-26-38-327Z/before-violin-only.wav)／[After](.verification/violin-diagnosis-2026-10-09/ensemble/2026-10-08T19-26-38-327Z/after-violin-only.wav)
+- [同一事件 Full Before](.verification/violin-diagnosis-2026-10-09/ensemble/2026-10-08T19-26-38-327Z/before-full.wav)／[After](.verification/violin-diagnosis-2026-10-09/ensemble/2026-10-08T19-26-38-327Z/after-full.wav)
+- [逐音穩定區圖](.verification/violin-diagnosis-2026-10-09/report-final-2026-10-09/stable-note-rms.png)／[20 與 100 ms 最差曲線](.verification/violin-diagnosis-2026-10-09/report-final-2026-10-09/worst-transition-curves.png)
+
+完整工程回歸：[results.json](.verification/2026-10-08T19-19-27-671Z/results.json)：
+Typecheck、111 Vitest、Build、41 Samples／4 授權 hash、四件實體隔離、35 Edge E2E
+（0 失敗／0 跳過，7.3 分鐘）、ESLint、Prettier 全通過。
+主 chunk 540.37 kB 的既有大小警告保留。
+回歸後只補強診斷的實際 Source ID 延續斷言與量測位置標籤，完整候選矩陣另跑通過：
+[追加診斷收據](.verification/violin-diagnosis-2026-10-09/attempts/2026-10-08T19-35-33-705Z/summary.json)。
+音訊 Runtime 沒有再修改。短稿尚未經人工確認，不開始長時間音樂品質驗收。
+
+## 前輪 M2 小提琴修正（歷史）
 
 使用者已實聽原 `alpha-balanced.wav`，指出 Violin 過大與每音重新拉弓。
 本次開始基線 `79d38a5f0b685365793d397b596d70ef8d8aa58b`，工作目錄乾淨；

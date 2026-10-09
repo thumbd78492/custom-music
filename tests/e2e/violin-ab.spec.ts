@@ -1,90 +1,127 @@
 import { test, expect } from "@playwright/test";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
-import type { PreparedBar } from "../../src/audio/AudioEngine";
+import { pcm16Wave, measureAudio } from "../helpers/audio-metrics";
+import type { FrozenEnsemble } from "./violin-frozen-ensemble-harness";
+const frozen = JSON.parse(
+  readFileSync("tests/fixtures/violin-m2-frozen-ensemble.json", "utf8"),
+) as FrozenEnsemble;
 
-test("exports controlled alpha violin A/B stems and freezes the accompaniment", async ({
+test("M2 short violin A/B extracts solo from exactly the same frozen ensemble events", async ({
   page,
 }, info) => {
-  test.setTimeout(180000);
-  const root = ".verification/violin-m2-2026-10-09";
-  const before = process.env.VIOLIN_AB_PHASE === "before";
-  const frozenPath = `${root}/before/plan.json`;
-  // A clean checkout can run E2E without local, ignored historical receipts.
-  test.skip(
-    !before && !existsSync(frozenPath),
-    "Run VIOLIN_AB_PHASE=before before editing to freeze an A/B baseline",
-  );
-  const frozen = before
-    ? undefined
-    : (JSON.parse(readFileSync(frozenPath, "utf8")) as { bars: PreparedBar[] })
-        .bars;
+  test.setTimeout(120000);
+  const directory = `.verification/violin-diagnosis-2026-10-09/ensemble/${new Date().toISOString().replaceAll(/[:.]/g, "-")}`;
+  mkdirSync(directory, { recursive: true });
   await page.goto("/");
-  for (const variant of before ? ["before"] : ["voice-only", "after"]) {
-    const result = await page.evaluate(
-      async ({ frozen, melody }) => {
-        const path = "/tests/e2e/violin-ab-harness.ts";
-        const { renderViolinAB } = (await import(
-          path
-        )) as typeof import("./violin-ab-harness");
-        return renderViolinAB(frozen, melody);
-      },
-      { frozen, melody: variant === "after" },
-    );
-    const directory = `${root}/${variant}`;
-    mkdirSync(directory, { recursive: true });
-    writeFileSync(
-      `${directory}/plan.json`,
-      JSON.stringify(result.metadata, null, 2),
-    );
-    const hashes: Record<string, string> = {};
-    const renderDifferences: Record<string, number> = {};
+  const receipts = [];
+  const canonical: Record<string, Float32Array> = {};
+  for (const before of [true, false]) {
+    const result = await page.evaluate(async (before) => {
+      const path = "/tests/e2e/violin-frozen-ensemble-harness.ts";
+      const { renderFrozenEnsemble } = (await import(
+        path
+      )) as typeof import("./violin-frozen-ensemble-harness");
+      return renderFrozenEnsemble(before);
+    }, before);
+    expect(result.metadata.bars).toEqual(frozen.bars);
+    expect(result.metadata.gains.violin).toBe(-9);
+    expect(result.metadata.duration).toBeGreaterThanOrEqual(20);
+    expect(result.metadata.duration).toBeLessThanOrEqual(30);
+    const variant = before ? "before" : "after";
+    const pcm: Record<string, Float32Array> = {};
+    const errors: Record<string, number> = {};
     for (const stem of result.stems) {
-      let bytes = Buffer.from(stem.data, "base64");
-      if (!before && stem.id !== "violin") {
-        const frozenBytes = readFileSync(`${root}/before/${stem.id}.f32`);
-        const a = new Float32Array(
-            bytes.buffer,
-            bytes.byteOffset,
-            bytes.length / 4,
-          ),
-          b = new Float32Array(
-            frozenBytes.buffer,
-            frozenBytes.byteOffset,
-            frozenBytes.length / 4,
-          );
-        expect(a.length).toBe(b.length);
+      const bytes = Buffer.from(stem.data, "base64");
+      const data = new Float32Array(
+        bytes.buffer,
+        bytes.byteOffset,
+        bytes.length / 4,
+      );
+      pcm[stem.id] = data;
+      if (before) canonical[stem.id] = data;
+      else if (stem.id !== "violin") {
         let error = 0;
-        for (let i = 0; i < a.length; i++)
-          error = Math.max(error, Math.abs(a[i]! - b[i]!));
-        renderDifferences[stem.id] = error;
-        expect(
-          error,
-          `${stem.id} independent render numerical tolerance`,
-        ).toBeLessThan(0.0000001);
-        // Browser DSP can differ by a float ULP. Freeze the actual PCM accompaniment
-        // as well as its events so the exported A/B has exactly the same background.
-        bytes = frozenBytes;
+        for (let i = 0; i < data.length; i++)
+          error = Math.max(error, Math.abs(data[i]! - canonical[stem.id]![i]!));
+        errors[stem.id] = error;
+        expect(error, `${stem.id} actual rerender error`).toBeLessThan(1e-7);
+        pcm[stem.id] = canonical[stem.id]!;
       }
-      writeFileSync(`${directory}/${stem.id}.f32`, bytes);
-      hashes[stem.id] = createHash("sha256").update(bytes).digest("hex");
-      if (!before && stem.id !== "violin")
-        expect(hashes[stem.id], `${stem.id} waveform unchanged`).toBe(
-          createHash("sha256")
-            .update(readFileSync(`${root}/before/${stem.id}.f32`))
-            .digest("hex"),
-        );
+      writeFileSync(
+        `${directory}/${variant}-${stem.id}.f32`,
+        Buffer.from(
+          pcm[stem.id]!.buffer,
+          pcm[stem.id]!.byteOffset,
+          pcm[stem.id]!.byteLength,
+        ),
+      );
+    }
+    for (const scope of ["violin-only", "full", "without-violin"] as const) {
+      if (!before && scope === "without-violin") continue;
+      const data = new Float32Array(result.metadata.frames * 2);
+      for (let i = 0; i < data.length; i++)
+        data[i] =
+          frozen.master *
+          Object.entries(pcm).reduce(
+            (sum, [id, values]) =>
+              sum +
+              ((scope === "violin-only" && id !== "violin") ||
+              (scope === "without-violin" && id === "violin")
+                ? 0
+                : values[i]!),
+            0,
+          );
+      const name = `${variant}-${scope}.wav`,
+        bytes = pcm16Wave(data, result.metadata.rate);
+      writeFileSync(`${directory}/${name}`, bytes);
+      receipts.push({
+        file: name,
+        sha256: createHash("sha256").update(bytes).digest("hex"),
+        ...measureAudio(data, result.metadata.rate),
+      });
     }
     writeFileSync(
-      `${directory}/render-differences.json`,
-      JSON.stringify(renderDifferences, null, 2),
+      `${directory}/${variant}-plan.json`,
+      JSON.stringify(
+        { ...result.metadata, accompanimentRerenderError: errors },
+        null,
+        2,
+      ),
     );
-    writeFileSync(`${directory}/hashes.json`, JSON.stringify(hashes, null, 2));
-    expect(result.metadata.duration).toBeGreaterThan(120);
-    await info.attach(variant, {
-      body: JSON.stringify({ directory, hashes, humanListening: "Pending" }),
-      contentType: "application/json",
-    });
-    console.log(`A/B stems: ${directory}`);
   }
+  for (const id of ["piano", "bass", "drums"])
+    expect(
+      readFileSync(`${directory}/after-${id}.f32`).equals(
+        readFileSync(`${directory}/before-${id}.f32`),
+      ),
+      `${id} exported PCM identity`,
+    ).toBe(true);
+  writeFileSync(
+    `${directory}/receipts.json`,
+    JSON.stringify(
+      {
+        sourceEventSha256: frozen.sourceEventSha256,
+        excerptEventsSha256: createHash("sha256")
+          .update(JSON.stringify(frozen.bars))
+          .digest("hex"),
+        receipts,
+        humanListening: "Pending",
+        feedback: {
+          noteTransitions: "人工回饋未通過",
+          melodyLoudness: "人工回饋未通過",
+        },
+      },
+      null,
+      2,
+    ),
+  );
+  await info.attach("frozen-short-AB", {
+    body: JSON.stringify({
+      directory,
+      receipts: receipts.map((r) => ({ file: r.file, rmsDbfs: r.rmsDbfs })),
+    }),
+    contentType: "application/json",
+  });
+  console.log(`Frozen 27 s A/B: ${directory}`);
 });

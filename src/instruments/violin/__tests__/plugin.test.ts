@@ -242,37 +242,34 @@ describe("violin independent plugin", () => {
       velocity: 0.59,
       durationSteps: 4,
     } as const;
-    expect(performance.select(note, 1, 0.15).offsetSeconds).toBe(0);
+    expect(performance.select(note, 1, 0.15).offsetSeconds).toBeGreaterThan(0);
     const legato = performance.select(
       { ...note, midi: 77, velocity: 0.61 },
       1.6,
       0.15,
     );
     expect(legato.offsetSeconds).toBe(1.2);
-    expect(legato.layers!.map((layer) => layer.key)).toEqual([
-      "e5-soft",
-      "e5-loud",
-    ]);
+    expect(legato.layers!.map((layer) => layer.key)).toEqual(["e5-loud"]);
     const retained = performance.select({ ...note, midi: 77 }, 2.2, 0.15);
     expect(retained.continueMatching).toBe(true);
     expect(
       performance.select({ ...note, midi: 84 }, 2.8, 0.15).offsetSeconds,
-    ).toBe(0);
+    ).toBeLessThan(0.2);
     expect(
       performance.select({ ...note, midi: 84 }, 4, 0.15).offsetSeconds,
-    ).toBe(0);
+    ).toBeLessThan(0.2);
     expect(
       performance.select(
         { ...note, midi: 83, articulation: "rebow" },
         4.6,
         0.15,
       ).offsetSeconds,
-    ).toBe(0);
+    ).toBeLessThan(0.2);
     performance.reset();
-    expect(performance.select(note, 5.2, 0.15).offsetSeconds).toBe(0);
+    expect(performance.select(note, 5.2, 0.15).offsetSeconds).toBeLessThan(0.2);
   });
 
-  it("keeps a continuous layer blend across the former 0.6 threshold", () => {
+  it("uses one verified recording across velocity changes without a layer threshold", () => {
     const note = { kind: "note", step: 0, midi: 76, durationSteps: 4 } as const;
     const below = createPerformance().select(
       { ...note, velocity: 0.5999 },
@@ -287,10 +284,16 @@ describe("violin independent plugin", () => {
     expect(above.layers!.map((layer) => layer.key)).toEqual(
       below.layers!.map((layer) => layer.key),
     );
-    for (let i = 0; i < 2; i++)
-      expect(
-        Math.abs(above.layers![i]!.weight - below.layers![i]!.weight),
-      ).toBeLessThan(0.001);
+    expect(above.layers).toHaveLength(1);
+    expect(above.layers).toEqual(below.layers);
+    for (const velocity of [0.5, 0.56, 0.62, 0.74]) {
+      const playback = createPerformance().select(
+        { ...note, velocity },
+        1,
+        0.15,
+      );
+      expect(playback.layers).toEqual(above.layers);
+    }
   });
 
   it("prefers continuous voice leading when a modulation removes the former pitch from the chord", () => {

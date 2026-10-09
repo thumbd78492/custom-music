@@ -2,7 +2,7 @@ import type { InstrumentManifest } from "../../contracts/instrument";
 export const manifest = {
   id: "violin",
   displayName: "Violin",
-  version: "0.2.1",
+  version: "0.2.2",
   capabilities: ["melody", "sustain"],
   controls: [],
   sound: {

@@ -1,0 +1,2255 @@
+{
+  "sourceReceipt": ".verification/listening-2026-10-08T18-12-56-076Z/plan-and-metrics.json",
+  "sourceEventSha256": "1d0cd89cc0251f5663a55cbe94d3b3f068a808ae06fd836ead115d146d3af222",
+  "seed": "alpha",
+  "mode": "Balanced",
+  "master": 0.65,
+  "bars": [
+    {
+      "plan": {
+        "barIndex": 0,
+        "rootSeed": "alpha",
+        "bpm": 98,
+        "meter": "4/4",
+        "key": "D Major",
+        "tonic": 2,
+        "tonality": "major",
+        "chord": "Dmaj7",
+        "chordPitchClasses": [2, 6, 9, 1],
+        "harmonyFunction": "I",
+        "nextChord": "Em7",
+        "nextChordPitchClasses": [4, 7, 11, 2],
+        "scalePitchClasses": [2, 4, 6, 7, 9, 11, 1],
+        "section": "Introduction",
+        "sectionIndex": 0,
+        "sectionBar": 0,
+        "sectionLength": 8,
+        "phrasePosition": 0,
+        "phraseLength": 4,
+        "energy": 0.3264619096927345,
+        "density": 0.3264619096927345,
+        "complexity": 0.55,
+        "variationMode": "Balanced",
+        "development": "repeat",
+        "groove": [
+          1, 0.12, 0.42, 0.12, 1, 0.12, 0.42, 0.12, 1, 0.12, 0.42, 0.12, 1,
+          0.12, 0.42, 0.12
+        ]
+      },
+      "tracks": [
+        {
+          "id": "bass",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 3.8,
+              "midi": 38,
+              "velocity": 0.5587816584534943,
+              "articulation": "pluck"
+            },
+            {
+              "kind": "note",
+              "step": 8,
+              "durationSteps": 3.8,
+              "midi": 38,
+              "velocity": 0.5911370777390897,
+              "articulation": "pluck"
+            }
+          ]
+        },
+        {
+          "id": "drums",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "hit",
+              "step": 0,
+              "sampleKey": "kick",
+              "velocity": 0.6690878783570602
+            },
+            {
+              "kind": "hit",
+              "step": 0,
+              "sampleKey": "hat",
+              "velocity": 0.2870037390571088
+            },
+            {
+              "kind": "hit",
+              "step": 4,
+              "sampleKey": "snare",
+              "velocity": 0.4677774677107111
+            },
+            {
+              "kind": "hit",
+              "step": 4,
+              "sampleKey": "hat",
+              "velocity": 0.337515311203897
+            },
+            {
+              "kind": "hit",
+              "step": 8,
+              "sampleKey": "kick",
+              "velocity": 0.6416706691714003
+            },
+            {
+              "kind": "hit",
+              "step": 8,
+              "sampleKey": "hat",
+              "velocity": 0.3272213306836784
+            },
+            {
+              "kind": "hit",
+              "step": 12,
+              "sampleKey": "snare",
+              "velocity": 0.4680794468669221
+            },
+            {
+              "kind": "hit",
+              "step": 12,
+              "sampleKey": "hat",
+              "velocity": 0.28509931979235265
+            }
+          ]
+        },
+        {
+          "id": "piano",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 2.5,
+              "midi": 61,
+              "velocity": 0.43916099725095553
+            },
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 2.5,
+              "midi": 62,
+              "velocity": 0.4637618170309812
+            },
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 2.5,
+              "midi": 66,
+              "velocity": 0.41264959837347265
+            },
+            {
+              "kind": "note",
+              "step": 8,
+              "durationSteps": 2.5,
+              "midi": 61,
+              "velocity": 0.44979097343552854
+            },
+            {
+              "kind": "note",
+              "step": 8,
+              "durationSteps": 2.5,
+              "midi": 62,
+              "velocity": 0.4503262955629267
+            },
+            {
+              "kind": "note",
+              "step": 8,
+              "durationSteps": 2.5,
+              "midi": 66,
+              "velocity": 0.4320107628664933
+            }
+          ]
+        },
+        {
+          "id": "violin",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 6,
+              "midi": 78,
+              "velocity": 0.5602738225496979,
+              "articulation": "rebow"
+            },
+            {
+              "kind": "note",
+              "step": 6,
+              "durationSteps": 6,
+              "midi": 79,
+              "velocity": 0.5671621243322695,
+              "articulation": "legato"
+            },
+            {
+              "kind": "note",
+              "step": 12,
+              "durationSteps": 4,
+              "midi": 81,
+              "velocity": 0.5730017446110558,
+              "articulation": "legato"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "plan": {
+        "barIndex": 1,
+        "rootSeed": "alpha",
+        "bpm": 98,
+        "meter": "4/4",
+        "key": "D Major",
+        "tonic": 2,
+        "tonality": "major",
+        "chord": "Em7",
+        "chordPitchClasses": [4, 7, 11, 2],
+        "harmonyFunction": "ii",
+        "nextChord": "A7",
+        "nextChordPitchClasses": [9, 1, 4, 7],
+        "scalePitchClasses": [2, 4, 6, 7, 9, 11, 1],
+        "section": "Introduction",
+        "sectionIndex": 0,
+        "sectionBar": 1,
+        "sectionLength": 8,
+        "phrasePosition": 1,
+        "phraseLength": 4,
+        "energy": 0.3264619096927345,
+        "density": 0.3264619096927345,
+        "complexity": 0.55,
+        "variationMode": "Balanced",
+        "development": "repeat",
+        "groove": [
+          1, 0.12, 0.42, 0.12, 1, 0.12, 0.42, 0.12, 1, 0.12, 0.42, 0.12, 1,
+          0.12, 0.42, 0.12
+        ]
+      },
+      "tracks": [
+        {
+          "id": "bass",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 3.8,
+              "midi": 40,
+              "velocity": 0.5550638059765101,
+              "articulation": "pluck"
+            },
+            {
+              "kind": "note",
+              "step": 8,
+              "durationSteps": 3.8,
+              "midi": 40,
+              "velocity": 0.594333140669018,
+              "articulation": "pluck"
+            }
+          ]
+        },
+        {
+          "id": "drums",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "hit",
+              "step": 0,
+              "sampleKey": "kick",
+              "velocity": 0.6671276384670286
+            },
+            {
+              "kind": "hit",
+              "step": 0,
+              "sampleKey": "hat",
+              "velocity": 0.3386506189918146
+            },
+            {
+              "kind": "hit",
+              "step": 4,
+              "sampleKey": "snare",
+              "velocity": 0.5096477338818833
+            },
+            {
+              "kind": "hit",
+              "step": 4,
+              "sampleKey": "hat",
+              "velocity": 0.2805087859369815
+            },
+            {
+              "kind": "hit",
+              "step": 8,
+              "sampleKey": "kick",
+              "velocity": 0.6825590596333145
+            },
+            {
+              "kind": "hit",
+              "step": 8,
+              "sampleKey": "hat",
+              "velocity": 0.2920673859724775
+            },
+            {
+              "kind": "hit",
+              "step": 12,
+              "sampleKey": "snare",
+              "velocity": 0.46191257255692036
+            },
+            {
+              "kind": "hit",
+              "step": 12,
+              "sampleKey": "hat",
+              "velocity": 0.2987442690273747
+            }
+          ]
+        },
+        {
+          "id": "piano",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 2.5,
+              "midi": 62,
+              "velocity": 0.4287324993455782
+            },
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 2.5,
+              "midi": 64,
+              "velocity": 0.44712552883466705
+            },
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 2.5,
+              "midi": 67,
+              "velocity": 0.40884136695917694
+            },
+            {
+              "kind": "note",
+              "step": 8,
+              "durationSteps": 2.5,
+              "midi": 62,
+              "velocity": 0.4713842081282288
+            },
+            {
+              "kind": "note",
+              "step": 8,
+              "durationSteps": 2.5,
+              "midi": 64,
+              "velocity": 0.4047826849905774
+            },
+            {
+              "kind": "note",
+              "step": 8,
+              "durationSteps": 2.5,
+              "midi": 67,
+              "velocity": 0.42795650367196647
+            }
+          ]
+        },
+        {
+          "id": "violin",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "note",
+              "step": 2,
+              "durationSteps": 4,
+              "midi": 79,
+              "velocity": 0.5730017446110558,
+              "articulation": "rebow"
+            },
+            {
+              "kind": "note",
+              "step": 6,
+              "durationSteps": 4,
+              "midi": 81,
+              "velocity": 0.5758622798178178,
+              "articulation": "legato"
+            },
+            {
+              "kind": "note",
+              "step": 10,
+              "durationSteps": 2.5,
+              "midi": 79,
+              "velocity": 0.5776604874229011,
+              "articulation": "legato"
+            },
+            {
+              "kind": "note",
+              "step": 13,
+              "durationSteps": 3,
+              "midi": 81,
+              "velocity": 0.578273822549698,
+              "articulation": "rebow"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "plan": {
+        "barIndex": 2,
+        "rootSeed": "alpha",
+        "bpm": 98,
+        "meter": "4/4",
+        "key": "D Major",
+        "tonic": 2,
+        "tonality": "major",
+        "chord": "A7",
+        "chordPitchClasses": [9, 1, 4, 7],
+        "harmonyFunction": "V",
+        "nextChord": "Dmaj7",
+        "nextChordPitchClasses": [2, 6, 9, 1],
+        "scalePitchClasses": [2, 4, 6, 7, 9, 11, 1],
+        "section": "Introduction",
+        "sectionIndex": 0,
+        "sectionBar": 2,
+        "sectionLength": 8,
+        "phrasePosition": 2,
+        "phraseLength": 4,
+        "energy": 0.3264619096927345,
+        "density": 0.3264619096927345,
+        "complexity": 0.55,
+        "variationMode": "Balanced",
+        "development": "repeat",
+        "groove": [
+          1, 0.12, 0.42, 0.12, 1, 0.12, 0.42, 0.12, 1, 0.12, 0.42, 0.12, 1,
+          0.12, 0.42, 0.12
+        ]
+      },
+      "tracks": [
+        {
+          "id": "bass",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 3.8,
+              "midi": 45,
+              "velocity": 0.5439995862595737,
+              "articulation": "pluck"
+            },
+            {
+              "kind": "note",
+              "step": 8,
+              "durationSteps": 3.8,
+              "midi": 45,
+              "velocity": 0.5816076522931456,
+              "articulation": "pluck"
+            }
+          ]
+        },
+        {
+          "id": "drums",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "hit",
+              "step": 0,
+              "sampleKey": "kick",
+              "velocity": 0.6617782319508492
+            },
+            {
+              "kind": "hit",
+              "step": 0,
+              "sampleKey": "hat",
+              "velocity": 0.28662726628128443
+            },
+            {
+              "kind": "hit",
+              "step": 4,
+              "sampleKey": "snare",
+              "velocity": 0.45636103951912377
+            },
+            {
+              "kind": "hit",
+              "step": 4,
+              "sampleKey": "hat",
+              "velocity": 0.2818072670977563
+            },
+            {
+              "kind": "hit",
+              "step": 8,
+              "sampleKey": "kick",
+              "velocity": 0.6868801167406141
+            },
+            {
+              "kind": "hit",
+              "step": 8,
+              "sampleKey": "hat",
+              "velocity": 0.29714008278679105
+            },
+            {
+              "kind": "hit",
+              "step": 12,
+              "sampleKey": "snare",
+              "velocity": 0.5083960154287517
+            },
+            {
+              "kind": "hit",
+              "step": 12,
+              "sampleKey": "hat",
+              "velocity": 0.33696968769654634
+            }
+          ]
+        },
+        {
+          "id": "piano",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 2.5,
+              "midi": 61,
+              "velocity": 0.42103459113547576
+            },
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 2.5,
+              "midi": 64,
+              "velocity": 0.3874913918812759
+            },
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 2.5,
+              "midi": 67,
+              "velocity": 0.41714440922522916
+            },
+            {
+              "kind": "note",
+              "step": 8,
+              "durationSteps": 2.5,
+              "midi": 61,
+              "velocity": 0.42847252852087836
+            },
+            {
+              "kind": "note",
+              "step": 8,
+              "durationSteps": 2.5,
+              "midi": 64,
+              "velocity": 0.43901463880706576
+            },
+            {
+              "kind": "note",
+              "step": 8,
+              "durationSteps": 2.5,
+              "midi": 67,
+              "velocity": 0.44065322076706215
+            }
+          ]
+        },
+        {
+          "id": "violin",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "note",
+              "step": 2,
+              "durationSteps": 6,
+              "midi": 79,
+              "velocity": 0.578273822549698,
+              "articulation": "rebow"
+            },
+            {
+              "kind": "note",
+              "step": 8,
+              "durationSteps": 4,
+              "midi": 79,
+              "velocity": 0.5769036541349011,
+              "articulation": "legato"
+            },
+            {
+              "kind": "note",
+              "step": 12,
+              "durationSteps": 4,
+              "midi": 76,
+              "velocity": 0.5730017446110558,
+              "articulation": "legato"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "plan": {
+        "barIndex": 3,
+        "rootSeed": "alpha",
+        "bpm": 98,
+        "meter": "4/4",
+        "key": "D Major",
+        "tonic": 2,
+        "tonality": "major",
+        "chord": "Dmaj7",
+        "chordPitchClasses": [2, 6, 9, 1],
+        "harmonyFunction": "I",
+        "nextChord": "Dmaj7",
+        "nextChordPitchClasses": [2, 6, 9, 1],
+        "scalePitchClasses": [2, 4, 6, 7, 9, 11, 1],
+        "section": "Introduction",
+        "sectionIndex": 0,
+        "sectionBar": 3,
+        "sectionLength": 8,
+        "phrasePosition": 3,
+        "phraseLength": 4,
+        "energy": 0.3264619096927345,
+        "density": 0.3264619096927345,
+        "complexity": 0.55,
+        "variationMode": "Balanced",
+        "development": "repeat",
+        "groove": [
+          1, 0.12, 0.42, 0.12, 1, 0.12, 0.42, 0.12, 1, 0.12, 0.42, 0.12, 1,
+          0.12, 0.42, 0.12
+        ]
+      },
+      "tracks": [
+        {
+          "id": "bass",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 3.8,
+              "midi": 38,
+              "velocity": 0.5776062635570764,
+              "articulation": "pluck"
+            },
+            {
+              "kind": "note",
+              "step": 8,
+              "durationSteps": 3.8,
+              "midi": 38,
+              "velocity": 0.6082060498051345,
+              "articulation": "pluck"
+            }
+          ]
+        },
+        {
+          "id": "drums",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "hit",
+              "step": 0,
+              "sampleKey": "kick",
+              "velocity": 0.6424487735083326
+            },
+            {
+              "kind": "hit",
+              "step": 0,
+              "sampleKey": "hat",
+              "velocity": 0.3204493832262233
+            },
+            {
+              "kind": "hit",
+              "step": 4,
+              "sampleKey": "snare",
+              "velocity": 0.49385012115426363
+            },
+            {
+              "kind": "hit",
+              "step": 4,
+              "sampleKey": "hat",
+              "velocity": 0.3159716861182824
+            },
+            {
+              "kind": "hit",
+              "step": 8,
+              "sampleKey": "kick",
+              "velocity": 0.6544659452451392
+            },
+            {
+              "kind": "hit",
+              "step": 8,
+              "sampleKey": "hat",
+              "velocity": 0.28257574611809105
+            },
+            {
+              "kind": "hit",
+              "step": 12,
+              "sampleKey": "snare",
+              "velocity": 0.4608958747198805
+            },
+            {
+              "kind": "hit",
+              "step": 12,
+              "sampleKey": "hat",
+              "velocity": 0.29897622040007266
+            }
+          ]
+        },
+        {
+          "id": "piano",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 3.5,
+              "midi": 61,
+              "velocity": 0.4248983736130409
+            },
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 3.5,
+              "midi": 62,
+              "velocity": 0.44527949418444185
+            },
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 3.5,
+              "midi": 66,
+              "velocity": 0.4557186542897485
+            },
+            {
+              "kind": "note",
+              "step": 8,
+              "durationSteps": 3.5,
+              "midi": 61,
+              "velocity": 0.40549898743201046
+            },
+            {
+              "kind": "note",
+              "step": 8,
+              "durationSteps": 3.5,
+              "midi": 62,
+              "velocity": 0.40976171218594537
+            },
+            {
+              "kind": "note",
+              "step": 8,
+              "durationSteps": 3.5,
+              "midi": 66,
+              "velocity": 0.45093298888336864
+            }
+          ]
+        },
+        {
+          "id": "violin",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": []
+        }
+      ]
+    },
+    {
+      "plan": {
+        "barIndex": 4,
+        "rootSeed": "alpha",
+        "bpm": 98,
+        "meter": "4/4",
+        "key": "D Major",
+        "tonic": 2,
+        "tonality": "major",
+        "chord": "Dmaj7",
+        "chordPitchClasses": [2, 6, 9, 1],
+        "harmonyFunction": "I",
+        "nextChord": "Em7",
+        "nextChordPitchClasses": [4, 7, 11, 2],
+        "scalePitchClasses": [2, 4, 6, 7, 9, 11, 1],
+        "section": "Introduction",
+        "sectionIndex": 0,
+        "sectionBar": 4,
+        "sectionLength": 8,
+        "phrasePosition": 0,
+        "phraseLength": 4,
+        "energy": 0.3264619096927345,
+        "density": 0.3264619096927345,
+        "complexity": 0.55,
+        "variationMode": "Balanced",
+        "development": "vary",
+        "groove": [
+          1, 0.12, 0.42, 0.12, 1, 0.12, 0.42, 0.12, 1, 0.12, 0.42, 0.12, 1,
+          0.12, 0.42, 0.12
+        ]
+      },
+      "tracks": [
+        {
+          "id": "bass",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 3.8,
+              "midi": 38,
+              "velocity": 0.5673053328931331,
+              "articulation": "pluck"
+            },
+            {
+              "kind": "note",
+              "step": 8,
+              "durationSteps": 3.8,
+              "midi": 38,
+              "velocity": 0.5412570885807275,
+              "articulation": "pluck"
+            }
+          ]
+        },
+        {
+          "id": "drums",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "hit",
+              "step": 0,
+              "sampleKey": "kick",
+              "velocity": 0.6682415480244904
+            },
+            {
+              "kind": "hit",
+              "step": 0,
+              "sampleKey": "hat",
+              "velocity": 0.32735131236258896
+            },
+            {
+              "kind": "hit",
+              "step": 4,
+              "sampleKey": "snare",
+              "velocity": 0.4541643307318911
+            },
+            {
+              "kind": "hit",
+              "step": 4,
+              "sampleKey": "hat",
+              "velocity": 0.31887032217346134
+            },
+            {
+              "kind": "hit",
+              "step": 8,
+              "sampleKey": "kick",
+              "velocity": 0.6745948335839435
+            },
+            {
+              "kind": "hit",
+              "step": 8,
+              "sampleKey": "hat",
+              "velocity": 0.32711352510377767
+            },
+            {
+              "kind": "hit",
+              "step": 12,
+              "sampleKey": "snare",
+              "velocity": 0.4988724517690018
+            },
+            {
+              "kind": "hit",
+              "step": 12,
+              "sampleKey": "hat",
+              "velocity": 0.3109612365998328
+            }
+          ]
+        },
+        {
+          "id": "piano",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 2.5,
+              "midi": 62,
+              "velocity": 0.4115394193845801
+            },
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 2.5,
+              "midi": 66,
+              "velocity": 0.41413873695107173
+            },
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 2.5,
+              "midi": 69,
+              "velocity": 0.39077671392858027
+            },
+            {
+              "kind": "note",
+              "step": 8,
+              "durationSteps": 2.5,
+              "midi": 62,
+              "velocity": 0.3960672918338328
+            },
+            {
+              "kind": "note",
+              "step": 8,
+              "durationSteps": 2.5,
+              "midi": 66,
+              "velocity": 0.4560996466366574
+            },
+            {
+              "kind": "note",
+              "step": 8,
+              "durationSteps": 2.5,
+              "midi": 69,
+              "velocity": 0.40295739917587486
+            }
+          ]
+        },
+        {
+          "id": "violin",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 6,
+              "midi": 78,
+              "velocity": 0.5558389851035573,
+              "articulation": "rebow"
+            },
+            {
+              "kind": "note",
+              "step": 6,
+              "durationSteps": 6,
+              "midi": 79,
+              "velocity": 0.5627272868861289,
+              "articulation": "legato"
+            },
+            {
+              "kind": "note",
+              "step": 12,
+              "durationSteps": 3.5,
+              "midi": 83,
+              "velocity": 0.5685669071649152,
+              "articulation": "legato"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "plan": {
+        "barIndex": 5,
+        "rootSeed": "alpha",
+        "bpm": 98,
+        "meter": "4/4",
+        "key": "D Major",
+        "tonic": 2,
+        "tonality": "major",
+        "chord": "Em7",
+        "chordPitchClasses": [4, 7, 11, 2],
+        "harmonyFunction": "ii",
+        "nextChord": "A7",
+        "nextChordPitchClasses": [9, 1, 4, 7],
+        "scalePitchClasses": [2, 4, 6, 7, 9, 11, 1],
+        "section": "Introduction",
+        "sectionIndex": 0,
+        "sectionBar": 5,
+        "sectionLength": 8,
+        "phrasePosition": 1,
+        "phraseLength": 4,
+        "energy": 0.3264619096927345,
+        "density": 0.3264619096927345,
+        "complexity": 0.55,
+        "variationMode": "Balanced",
+        "development": "vary",
+        "groove": [
+          1, 0.12, 0.42, 0.12, 1, 0.12, 0.42, 0.12, 1, 0.12, 0.42, 0.12, 1,
+          0.12, 0.42, 0.12
+        ]
+      },
+      "tracks": [
+        {
+          "id": "bass",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 3.8,
+              "midi": 40,
+              "velocity": 0.5817786418139934,
+              "articulation": "pluck"
+            },
+            {
+              "kind": "note",
+              "step": 8,
+              "durationSteps": 3.8,
+              "midi": 40,
+              "velocity": 0.6158140960760414,
+              "articulation": "pluck"
+            }
+          ]
+        },
+        {
+          "id": "drums",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "hit",
+              "step": 0,
+              "sampleKey": "kick",
+              "velocity": 0.6478096461327746
+            },
+            {
+              "kind": "hit",
+              "step": 0,
+              "sampleKey": "hat",
+              "velocity": 0.32212239446118474
+            },
+            {
+              "kind": "hit",
+              "step": 4,
+              "sampleKey": "snare",
+              "velocity": 0.46632561250198634
+            },
+            {
+              "kind": "hit",
+              "step": 4,
+              "sampleKey": "hat",
+              "velocity": 0.31775458585005256
+            },
+            {
+              "kind": "hit",
+              "step": 8,
+              "sampleKey": "kick",
+              "velocity": 0.6653634832551703
+            },
+            {
+              "kind": "hit",
+              "step": 8,
+              "sampleKey": "hat",
+              "velocity": 0.29395685207564387
+            },
+            {
+              "kind": "hit",
+              "step": 12,
+              "sampleKey": "snare",
+              "velocity": 0.5001390227450058
+            },
+            {
+              "kind": "hit",
+              "step": 12,
+              "sampleKey": "hat",
+              "velocity": 0.30675188700202854
+            }
+          ]
+        },
+        {
+          "id": "piano",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 2.5,
+              "midi": 64,
+              "velocity": 0.4640216411095112
+            },
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 2.5,
+              "midi": 67,
+              "velocity": 0.42949457653369755
+            },
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 2.5,
+              "midi": 71,
+              "velocity": 0.44458363183112815
+            },
+            {
+              "kind": "note",
+              "step": 8,
+              "durationSteps": 2.5,
+              "midi": 64,
+              "velocity": 0.4483438194337301
+            },
+            {
+              "kind": "note",
+              "step": 8,
+              "durationSteps": 2.5,
+              "midi": 67,
+              "velocity": 0.395791142804455
+            },
+            {
+              "kind": "note",
+              "step": 8,
+              "durationSteps": 2.5,
+              "midi": 71,
+              "velocity": 0.4189336770171299
+            }
+          ]
+        },
+        {
+          "id": "violin",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "note",
+              "step": 2,
+              "durationSteps": 4,
+              "midi": 79,
+              "velocity": 0.5685669071649152,
+              "articulation": "rebow"
+            },
+            {
+              "kind": "note",
+              "step": 6,
+              "durationSteps": 4,
+              "midi": 81,
+              "velocity": 0.5714274423716772,
+              "articulation": "legato"
+            },
+            {
+              "kind": "note",
+              "step": 10,
+              "durationSteps": 2.5,
+              "midi": 79,
+              "velocity": 0.5732256499767605,
+              "articulation": "legato"
+            },
+            {
+              "kind": "note",
+              "step": 13,
+              "durationSteps": 2.5,
+              "midi": 83,
+              "velocity": 0.5738389851035574,
+              "articulation": "rebow"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "plan": {
+        "barIndex": 6,
+        "rootSeed": "alpha",
+        "bpm": 98,
+        "meter": "4/4",
+        "key": "D Major",
+        "tonic": 2,
+        "tonality": "major",
+        "chord": "A7",
+        "chordPitchClasses": [9, 1, 4, 7],
+        "harmonyFunction": "V",
+        "nextChord": "Dmaj7",
+        "nextChordPitchClasses": [2, 6, 9, 1],
+        "scalePitchClasses": [2, 4, 6, 7, 9, 11, 1],
+        "section": "Introduction",
+        "sectionIndex": 0,
+        "sectionBar": 6,
+        "sectionLength": 8,
+        "phrasePosition": 2,
+        "phraseLength": 4,
+        "energy": 0.3264619096927345,
+        "density": 0.3264619096927345,
+        "complexity": 0.55,
+        "variationMode": "Balanced",
+        "development": "vary",
+        "groove": [
+          1, 0.12, 0.42, 0.12, 1, 0.12, 0.42, 0.12, 1, 0.12, 0.42, 0.12, 1,
+          0.12, 0.42, 0.12
+        ]
+      },
+      "tracks": [
+        {
+          "id": "bass",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 3.8,
+              "midi": 45,
+              "velocity": 0.5879870546475052,
+              "articulation": "pluck"
+            },
+            {
+              "kind": "note",
+              "step": 8,
+              "durationSteps": 3.8,
+              "midi": 45,
+              "velocity": 0.5863498237222433,
+              "articulation": "pluck"
+            }
+          ]
+        },
+        {
+          "id": "drums",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "hit",
+              "step": 0,
+              "sampleKey": "kick",
+              "velocity": 0.6392265691407024
+            },
+            {
+              "kind": "hit",
+              "step": 0,
+              "sampleKey": "hat",
+              "velocity": 0.300980372116901
+            },
+            {
+              "kind": "hit",
+              "step": 4,
+              "sampleKey": "snare",
+              "velocity": 0.48570729435030374
+            },
+            {
+              "kind": "hit",
+              "step": 4,
+              "sampleKey": "hat",
+              "velocity": 0.3097157160472125
+            },
+            {
+              "kind": "hit",
+              "step": 8,
+              "sampleKey": "kick",
+              "velocity": 0.6700939301572739
+            },
+            {
+              "kind": "hit",
+              "step": 8,
+              "sampleKey": "hat",
+              "velocity": 0.3152578784245998
+            },
+            {
+              "kind": "hit",
+              "step": 12,
+              "sampleKey": "snare",
+              "velocity": 0.4547185480089858
+            },
+            {
+              "kind": "hit",
+              "step": 12,
+              "sampleKey": "hat",
+              "velocity": 0.3234815214853734
+            }
+          ]
+        },
+        {
+          "id": "piano",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 2.5,
+              "midi": 61,
+              "velocity": 0.3928329679466784
+            },
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 2.5,
+              "midi": 64,
+              "velocity": 0.47520330357868223
+            },
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 2.5,
+              "midi": 67,
+              "velocity": 0.3966531905116513
+            },
+            {
+              "kind": "note",
+              "step": 8,
+              "durationSteps": 2.5,
+              "midi": 61,
+              "velocity": 0.4575632700933143
+            },
+            {
+              "kind": "note",
+              "step": 8,
+              "durationSteps": 2.5,
+              "midi": 64,
+              "velocity": 0.42418868931280446
+            },
+            {
+              "kind": "note",
+              "step": 8,
+              "durationSteps": 2.5,
+              "midi": 67,
+              "velocity": 0.4073416611695662
+            }
+          ]
+        },
+        {
+          "id": "violin",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "note",
+              "step": 2,
+              "durationSteps": 6,
+              "midi": 79,
+              "velocity": 0.5738389851035574,
+              "articulation": "rebow"
+            },
+            {
+              "kind": "note",
+              "step": 8,
+              "durationSteps": 4,
+              "midi": 79,
+              "velocity": 0.5724688166887605,
+              "articulation": "legato"
+            },
+            {
+              "kind": "note",
+              "step": 12,
+              "durationSteps": 3.5,
+              "midi": 79,
+              "velocity": 0.5685669071649152,
+              "articulation": "legato"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "plan": {
+        "barIndex": 7,
+        "rootSeed": "alpha",
+        "bpm": 98,
+        "meter": "4/4",
+        "key": "D Major",
+        "tonic": 2,
+        "tonality": "major",
+        "chord": "Dmaj7",
+        "chordPitchClasses": [2, 6, 9, 1],
+        "harmonyFunction": "I",
+        "nextChord": "Dmaj7",
+        "nextChordPitchClasses": [2, 6, 9, 1],
+        "scalePitchClasses": [2, 4, 6, 7, 9, 11, 1],
+        "section": "Introduction",
+        "sectionIndex": 0,
+        "sectionBar": 7,
+        "sectionLength": 8,
+        "phrasePosition": 3,
+        "phraseLength": 4,
+        "energy": 0.3264619096927345,
+        "density": 0.3264619096927345,
+        "complexity": 0.55,
+        "variationMode": "Balanced",
+        "development": "vary",
+        "groove": [
+          1, 0.12, 0.42, 0.12, 1, 0.12, 0.42, 0.12, 1, 0.12, 0.42, 0.12, 1,
+          0.12, 0.42, 0.12
+        ]
+      },
+      "tracks": [
+        {
+          "id": "bass",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 3.8,
+              "midi": 38,
+              "velocity": 0.6117835709132253,
+              "articulation": "pluck"
+            },
+            {
+              "kind": "note",
+              "step": 8,
+              "durationSteps": 3.8,
+              "midi": 38,
+              "velocity": 0.572408165154606,
+              "articulation": "pluck"
+            }
+          ]
+        },
+        {
+          "id": "drums",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "hit",
+              "step": 0,
+              "sampleKey": "kick",
+              "velocity": 0.6935257476599886
+            },
+            {
+              "kind": "hit",
+              "step": 0,
+              "sampleKey": "hat",
+              "velocity": 0.31424624804873025
+            },
+            {
+              "kind": "hit",
+              "step": 4,
+              "sampleKey": "snare",
+              "velocity": 0.5077579900443554
+            },
+            {
+              "kind": "hit",
+              "step": 4,
+              "sampleKey": "hat",
+              "velocity": 0.289518733532168
+            },
+            {
+              "kind": "hit",
+              "step": 8,
+              "sampleKey": "kick",
+              "velocity": 0.6851356892179696
+            },
+            {
+              "kind": "hit",
+              "step": 8,
+              "sampleKey": "hat",
+              "velocity": 0.3247792098298669
+            },
+            {
+              "kind": "hit",
+              "step": 12,
+              "sampleKey": "snare",
+              "velocity": 0.5027295215155929
+            },
+            {
+              "kind": "hit",
+              "step": 12,
+              "sampleKey": "hat",
+              "velocity": 0.29905146137811245
+            },
+            {
+              "kind": "hit",
+              "step": 13,
+              "sampleKey": "snare",
+              "velocity": 0.3126749547338113
+            },
+            {
+              "kind": "hit",
+              "step": 14,
+              "sampleKey": "snare",
+              "velocity": 0.40200751640368254
+            },
+            {
+              "kind": "hit",
+              "step": 15,
+              "sampleKey": "snare",
+              "velocity": 0.4763220062991604
+            }
+          ]
+        },
+        {
+          "id": "piano",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 3.5,
+              "midi": 62,
+              "velocity": 0.4230140701894648
+            },
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 3.5,
+              "midi": 66,
+              "velocity": 0.43062571920724585
+            },
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 3.5,
+              "midi": 69,
+              "velocity": 0.47484157881736755
+            },
+            {
+              "kind": "note",
+              "step": 8,
+              "durationSteps": 3.5,
+              "midi": 62,
+              "velocity": 0.40514810969159004
+            },
+            {
+              "kind": "note",
+              "step": 8,
+              "durationSteps": 3.5,
+              "midi": 66,
+              "velocity": 0.4068680206084624
+            },
+            {
+              "kind": "note",
+              "step": 8,
+              "durationSteps": 3.5,
+              "midi": 69,
+              "velocity": 0.4152995562976226
+            }
+          ]
+        },
+        {
+          "id": "violin",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": []
+        }
+      ]
+    },
+    {
+      "plan": {
+        "barIndex": 8,
+        "rootSeed": "alpha",
+        "bpm": 101,
+        "meter": "4/4",
+        "key": "D Major",
+        "tonic": 2,
+        "tonality": "major",
+        "chord": "Dmaj7",
+        "chordPitchClasses": [2, 6, 9, 1],
+        "harmonyFunction": "I",
+        "nextChord": "Bm7",
+        "nextChordPitchClasses": [11, 2, 6, 9],
+        "scalePitchClasses": [2, 4, 6, 7, 9, 11, 1],
+        "section": "Main",
+        "sectionIndex": 1,
+        "sectionBar": 0,
+        "sectionLength": 16,
+        "phrasePosition": 0,
+        "phraseLength": 4,
+        "energy": 0.529935076981783,
+        "density": 0.529935076981783,
+        "complexity": 0.55,
+        "variationMode": "Balanced",
+        "development": "renew",
+        "groove": [
+          1, 0.12, 0.42, 0.12, 1, 0.12, 0.42, 0.12, 1, 0.12, 0.42, 0.12, 1,
+          0.12, 0.42, 0.12
+        ]
+      },
+      "tracks": [
+        {
+          "id": "bass",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 3.8,
+              "midi": 38,
+              "velocity": 0.6163715401656926,
+              "articulation": "pluck"
+            },
+            {
+              "kind": "note",
+              "step": 8,
+              "durationSteps": 2.65,
+              "midi": 38,
+              "velocity": 0.612001790869236,
+              "articulation": "pluck"
+            },
+            {
+              "kind": "note",
+              "step": 11,
+              "durationSteps": 3.8,
+              "midi": 38,
+              "velocity": 0.6260338647097349,
+              "articulation": "pluck"
+            }
+          ]
+        },
+        {
+          "id": "drums",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "hit",
+              "step": 0,
+              "sampleKey": "kick",
+              "velocity": 0.6810510827962309
+            },
+            {
+              "kind": "hit",
+              "step": 0,
+              "sampleKey": "hat",
+              "velocity": 0.28872684599366044
+            },
+            {
+              "kind": "hit",
+              "step": 2,
+              "sampleKey": "hat",
+              "velocity": 0.20386560312472285
+            },
+            {
+              "kind": "hit",
+              "step": 4,
+              "sampleKey": "snare",
+              "velocity": 0.5082501307973638
+            },
+            {
+              "kind": "hit",
+              "step": 4,
+              "sampleKey": "hat",
+              "velocity": 0.3094142131926492
+            },
+            {
+              "kind": "hit",
+              "step": 6,
+              "sampleKey": "hat",
+              "velocity": 0.2284324936522171
+            },
+            {
+              "kind": "hit",
+              "step": 8,
+              "sampleKey": "kick",
+              "velocity": 0.7290498350689187
+            },
+            {
+              "kind": "hit",
+              "step": 8,
+              "sampleKey": "hat",
+              "velocity": 0.2925032771239057
+            },
+            {
+              "kind": "hit",
+              "step": 10,
+              "sampleKey": "hat",
+              "velocity": 0.2347906566830352
+            },
+            {
+              "kind": "hit",
+              "step": 11,
+              "sampleKey": "kick",
+              "velocity": 0.6989884990675375
+            },
+            {
+              "kind": "hit",
+              "step": 12,
+              "sampleKey": "snare",
+              "velocity": 0.5406921773176641
+            },
+            {
+              "kind": "hit",
+              "step": 12,
+              "sampleKey": "hat",
+              "velocity": 0.3004200514033437
+            },
+            {
+              "kind": "hit",
+              "step": 14,
+              "sampleKey": "hat",
+              "velocity": 0.23376411967910826
+            }
+          ]
+        },
+        {
+          "id": "piano",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "note",
+              "step": 2,
+              "durationSteps": 2.5,
+              "midi": 62,
+              "velocity": 0.4819345055104233
+            },
+            {
+              "kind": "note",
+              "step": 2,
+              "durationSteps": 2.5,
+              "midi": 66,
+              "velocity": 0.4147695214420557
+            },
+            {
+              "kind": "note",
+              "step": 2,
+              "durationSteps": 2.5,
+              "midi": 69,
+              "velocity": 0.4522793479941785
+            },
+            {
+              "kind": "note",
+              "step": 10,
+              "durationSteps": 2.5,
+              "midi": 62,
+              "velocity": 0.43212527494905517
+            },
+            {
+              "kind": "note",
+              "step": 10,
+              "durationSteps": 2.5,
+              "midi": 66,
+              "velocity": 0.42963646315764636
+            },
+            {
+              "kind": "note",
+              "step": 10,
+              "durationSteps": 2.5,
+              "midi": 69,
+              "velocity": 0.47338861086433753
+            }
+          ]
+        },
+        {
+          "id": "violin",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 6,
+              "midi": 81,
+              "velocity": 0.5653701827717196,
+              "articulation": "rebow"
+            },
+            {
+              "kind": "note",
+              "step": 6,
+              "durationSteps": 4,
+              "midi": 79,
+              "velocity": 0.5722584845542912,
+              "articulation": "legato"
+            },
+            {
+              "kind": "note",
+              "step": 10,
+              "durationSteps": 6,
+              "midi": 81,
+              "velocity": 0.5780981048330774,
+              "articulation": "legato"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "plan": {
+        "barIndex": 9,
+        "rootSeed": "alpha",
+        "bpm": 101,
+        "meter": "4/4",
+        "key": "D Major",
+        "tonic": 2,
+        "tonality": "major",
+        "chord": "Bm7",
+        "chordPitchClasses": [11, 2, 6, 9],
+        "harmonyFunction": "vi",
+        "nextChord": "Em7",
+        "nextChordPitchClasses": [4, 7, 11, 2],
+        "scalePitchClasses": [2, 4, 6, 7, 9, 11, 1],
+        "section": "Main",
+        "sectionIndex": 1,
+        "sectionBar": 1,
+        "sectionLength": 16,
+        "phrasePosition": 1,
+        "phraseLength": 4,
+        "energy": 0.529935076981783,
+        "density": 0.529935076981783,
+        "complexity": 0.55,
+        "variationMode": "Balanced",
+        "development": "renew",
+        "groove": [
+          1, 0.12, 0.42, 0.12, 1, 0.12, 0.42, 0.12, 1, 0.12, 0.42, 0.12, 1,
+          0.12, 0.42, 0.12
+        ]
+      },
+      "tracks": [
+        {
+          "id": "bass",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 3.8,
+              "midi": 47,
+              "velocity": 0.5970208073399961,
+              "articulation": "pluck"
+            },
+            {
+              "kind": "note",
+              "step": 8,
+              "durationSteps": 2.65,
+              "midi": 42,
+              "velocity": 0.6254278531290591,
+              "articulation": "pluck"
+            },
+            {
+              "kind": "note",
+              "step": 11,
+              "durationSteps": 2.65,
+              "midi": 47,
+              "velocity": 0.6191131334930658,
+              "articulation": "pluck"
+            },
+            {
+              "kind": "note",
+              "step": 14,
+              "durationSteps": 1.65,
+              "midi": 38,
+              "velocity": 0.6160060138434171,
+              "articulation": "pluck"
+            }
+          ]
+        },
+        {
+          "id": "drums",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "hit",
+              "step": 0,
+              "sampleKey": "kick",
+              "velocity": 0.7043870249053463
+            },
+            {
+              "kind": "hit",
+              "step": 0,
+              "sampleKey": "hat",
+              "velocity": 0.319672631463036
+            },
+            {
+              "kind": "hit",
+              "step": 4,
+              "sampleKey": "snare",
+              "velocity": 0.5233111100090668
+            },
+            {
+              "kind": "hit",
+              "step": 4,
+              "sampleKey": "hat",
+              "velocity": 0.2981682210275904
+            },
+            {
+              "kind": "hit",
+              "step": 8,
+              "sampleKey": "kick",
+              "velocity": 0.7037309919100255
+            },
+            {
+              "kind": "hit",
+              "step": 8,
+              "sampleKey": "hat",
+              "velocity": 0.3103547679912299
+            },
+            {
+              "kind": "hit",
+              "step": 11,
+              "sampleKey": "kick",
+              "velocity": 0.7100655845960602
+            },
+            {
+              "kind": "hit",
+              "step": 12,
+              "sampleKey": "snare",
+              "velocity": 0.5407652579020709
+            },
+            {
+              "kind": "hit",
+              "step": 12,
+              "sampleKey": "hat",
+              "velocity": 0.31977884094696496
+            }
+          ]
+        },
+        {
+          "id": "piano",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "note",
+              "step": 2,
+              "durationSteps": 2.5,
+              "midi": 62,
+              "velocity": 0.4314838440462947
+            },
+            {
+              "kind": "note",
+              "step": 2,
+              "durationSteps": 2.5,
+              "midi": 66,
+              "velocity": 0.46558633033679797
+            },
+            {
+              "kind": "note",
+              "step": 2,
+              "durationSteps": 2.5,
+              "midi": 69,
+              "velocity": 0.449785545387119
+            },
+            {
+              "kind": "note",
+              "step": 10,
+              "durationSteps": 2.5,
+              "midi": 62,
+              "velocity": 0.46084435490919273
+            },
+            {
+              "kind": "note",
+              "step": 10,
+              "durationSteps": 2.5,
+              "midi": 66,
+              "velocity": 0.4415077425821684
+            },
+            {
+              "kind": "note",
+              "step": 10,
+              "durationSteps": 2.5,
+              "midi": 69,
+              "velocity": 0.42091694616740566
+            }
+          ]
+        },
+        {
+          "id": "violin",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "note",
+              "step": 2,
+              "durationSteps": 4,
+              "midi": 78,
+              "velocity": 0.5780981048330774,
+              "articulation": "rebow"
+            },
+            {
+              "kind": "note",
+              "step": 6,
+              "durationSteps": 4,
+              "midi": 74,
+              "velocity": 0.5809586400398394,
+              "articulation": "legato"
+            },
+            {
+              "kind": "note",
+              "step": 10,
+              "durationSteps": 2.5,
+              "midi": 74,
+              "velocity": 0.5827568476449227,
+              "articulation": "legato"
+            },
+            {
+              "kind": "note",
+              "step": 13,
+              "durationSteps": 3,
+              "midi": 74,
+              "velocity": 0.5833701827717196,
+              "articulation": "rebow"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "plan": {
+        "barIndex": 10,
+        "rootSeed": "alpha",
+        "bpm": 101,
+        "meter": "4/4",
+        "key": "D Major",
+        "tonic": 2,
+        "tonality": "major",
+        "chord": "Em7",
+        "chordPitchClasses": [4, 7, 11, 2],
+        "harmonyFunction": "ii",
+        "nextChord": "A7",
+        "nextChordPitchClasses": [9, 1, 4, 7],
+        "scalePitchClasses": [2, 4, 6, 7, 9, 11, 1],
+        "section": "Main",
+        "sectionIndex": 1,
+        "sectionBar": 2,
+        "sectionLength": 16,
+        "phrasePosition": 2,
+        "phraseLength": 4,
+        "energy": 0.529935076981783,
+        "density": 0.529935076981783,
+        "complexity": 0.55,
+        "variationMode": "Balanced",
+        "development": "renew",
+        "groove": [
+          1, 0.12, 0.42, 0.12, 1, 0.12, 0.42, 0.12, 1, 0.12, 0.42, 0.12, 1,
+          0.12, 0.42, 0.12
+        ]
+      },
+      "tracks": [
+        {
+          "id": "bass",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 3.8,
+              "midi": 40,
+              "velocity": 0.6116775799535215,
+              "articulation": "pluck"
+            },
+            {
+              "kind": "note",
+              "step": 8,
+              "durationSteps": 2.65,
+              "midi": 40,
+              "velocity": 0.6177530714862048,
+              "articulation": "pluck"
+            },
+            {
+              "kind": "note",
+              "step": 11,
+              "durationSteps": 3.8,
+              "midi": 40,
+              "velocity": 0.5674954617761075,
+              "articulation": "pluck"
+            }
+          ]
+        },
+        {
+          "id": "drums",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "hit",
+              "step": 0,
+              "sampleKey": "kick",
+              "velocity": 0.7110086474696174
+            },
+            {
+              "kind": "hit",
+              "step": 0,
+              "sampleKey": "hat",
+              "velocity": 0.3227063449053094
+            },
+            {
+              "kind": "hit",
+              "step": 2,
+              "sampleKey": "hat",
+              "velocity": 0.2369465659139678
+            },
+            {
+              "kind": "hit",
+              "step": 4,
+              "sampleKey": "snare",
+              "velocity": 0.5272283062344417
+            },
+            {
+              "kind": "hit",
+              "step": 4,
+              "sampleKey": "hat",
+              "velocity": 0.3303026248794049
+            },
+            {
+              "kind": "hit",
+              "step": 6,
+              "sampleKey": "hat",
+              "velocity": 0.22592660529073327
+            },
+            {
+              "kind": "hit",
+              "step": 8,
+              "sampleKey": "kick",
+              "velocity": 0.7210576777940616
+            },
+            {
+              "kind": "hit",
+              "step": 8,
+              "sampleKey": "hat",
+              "velocity": 0.3296471910784021
+            },
+            {
+              "kind": "hit",
+              "step": 10,
+              "sampleKey": "hat",
+              "velocity": 0.2292170174373314
+            },
+            {
+              "kind": "hit",
+              "step": 11,
+              "sampleKey": "kick",
+              "velocity": 0.7324412525434048
+            },
+            {
+              "kind": "hit",
+              "step": 12,
+              "sampleKey": "snare",
+              "velocity": 0.5347461118554696
+            },
+            {
+              "kind": "hit",
+              "step": 12,
+              "sampleKey": "hat",
+              "velocity": 0.28679908368736506
+            },
+            {
+              "kind": "hit",
+              "step": 14,
+              "sampleKey": "hat",
+              "velocity": 0.22138636566232892
+            }
+          ]
+        },
+        {
+          "id": "piano",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "note",
+              "step": 2,
+              "durationSteps": 2.5,
+              "midi": 62,
+              "velocity": 0.42503446081914004
+            },
+            {
+              "kind": "note",
+              "step": 2,
+              "durationSteps": 2.5,
+              "midi": 64,
+              "velocity": 0.4115535342882387
+            },
+            {
+              "kind": "note",
+              "step": 2,
+              "durationSteps": 2.5,
+              "midi": 67,
+              "velocity": 0.41362759433947505
+            },
+            {
+              "kind": "note",
+              "step": 10,
+              "durationSteps": 2.5,
+              "midi": 62,
+              "velocity": 0.4742470477524213
+            },
+            {
+              "kind": "note",
+              "step": 10,
+              "durationSteps": 2.5,
+              "midi": 64,
+              "velocity": 0.4475010250092484
+            },
+            {
+              "kind": "note",
+              "step": 10,
+              "durationSteps": 2.5,
+              "midi": 67,
+              "velocity": 0.40588933246238157
+            }
+          ]
+        },
+        {
+          "id": "violin",
+          "active": true,
+          "muted": false,
+          "solo": false,
+          "events": [
+            {
+              "kind": "note",
+              "step": 0,
+              "durationSteps": 6,
+              "midi": 78,
+              "velocity": 0.5833701827717196,
+              "articulation": "rebow"
+            },
+            {
+              "kind": "note",
+              "step": 6,
+              "durationSteps": 4,
+              "midi": 79,
+              "velocity": 0.5820000143569227,
+              "articulation": "legato"
+            },
+            {
+              "kind": "note",
+              "step": 10,
+              "durationSteps": 6,
+              "midi": 81,
+              "velocity": 0.5780981048330774,
+              "articulation": "legato"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

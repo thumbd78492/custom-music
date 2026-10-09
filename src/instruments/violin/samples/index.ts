@@ -16,16 +16,17 @@ export const sampleBank: SampleBank = {
     "c6-loud": new URL("./c6-loud.wav", import.meta.url).href,
   },
   regions: {
-    // Sustained 1.2–3.1 s RMS aligned to -21 dBFS; source files are unchanged.
-    // Auditable measurements/hashes: docs/violin-sample-calibration.json.
+    // Soft keeps historical sustain calibration for diagnostics; production uses Loud only.
+    // Loud is calibrated over actual offsets, note lengths, pitches and source continuation.
+    // Original audit: docs/violin-sample-calibration.json; playback audit: M2_VIOLIN_DIAGNOSIS.md.
     "c5-soft": { midi: 72, gainDb: -8.456, loopStart: 1.2, loopEnd: 3.2 },
-    "c5-loud": { midi: 72, gainDb: -8.884, loopStart: 1.2, loopEnd: 3.2 },
+    "c5-loud": { midi: 72, gainDb: -7.884, loopStart: 1.2, loopEnd: 3.2 },
     "e5-soft": { midi: 76, gainDb: 3.53, loopStart: 1.2, loopEnd: 3.2 },
-    "e5-loud": { midi: 76, gainDb: -1.499, loopStart: 1.2, loopEnd: 3.2 },
+    "e5-loud": { midi: 76, gainDb: -1.699, loopStart: 1.2, loopEnd: 3.2 },
     "g5-soft": { midi: 79, gainDb: 4.315, loopStart: 1.2, loopEnd: 3.2 },
-    "g5-loud": { midi: 79, gainDb: -0.928, loopStart: 1.2, loopEnd: 3.2 },
+    "g5-loud": { midi: 79, gainDb: -1.128, loopStart: 1.2, loopEnd: 3.2 },
     "a5-soft": { midi: 81, gainDb: 2.079, loopStart: 1.2, loopEnd: 3.2 },
-    "a5-loud": { midi: 81, gainDb: -5.489, loopStart: 1.2, loopEnd: 3.2 },
+    "a5-loud": { midi: 81, gainDb: -6.489, loopStart: 1.2, loopEnd: 3.2 },
     "c6-soft": { midi: 84, gainDb: 0.224, loopStart: 1.2, loopEnd: 3.2 },
     "c6-loud": { midi: 84, gainDb: -4.856, loopStart: 1.2, loopEnd: 3.2 },
   },

@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { mkdirSync, writeFileSync } from "node:fs";
 
-test("real violin samples: legato power, continuous layers, unchanged release prefixes and rapid-source cleanup", async ({
+test("real violin samples: single-layer legato, unchanged release prefixes and rapid-source cleanup", async ({
   page,
 }, info) => {
   test.setTimeout(120000);
@@ -153,7 +153,7 @@ test("real violin samples: legato power, continuous layers, unchanged release pr
       probeAfter: waveBase64(pair.waveform),
     };
   });
-  const directory = ".verification/violin-m2-2026-10-09";
+  const directory = `.verification/violin-diagnosis-2026-10-09/lifecycle/${new Date().toISOString().replaceAll(/[:.]/g, "-")}`;
   mkdirSync(`${directory}/wav`, { recursive: true });
   const { probeBefore, probeAfter, ...metrics } = result;
   writeFileSync(
@@ -172,14 +172,14 @@ test("real violin samples: legato power, continuous layers, unchanged release pr
     body: JSON.stringify(metrics),
     contentType: "application/json",
   });
-  expect(result.transition.sourceOffsets).toEqual([0, 0, 1.2, 1.2]);
+  expect(result.transition.sourceOffsets).toEqual([0.03, 1.2]);
   expect(result.transition.maxBoostDb).toBeLessThan(2);
-  expect(result.transition.minRelativeDb).toBeGreaterThan(-9);
+  expect(result.transition.minRelativeDb).toBeGreaterThan(-5);
   for (const entry of result.intervalTransitions) {
     expect(entry.maxBoostDb).toBeLessThan(3.1);
-    expect(entry.minRelativeDb).toBeGreaterThan(-9);
+    expect(entry.minRelativeDb).toBeGreaterThan(-5);
   }
-  expect(result.samePitch.sources).toBe(2);
+  expect(result.samePitch.sources).toBe(1);
   expect(result.samePitch.continuousWaveformMaxError).toBeLessThan(0.000001);
   for (const entry of result.threshold) {
     expect(Math.abs(entry.afterDifferenceDb)).toBeLessThan(0.03);
@@ -194,12 +194,12 @@ test("real violin samples: legato power, continuous layers, unchanged release pr
     expect(stop.activeAfter).toBe(0);
     expect(stop.activeAfterDispose).toBe(0);
   }
-  expect(result.rapid.sources).toBe(144);
+  expect(result.rapid.sources).toBe(72);
   expect(result.rapid.maxAlive).toBeLessThanOrEqual(8);
   expect(result.rapid.activeAfterRendering).toBe(0);
   expect(result.rapid.activeAfterDispose).toBe(0);
   expect(result.rapid.disconnectOnce).toBe(true);
-  expect(result.rapid.ended).toBe(144);
+  expect(result.rapid.ended).toBe(72);
   expect(result.rapid.rateRamps).toBe(0);
-  expect(result.detachedOffsets.every((offset) => offset === 0)).toBe(true);
+  expect(result.detachedOffsets).toEqual([0.03, 0.09, 0.09]);
 });
