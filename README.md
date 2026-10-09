@@ -72,6 +72,12 @@ E2E 預設使用已安裝的 Microsoft Edge。若環境沒有 Edge，先安裝 P
 
 若本機 `npm` 捷徑損壞，可改以既有 npm 安裝的完整 `npm-cli.js` 路徑執行。本次 Windows 環境使用 `node "C:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js" run <script>`；未改動全域 Node/npm 安裝。
 
+## 更新與交付
+
+每次完成專案更新（包含程式、測試與文件）並完成相應驗證後，直接 commit 並 push 到目前工作分支的 GitHub 遠端，不需再次詢問確認。提交僅包含本次工作相關變更，保留其他未相關的修改。
+
+推送後核對遠端分支與本機 commit 一致，才回報已推送；若推送失敗，明確記錄原因與尚未推送的狀態。GitHub 推送與工程驗證不代表人工音質驗收通過。
+
 ## 原始碼
 
 ```text
